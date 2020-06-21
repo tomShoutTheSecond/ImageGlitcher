@@ -214,6 +214,6 @@ export class ImageProcessor extends React.Component<ImageProcessorProps>
         let blob = new Blob([data], {type: "image/bmp"});
         let url = window.URL.createObjectURL(blob);
 
-        State.addDownload(url);
+        State.addDownload(url, blob);
     }
 }

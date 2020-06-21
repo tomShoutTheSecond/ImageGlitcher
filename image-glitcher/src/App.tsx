@@ -13,16 +13,16 @@ export class State
         this.app.setState({imageData: imageData});
     }
 
-    static addDownload(url : string)
+    static addDownload(url : string, data : Blob)
     {
-        let newDownloads = this.app.state.downloads;
-        newDownloads.push(url);
-        this.app.setState({ downloads: newDownloads });
+        let newFrames = this.app.state.frameUrls;
+        newFrames.push({ url: url, data: data });
+        this.app.setState({ frameUrls: newFrames });
     }
 
     static clearDownloads()
     {
-        this.app.state.downloads.length = 0;
+        this.app.state.frameUrls.length = 0;
     }
 
     static setAnimationUrl(url : string)
@@ -49,15 +49,21 @@ interface AppProps
 interface AppState
 {
     imageData : Uint8Array,
-    downloads : string[],
+    frameUrls : Frame[],
     animationUrl : string,
     frameIsLoading : boolean,
     animationIsLoading : boolean
 }
 
+export interface Frame
+{
+    url : string,
+    data : Blob
+}
+
 class App extends React.Component<AppProps, AppState>
 {
-    state : AppState = { imageData: new Uint8Array(), downloads: [], animationUrl: "", frameIsLoading: false, animationIsLoading: false};
+    state : AppState = { imageData: new Uint8Array(), frameUrls: [], animationUrl: "", frameIsLoading: false, animationIsLoading: false};
 
     componentDidMount()
     {
@@ -77,7 +83,7 @@ class App extends React.Component<AppProps, AppState>
                 <ImageLoader />
                 <ImageProcessor imageData={this.state.imageData} />
                 <AnimationPreview url={this.state.animationUrl} isLoading={this.state.animationIsLoading} />
-                <FramePreview downloads={this.state.downloads} isLoading={this.state.frameIsLoading}/>
+                <FramePreview frames={this.state.frameUrls} isLoading={this.state.frameIsLoading}/>
             </div>
         );
     }
