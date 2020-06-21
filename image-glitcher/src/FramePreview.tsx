@@ -3,6 +3,9 @@ import { State } from './App';
 import { Colors } from './Colors';
 import { Styles } from './Styles';
 import ReactDOM from 'react-dom';
+import { Button } from '@material-ui/core';
+import JSZip from 'jszip';
+import { saveAs } from 'file-saver';
 
 interface FramePreviewProps
 {
@@ -40,17 +43,17 @@ export class FramePreview extends React.Component<FramePreviewProps>
         let content = this.props.isLoading ? "Loading frames..." : this.props.downloads.map((download, key) => 
             <div key={key} style={downloadContainerStyle}>
                 <img className="downloadImg" src={download} style={Styles.imageStyle}></img>
-                <a href={download} download="image.bmp">{"image-" + key}</a>
+                <a href={download} download={"image" + key + ".bmp"}>{"image" + key}</a>
             </div>
         )
         
-
         return (
             <div style={containerStyle}>
                 <h1 style={Styles.h1Style}>Frames</h1>
                 {content}
                 <br />
-                <button onClick={() => this.createGif()}>Convert to GIF</button>
+                <Button onClick={() => this.createGif()}>Convert to GIF</Button>
+                <Button onClick={() => this.downloadFrames()}>Download Frames</Button>
             </div>
         );
     }
@@ -94,6 +97,25 @@ export class FramePreview extends React.Component<FramePreviewProps>
 
         let firstImage = this.getImageElements()[0] as HTMLImageElement;
         newImg.src = firstImage.src;
+    }
+
+    downloadFrames()
+    {
+        let zip = new JSZip();
+
+        for (let i = 0; i < this.props.downloads.length; i++) 
+        {
+            const image = this.props.downloads[i];
+            zip.file(image);
+        }
+
+        zip.generateAsync({type:"blob"}).then(function(content) 
+        {
+            //window.location.href = "data:application/zip;base64," + content;
+
+            // see FileSaver.js
+            saveAs(content, "example.zip");
+        });
     }
 
     //returns references to all the preview image elements in the download area
