@@ -50,7 +50,16 @@ export class ImageLoader extends React.Component
         {
             alert("Image file not found");
             return;
-        } 
+        }
+        
+        //double check with user before clearing frames
+        if(State.needsLoadWarning() && !window.confirm('Are you sure you want to load a new image? This will clear the timeline and all frames!')) 
+        {
+            return;
+        }
+
+        State.clearFrames();
+        State.clearKeyframes();
 
         let imageIsBitmap = imageFile.name.endsWith(".bmp");
         

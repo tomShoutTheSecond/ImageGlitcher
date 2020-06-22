@@ -26,4 +26,14 @@ export class Styles
         maxHeight: 480,
         display: "block"
     };
+
+    static get handCursor()
+    {
+        let style : React.CSSProperties =
+        {
+            cursor: "pointer"
+        };
+
+        return style
+    }
 }

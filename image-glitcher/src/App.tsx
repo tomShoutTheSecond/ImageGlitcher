@@ -3,6 +3,7 @@ import { ImageLoader } from './ImageLoader';
 import { ImageProcessor, AmpModSettings } from './ImageProcessor';
 import { FramePreview } from './FramePreview';
 import { AnimationPreview } from './AnimationPreview';
+import { Timeline } from './Timeline';
 
 export class State
 {
@@ -13,16 +14,33 @@ export class State
         this.app.setState({imageData: imageData});
     }
 
-    static addFrame(url : string, data : Blob, settings : AmpModSettings)
+    static addFrame(frame : Frame)
     {
-        let newFrames = this.app.state.frameUrls;
-        newFrames.push({ url: url, data: data, ampModSettings: settings });
-        this.app.setState({ frameUrls: newFrames });
+        let newFrames = this.app.state.frames;
+        newFrames.push(frame);
+        this.app.setState({ frames: newFrames });
     }
 
-    static clearDownloads()
+    static clearFrames()
     {
-        this.app.state.frameUrls.length = 0;
+        this.app.state.frames.length = 0;
+    }
+
+    static addKeyFrame(frame : Frame)
+    {
+        let newKeyframes = this.app.state.keyframes;
+        newKeyframes.push(frame);
+        this.app.setState({ keyframes: newKeyframes });
+    }
+
+    static clearKeyframes()
+    {
+        this.app.state.keyframes.length = 0;
+    }
+
+    static needsLoadWarning()
+    {
+        return this.app.state.frames.length > 0 || this.app.state.keyframes.length;
     }
 
     static setAnimationUrl(url : string)
@@ -49,7 +67,8 @@ interface AppProps
 interface AppState
 {
     imageData : Uint8Array,
-    frameUrls : Frame[],
+    frames : Frame[],
+    keyframes : Frame[],
     animationUrl : string,
     frameIsLoading : boolean,
     animationIsLoading : boolean
@@ -64,7 +83,7 @@ export interface Frame
 
 class App extends React.Component<AppProps, AppState>
 {
-    state : AppState = { imageData: new Uint8Array(), frameUrls: [], animationUrl: "", frameIsLoading: false, animationIsLoading: false};
+    state : AppState = { imageData: new Uint8Array(), frames: [], keyframes: [], animationUrl: "", frameIsLoading: false, animationIsLoading: false};
 
     componentDidMount()
     {
@@ -84,7 +103,8 @@ class App extends React.Component<AppProps, AppState>
                 <ImageLoader />
                 <ImageProcessor imageData={this.state.imageData} />
                 <AnimationPreview url={this.state.animationUrl} isLoading={this.state.animationIsLoading} />
-                <FramePreview frames={this.state.frameUrls} isLoading={this.state.frameIsLoading}/>
+                <FramePreview frames={this.state.frames} isLoading={this.state.frameIsLoading}/>
+                <Timeline keyframes={this.state.keyframes}/>
             </div>
         );
     }

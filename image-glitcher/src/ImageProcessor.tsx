@@ -1,5 +1,5 @@
 import React from 'react';
-import { State } from './App';
+import { State, Frame } from './App';
 import { Colors } from './Colors';
 import { Styles } from './Styles';
 import { Util } from './Util';
@@ -99,7 +99,7 @@ export class ImageProcessor extends React.Component<ImageProcessorProps>
     prepareToProcessAnimation()
     {
         //clear downloads area
-        State.clearDownloads();
+        State.clearFrames();
         State.setFrameLoadingState(true);
 
         //wait to let renderer catch up
@@ -239,6 +239,6 @@ export class ImageProcessor extends React.Component<ImageProcessorProps>
         let blob = new Blob([data], {type: "image/bmp"});
         let url = window.URL.createObjectURL(blob);
 
-        State.addFrame(url, blob, settings);
+        State.addFrame({ url: url, data: blob, ampModSettings: settings });
     }
 }

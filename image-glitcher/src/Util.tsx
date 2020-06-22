@@ -9,4 +9,9 @@ export class Util
     {
         return "image" + index + ".bmp";
     }
+
+    static getIcon(name : string)
+    {
+        return process.env.PUBLIC_URL + '/icons/' + name;
+    }
 }

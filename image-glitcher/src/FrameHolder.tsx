@@ -29,7 +29,8 @@ export class FrameHolder extends React.Component<FrameHolderProps, FrameHolderSt
         let containerStyle : React.CSSProperties = 
         {
             display: "inline-block",
-            position: "relative"
+            position: "relative",
+            height: 240 //from Styles
         };
 
         let overlayContainerStyle : React.CSSProperties = 
@@ -42,11 +43,11 @@ export class FrameHolder extends React.Component<FrameHolderProps, FrameHolderSt
             top: 0,
             width: "100%",
             height: "100%",
-            padding: "8px",
+            padding: "16px",
             boxSizing: "border-box"
         };
 
-        let iconSize = "48px";
+        let iconSize = "32px";
         let iconStyle : React.CSSProperties = 
         {
             width: iconSize,
@@ -65,7 +66,8 @@ export class FrameHolder extends React.Component<FrameHolderProps, FrameHolderSt
                 <img className="downloadImg" src={this.props.frame.url} style={Styles.imageStyle}></img>
                 <div style={overlayContainerStyle}>
                     <a href={this.props.frame.url} target="_blank"><img src={process.env.PUBLIC_URL + '/icons/arrow-expand.svg'} style={iconStyle}/></a>
-                    <a href={this.props.frame.url} download={Util.getFrameName(this.props.frameIndex)}><img src={process.env.PUBLIC_URL + '/icons/download.svg'} style={iconStyle}/></a>
+                    <a href={this.props.frame.url} download={Util.getFrameName(this.props.frameIndex)}><img src={Util.getIcon('download.svg')} style={iconStyle}/></a>
+                    <a onClick={() => State.addKeyFrame(this.props.frame)} style={Styles.handCursor}><img src={Util.getIcon('key-plus.svg')} style={iconStyle}/></a>
                     {Object.keys(this.props.frame.ampModSettings).map((settingName, key) => {
                         let settingValue = Object.values(this.props.frame.ampModSettings)[key];
                         return(
