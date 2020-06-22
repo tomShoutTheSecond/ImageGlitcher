@@ -3,9 +3,10 @@ import { State, Frame } from './App';
 import { Colors } from './Colors';
 import { Styles } from './Styles';
 import ReactDOM from 'react-dom';
-import { Button } from '@material-ui/core';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
+import { Util } from './Util';
+import { FrameHolder } from './FrameHolder';
 
 interface FramePreviewProps
 {
@@ -35,18 +36,10 @@ export class FramePreview extends React.Component<FramePreviewProps>
             borderColor: Colors.border,
         };
 
-        let downloadContainerStyle : React.CSSProperties = 
-        {
-            display: "inline-block"
-        };
+        let content = this.props.isLoading ? "Loading frames..." : this.props.frames.map((frame, key) => 
+            <FrameHolder frame={frame} frameIndex={key}/>
+        );
 
-        let content = this.props.isLoading ? "Loading frames..." : this.props.frames.map((download, key) => 
-            <div key={key} style={downloadContainerStyle}>
-                <img className="downloadImg" src={download.url} style={Styles.imageStyle}></img>
-                <a href={download.url} download={this.getFrameName(key)}>{this.getFrameName(key)}</a>
-            </div>
-        )
-        
         return (
             <div style={containerStyle}>
                 <h1 style={Styles.h1Style}>Frames</h1>
@@ -106,7 +99,7 @@ export class FramePreview extends React.Component<FramePreviewProps>
         for (let i = 0; i < this.props.frames.length; i++) 
         {
             const frame = this.props.frames[i];
-            zip.file(this.getFrameName(i), frame.data);
+            zip.file(Util.getFrameName(i), frame.data);
         }
 
         zip.generateAsync({ type:"blob" }).then(function(content) 
@@ -114,11 +107,6 @@ export class FramePreview extends React.Component<FramePreviewProps>
             //see FileSaver.js
             saveAs(content, "example.zip");
         });
-    }
-
-    getFrameName(index : number)
-    {
-        return "image" + index + ".bmp";
     }
 
     //returns references to all the preview image elements in the download area

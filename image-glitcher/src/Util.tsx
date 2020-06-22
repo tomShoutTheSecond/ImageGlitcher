@@ -4,4 +4,9 @@ export class Util
     {
         return val0 * mix + val1 * (1 - mix);
     }
+
+    static getFrameName(index : number)
+    {
+        return "image" + index + ".bmp";
+    }
 }
