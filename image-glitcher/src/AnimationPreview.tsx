@@ -25,7 +25,7 @@ export class AnimationPreview extends React.Component<AnimationPreviewProps>
         };
 
         let downloadButton = this.props.isLoading || this.props.url == "" ? null : <a href={this.props.url}>Download</a>;
-        let imagePreview = this.props.isLoading ? "Loading animation..." : <img style={Styles.imageStyle} src={this.props.url}/>;
+        let imagePreview = this.props.isLoading ? "Loading animation..." : <img style={Styles.bigImageStyle} src={this.props.url}/>;
 
         return (
             <div style={containerStyle}>

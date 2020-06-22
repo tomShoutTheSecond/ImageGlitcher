@@ -53,9 +53,11 @@ export class FrameHolder extends React.Component<FrameHolderProps, FrameHolderSt
             height: iconSize
         };
 
-        //
-        //{Util.getFrameName(this.props.frameIndex)}
-        
+        let settingStyle : React.CSSProperties = 
+        {
+            margin: 0
+        };
+
         //img element has className downloadImg to make it easier to find later
 
         return (
@@ -67,7 +69,7 @@ export class FrameHolder extends React.Component<FrameHolderProps, FrameHolderSt
                     {Object.keys(this.props.frame.ampModSettings).map((settingName, key) => {
                         let settingValue = Object.values(this.props.frame.ampModSettings)[key];
                         return(
-                            <p key={key}>{settingName}: {settingValue}</p>
+                            <p key={key} style={settingStyle}>{settingName}: {settingValue}</p>
                         );
                     })}
                 </div>

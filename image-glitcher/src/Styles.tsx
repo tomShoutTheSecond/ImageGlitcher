@@ -19,4 +19,11 @@ export class Styles
         maxHeight: 240,
         display: "block"
     };
+
+    static bigImageStyle : React.CSSProperties = 
+    {
+        maxWidth: 480,
+        maxHeight: 480,
+        display: "block"
+    };
 }

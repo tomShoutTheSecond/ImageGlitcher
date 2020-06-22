@@ -2,7 +2,7 @@ export class Util
 {
     static mixNumber(val0 : number, val1 : number, mix : number)
     {
-        return val0 * mix + val1 * (1 - mix);
+        return val0 * (1 - mix) + val1 * mix;
     }
 
     static getFrameName(index : number)
