@@ -16,6 +16,7 @@ export class Styles
     static imageStyle : React.CSSProperties = 
     {
         maxWidth: 240,
-        maxHeight: 240
+        maxHeight: 240,
+        display: "block"
     };
 }

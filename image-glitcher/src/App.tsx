@@ -1,6 +1,6 @@
 import React, { CSSProperties } from 'react';
 import { ImageLoader } from './ImageLoader';
-import { ImageProcessor } from './ImageProcessor';
+import { ImageProcessor, AmpModSettings } from './ImageProcessor';
 import { FramePreview } from './FramePreview';
 import { AnimationPreview } from './AnimationPreview';
 
@@ -13,10 +13,10 @@ export class State
         this.app.setState({imageData: imageData});
     }
 
-    static addDownload(url : string, data : Blob)
+    static addFrame(url : string, data : Blob, settings : AmpModSettings)
     {
         let newFrames = this.app.state.frameUrls;
-        newFrames.push({ url: url, data: data });
+        newFrames.push({ url: url, data: data, ampModSettings: settings });
         this.app.setState({ frameUrls: newFrames });
     }
 
@@ -58,7 +58,8 @@ interface AppState
 export interface Frame
 {
     url : string,
-    data : Blob
+    data : Blob,
+    ampModSettings : AmpModSettings
 }
 
 class App extends React.Component<AppProps, AppState>

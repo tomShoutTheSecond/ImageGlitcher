@@ -5,6 +5,22 @@ import { Styles } from './Styles';
 import { Util } from './Util';
 import { FramePreview } from './FramePreview';
 
+export class AmpModSettings
+{
+    frequency = 0;
+    phase = 0;
+    amp = 0;
+    offset = 0;
+
+    constructor(frequency : number, phase : number, amp : number, offset : number)
+    {
+        this.frequency = frequency;
+        this.phase = phase;
+        this.amp = amp;
+        this.offset = offset;
+    }
+}
+
 interface ImageProcessorProps
 {
     imageData : Uint8Array
@@ -30,7 +46,7 @@ export class ImageProcessor extends React.Component<ImageProcessorProps>
 
         let bigButtonStyle : React.CSSProperties = 
         {
-            color: Colors.accent,
+            color: Colors.white,
             background: Colors.fill,
             border: "none",
             fontSize: "16px",
@@ -125,7 +141,9 @@ export class ImageProcessor extends React.Component<ImageProcessorProps>
             let frameAmp = Util.mixNumber(startAmp, endAmp, progress);
             let frameOffset = Util.mixNumber(startOffset, endOffset, progress);
 
-            this.processFrame(frameFrequency, framePhase, frameAmp, frameOffset);
+            let settings = new AmpModSettings(frameFrequency, framePhase, frameAmp, frameOffset);
+
+            this.processFrame(settings);
         }
 
         if(boomerang)
@@ -138,7 +156,9 @@ export class ImageProcessor extends React.Component<ImageProcessorProps>
                 let frameAmp = Util.mixNumber(startAmp, endAmp, progress);
                 let frameOffset = Util.mixNumber(startOffset, endOffset, progress);
 
-                this.processFrame(frameFrequency, framePhase, frameAmp, frameOffset);
+                let settings = new AmpModSettings(frameFrequency, framePhase, frameAmp, frameOffset);
+
+                this.processFrame(settings);
             }
         }
 
@@ -149,7 +169,7 @@ export class ImageProcessor extends React.Component<ImageProcessorProps>
         setTimeout(() => FramePreview.instance?.createGif(), waitTime);
     }
 
-    processFrame(frequency : number, phase : number, amp : number, offset : number)
+    processFrame(settings : AmpModSettings)
     {
         //get data from file
         let rawData = this.props.imageData;
@@ -158,12 +178,12 @@ export class ImageProcessor extends React.Component<ImageProcessorProps>
         let decodedFile = this.decodeFile(rawData);
 
         //process data
-        let processedData = this.bufferProcess(decodedFile, frequency, phase, amp, offset);
+        let processedData = this.bufferProcess(decodedFile, settings);
 
         //encode data
         let encodedFile = this.encodeFile(processedData);
         
-        this.saveByteArray(encodedFile);
+        this.saveByteArrayAsFrame(encodedFile, settings);
     }
 
     encodeFile(rawData : number[])
@@ -184,9 +204,14 @@ export class ImageProcessor extends React.Component<ImageProcessorProps>
         return encodingAlgorithm === "mulaw" ? alawmulaw.mulaw.decode(rawData) : alawmulaw.alaw.decode(rawData);
     }
 
-    bufferProcess(buffer : any, frequency : number, phase : number, amp : number, offset : number)
+    bufferProcess(buffer : any, settings : AmpModSettings)
     {
-        let headerLength = 54;
+        let headerLength = 54; //value seems to work well for bitmap files
+
+        let frequency = settings.frequency
+        let phase = settings.phase;
+        let amp = settings.amp;
+        let offset = settings.offset;
 
         let processedBuffer = [];
         for (let i = 0; i < buffer.length; i++) 
@@ -209,11 +234,11 @@ export class ImageProcessor extends React.Component<ImageProcessorProps>
         return processedBuffer;
     }
 
-    saveByteArray(data : any)
+    saveByteArrayAsFrame(data : any, settings : AmpModSettings)
     {
         let blob = new Blob([data], {type: "image/bmp"});
         let url = window.URL.createObjectURL(blob);
 
-        State.addDownload(url, blob);
+        State.addFrame(url, blob, settings);
     }
 }

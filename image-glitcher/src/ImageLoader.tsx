@@ -46,7 +46,13 @@ export class ImageLoader extends React.Component
         let fileInput = this.refs.fileInput as HTMLInputElement;
         let imageFile = fileInput.files![0];
 
-        let imageIsBitmap = imageFile?.name.endsWith(".bmp");
+        if(!imageFile)
+        {
+            alert("Image file not found");
+            return;
+        } 
+
+        let imageIsBitmap = imageFile.name.endsWith(".bmp");
         
         let fileReader = new FileReader();
         fileReader.readAsArrayBuffer(imageFile);
