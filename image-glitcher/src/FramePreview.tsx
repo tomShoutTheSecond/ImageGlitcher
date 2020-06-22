@@ -34,6 +34,8 @@ export class FramePreview extends React.Component<FramePreviewProps>
             borderWidth: 1,
             borderStyle: "solid",
             borderColor: Colors.border,
+            display: "inline-block",
+            width: "70%"
         };
 
         let content = this.props.isLoading ? "Loading frames..." : this.props.frames.map((frame, key) => 

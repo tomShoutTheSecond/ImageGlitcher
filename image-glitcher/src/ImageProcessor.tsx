@@ -44,16 +44,6 @@ export class ImageProcessor extends React.Component<ImageProcessorProps>
             display: "inline-block"
         };
 
-        let bigButtonStyle : React.CSSProperties = 
-        {
-            color: Colors.white,
-            background: Colors.fill,
-            border: "none",
-            fontSize: "16px",
-            padding: "16px",
-            float: "right"
-        };
-
         return (
             <div style={containerStyle}>
                 <h1 style={Styles.h1Style}>Process Image</h1>
@@ -91,7 +81,7 @@ export class ImageProcessor extends React.Component<ImageProcessorProps>
                 <label htmlFor="endOffset">End DC Offset</label> <input id="endOffset" ref="endOffsetInput" type="number" defaultValue="1"/>
                 <br />
                 <br />
-                <button style={bigButtonStyle} onClick={() => this.prepareToProcessAnimation()}>Process</button>
+                <button style={Styles.bigButtonStyle} onClick={() => this.prepareToProcessAnimation()}>Process</button>
             </div>
         );
     }

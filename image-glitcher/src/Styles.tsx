@@ -1,3 +1,5 @@
+import { Colors } from "./Colors";
+
 export class Styles
 {
     static h1Style : React.CSSProperties = 
@@ -25,6 +27,16 @@ export class Styles
         maxWidth: 480,
         maxHeight: 480,
         display: "block"
+    };
+
+    static bigButtonStyle : React.CSSProperties = 
+    {
+        color: Colors.white,
+        background: Colors.fill,
+        border: "none",
+        fontSize: "16px",
+        padding: "16px",
+        float: "right"
     };
 
     static get handCursor()

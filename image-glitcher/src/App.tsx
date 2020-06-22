@@ -1,9 +1,10 @@
-import React, { CSSProperties } from 'react';
+import React, { CSSProperties, createRef } from 'react';
 import { ImageLoader } from './ImageLoader';
 import { ImageProcessor, AmpModSettings } from './ImageProcessor';
 import { FramePreview } from './FramePreview';
 import { AnimationPreview } from './AnimationPreview';
 import { Timeline } from './Timeline';
+import { FrameInspector } from './FrameInspector';
 
 export class State
 {
@@ -38,6 +39,11 @@ export class State
         this.app.state.keyframes.length = 0;
     }
 
+    static inspectFrame(frame : Frame)
+    {
+        this.app.setState({ inspectedFrame: frame });
+    }
+
     static needsLoadWarning()
     {
         return this.app.state.frames.length > 0 || this.app.state.keyframes.length;
@@ -69,6 +75,7 @@ interface AppState
     imageData : Uint8Array,
     frames : Frame[],
     keyframes : Frame[],
+    inspectedFrame : Frame | null,
     animationUrl : string,
     frameIsLoading : boolean,
     animationIsLoading : boolean
@@ -83,7 +90,7 @@ export interface Frame
 
 class App extends React.Component<AppProps, AppState>
 {
-    state : AppState = { imageData: new Uint8Array(), frames: [], keyframes: [], animationUrl: "", frameIsLoading: false, animationIsLoading: false};
+    state : AppState = { imageData: new Uint8Array(), frames: [], keyframes: [], inspectedFrame: null, animationUrl: "", frameIsLoading: false, animationIsLoading: false};
 
     componentDidMount()
     {
@@ -103,7 +110,10 @@ class App extends React.Component<AppProps, AppState>
                 <ImageLoader />
                 <ImageProcessor imageData={this.state.imageData} />
                 <AnimationPreview url={this.state.animationUrl} isLoading={this.state.animationIsLoading} />
-                <FramePreview frames={this.state.frames} isLoading={this.state.frameIsLoading}/>
+                <div>
+                    <FrameInspector frame={this.state.inspectedFrame} />
+                    <FramePreview frames={this.state.frames} isLoading={this.state.frameIsLoading}/>
+                </div>
                 <Timeline keyframes={this.state.keyframes}/>
             </div>
         );

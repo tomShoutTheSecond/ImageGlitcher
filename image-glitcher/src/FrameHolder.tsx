@@ -59,6 +59,9 @@ export class FrameHolder extends React.Component<FrameHolderProps, FrameHolderSt
             margin: 0
         };
 
+        //old static parameter display:
+        //<p key={key} style={settingStyle}>{settingName}: {settingValue}</p>
+
         //img element has className downloadImg to make it easier to find later
 
         return (
@@ -68,6 +71,7 @@ export class FrameHolder extends React.Component<FrameHolderProps, FrameHolderSt
                     <a href={this.props.frame.url} target="_blank"><img src={process.env.PUBLIC_URL + '/icons/arrow-expand.svg'} style={iconStyle}/></a>
                     <a href={this.props.frame.url} download={Util.getFrameName(this.props.frameIndex)}><img src={Util.getIcon('download.svg')} style={iconStyle}/></a>
                     <a onClick={() => State.addKeyFrame(this.props.frame)} style={Styles.handCursor}><img src={Util.getIcon('key-plus.svg')} style={iconStyle}/></a>
+                    <a onClick={() => State.inspectFrame(this.props.frame)} style={Styles.handCursor}><img src={Util.getIcon('pencil.svg')} style={iconStyle}/></a>
                     {Object.keys(this.props.frame.ampModSettings).map((settingName, key) => {
                         let settingValue = Object.values(this.props.frame.ampModSettings)[key];
                         return(
