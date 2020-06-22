@@ -6,7 +6,7 @@ import Jimp from 'jimp';
 
 export class ImageLoader extends React.Component
 {
-    state = { previewUrl: "" };
+    state = { previewUrl: "", isConverting: false };
 
     render()
     {
@@ -27,14 +27,16 @@ export class ImageLoader extends React.Component
             paddingBottom: "16px"
         };
 
+        let previewImage = this.state.isConverting ? <h2>Converting image...</h2> : <img src={this.state.previewUrl} style={Styles.imageStyle}/>;
+
         return (
             <div style={containerStyle}>
                 <h1 style={Styles.h1Style}>Load Image</h1>
-                <p>.bmp files only</p>
+                <p>Files will be converted to .bmp</p>
                 <div style={innerContainerStyle}>
                     <input ref="fileInput" type="file" id="files" name="file" onChange={() => this.loadImageFromFile()}/>
                 </div>
-                <img src={this.state.previewUrl} style={Styles.imageStyle}/>
+                {previewImage}
             </div>
         );
     }
@@ -44,7 +46,7 @@ export class ImageLoader extends React.Component
         let fileInput = this.refs.fileInput as HTMLInputElement;
         let imageFile = fileInput.files![0];
 
-        let imageIsBitmap = imageFile.name.endsWith(".bmp");
+        let imageIsBitmap = imageFile?.name.endsWith(".bmp");
         
         let fileReader = new FileReader();
         fileReader.readAsArrayBuffer(imageFile);
@@ -67,6 +69,7 @@ export class ImageLoader extends React.Component
 
                 if(!imageIsBitmap)
                 {
+                    this.setState({ isConverting: true });
                     this.convertImage(originalImageUrl);
                 }
                 else
@@ -80,10 +83,6 @@ export class ImageLoader extends React.Component
 
     loadConvertedImage(imageBlob : Blob)
     {
-        //show converted image in preview
-        let convertedImageUrl = window.URL.createObjectURL(imageBlob);
-        this.setState({ previewUrl: convertedImageUrl });
-
         let fileReader = new FileReader();
 
         //set image data
@@ -92,6 +91,10 @@ export class ImageLoader extends React.Component
             let result = fileReader.result as ArrayBuffer;
             let convertedImageData = new Uint8Array(result);
             State.setImageData(convertedImageData);
+
+            //show converted image in preview
+            let convertedImageUrl = window.URL.createObjectURL(imageBlob);
+            this.setState({ previewUrl: convertedImageUrl, isConverting: false });
 
             console.log("Converted image was loaded");
         }
