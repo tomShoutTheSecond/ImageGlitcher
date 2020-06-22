@@ -43,15 +43,20 @@ export class ImageLoader extends React.Component
     {
         let fileInput = this.refs.fileInput as HTMLInputElement;
         let imageFile = fileInput.files![0];
+
+        let imageIsBitmap = imageFile.name.endsWith(".bmp");
         
         let fileReader = new FileReader();
         fileReader.readAsArrayBuffer(imageFile);
         fileReader.onloadend = () =>
         {
-            //get data from file
-            let result = fileReader.result as ArrayBuffer;
-            let rawData = new Uint8Array(result);
-            State.setImageData(rawData);
+            //get data from file (if bitmap was supplied)
+            if(imageIsBitmap)
+            {
+                let result = fileReader.result as ArrayBuffer;
+                let rawData = new Uint8Array(result);
+                State.setImageData(rawData);
+            }
 
             //put preview in component
             fileReader.readAsDataURL(imageFile);
@@ -60,24 +65,32 @@ export class ImageLoader extends React.Component
             {
                 let originalImageUrl = fileReader.result as string;
 
-                if(!imageFile.name.endsWith(".bmp"))
+                if(!imageIsBitmap)
                 {
                     this.convertImage(originalImageUrl);
                 }
-
-                this.setState({ previewUrl: originalImageUrl });
+                else
+                {
+                    this.setState({ previewUrl: originalImageUrl });
+                    console.log("Original image was loaded");
+                }
             }
         }
     }
 
     loadConvertedImage(imageBlob : Blob)
     {
+        //show converted image in preview
+        let convertedImageUrl = window.URL.createObjectURL(imageBlob);
+        this.setState({ previewUrl: convertedImageUrl });
+
         let fileReader = new FileReader();
 
         //set image data
         fileReader.onloadend = () =>
         {
-            let convertedImageData = fileReader.result as Uint8Array;
+            let result = fileReader.result as ArrayBuffer;
+            let convertedImageData = new Uint8Array(result);
             State.setImageData(convertedImageData);
 
             console.log("Converted image was loaded");
