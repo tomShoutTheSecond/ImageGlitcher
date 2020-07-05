@@ -3,7 +3,8 @@ import { State, Frame } from './App';
 import { Colors } from './Colors';
 import { Styles } from './Styles';
 import { Util } from './Util';
-import { FramePreview } from './FramePreview';
+import { FramebankWindow } from './FramePreview';
+import { ImageProcessorAmpMod } from './ImageProcessorAmpMod';
 
 export class AmpModSettings
 {
@@ -21,12 +22,13 @@ export class AmpModSettings
     }
 }
 
-interface ImageProcessorProps
+interface ImageProcessorWindowProps
 {
-    imageData : Uint8Array
+    imageData : Uint8Array,
+    encodingAlgorithm : "mulaw" | "alaw"
 }
 
-export class ImageProcessor extends React.Component<ImageProcessorProps>
+export class ImageProcessorWindow extends React.Component<ImageProcessorWindowProps>
 {
     state = { previewUrl: "" };
 
@@ -54,7 +56,7 @@ export class ImageProcessor extends React.Component<ImageProcessorProps>
                 <br />
                 <br />
                 <label htmlFor="encoding">Encoding algorithm </label>
-                <select id="encoding" ref="encodingInput">
+                <select id="encoding" ref="encodingInput" onChange={() => this.onChangeEncoding()}>
                     <option value="mulaw">μ-law</option>
                     <option value="alaw">a-law</option>
                 </select>
@@ -89,7 +91,7 @@ export class ImageProcessor extends React.Component<ImageProcessorProps>
     prepareToProcessAnimation()
     {
         //clear downloads area
-        State.clearFrames();
+        State.clearFramebank();
         State.setFrameLoadingState(true);
 
         //wait to let renderer catch up
@@ -123,112 +125,15 @@ export class ImageProcessor extends React.Component<ImageProcessorProps>
         let startOffset = parseFloat(startOffsetInput.value);
         let endOffset = parseFloat(endOffsetInput.value);
 
-        for (let i = 0; i < frames; i++) 
-        {
-            let progress = i / frames;
-            let frameFrequency = Util.mixNumber(startFreq, endFreq, progress);
-            let framePhase = Util.mixNumber(startPhase, endPhase, progress);
-            let frameAmp = Util.mixNumber(startAmp, endAmp, progress);
-            let frameOffset = Util.mixNumber(startOffset, endOffset, progress);
+        let startSettings = new AmpModSettings(startFreq, startPhase, startAmp, startOffset);
+        let endSettings = new AmpModSettings(endFreq, endPhase, endAmp, endOffset);
 
-            let settings = new AmpModSettings(frameFrequency, framePhase, frameAmp, frameOffset);
-
-            this.processFrame(settings);
-        }
-
-        if(boomerang)
-        {
-            for (let i = 0; i < frames; i++) 
-            {
-                let progress = 1 - (i / frames);
-                let frameFrequency = Util.mixNumber(startFreq, endFreq, progress);
-                let framePhase = Util.mixNumber(startPhase, endPhase, progress);
-                let frameAmp = Util.mixNumber(startAmp, endAmp, progress);
-                let frameOffset = Util.mixNumber(startOffset, endOffset, progress);
-
-                let settings = new AmpModSettings(frameFrequency, framePhase, frameAmp, frameOffset);
-
-                this.processFrame(settings);
-            }
-        }
-
-        State.setFrameLoadingState(false);
-
-        //create animation (once image previews are loaded)
-        let waitTime = 1000;
-        setTimeout(() => FramePreview.instance?.createGif(), waitTime);
+        ImageProcessorAmpMod.processAnimation(this.props.imageData, frames, startSettings, endSettings, boomerang, this.props.encodingAlgorithm);
     }
 
-    processFrame(settings : AmpModSettings)
-    {
-        //get data from file
-        let rawData = this.props.imageData;
-        
-        //decode data
-        let decodedFile = this.decodeFile(rawData);
-
-        //process data
-        let processedData = this.bufferProcess(decodedFile, settings);
-
-        //encode data
-        let encodedFile = this.encodeFile(processedData);
-        
-        this.saveByteArrayAsFrame(encodedFile, settings);
-    }
-
-    encodeFile(rawData : number[])
+    onChangeEncoding()
     {
         let encodingInput = this.refs.encodingInput as HTMLInputElement;
-        let encodingAlgorithm = encodingInput.value;
-
-        //@ts-ignore
-        return encodingAlgorithm === "mulaw" ? alawmulaw.mulaw.encode(rawData) : alawmulaw.alaw.encode(rawData);
-    }
-
-    decodeFile(rawData : Uint8Array)
-    {
-        let encodingInput = this.refs.encodingInput as HTMLInputElement;
-        let encodingAlgorithm = encodingInput.value;
-
-        //@ts-ignore
-        return encodingAlgorithm === "mulaw" ? alawmulaw.mulaw.decode(rawData) : alawmulaw.alaw.decode(rawData);
-    }
-
-    bufferProcess(buffer : any, settings : AmpModSettings)
-    {
-        let headerLength = 54; //value seems to work well for bitmap files
-
-        let frequency = settings.frequency
-        let phase = settings.phase;
-        let amp = settings.amp;
-        let offset = settings.offset;
-
-        let processedBuffer = [];
-        for (let i = 0; i < buffer.length; i++) 
-        {
-            const sample = buffer[i];
-
-            if(i < headerLength)
-            {
-                processedBuffer.push(sample);
-                continue;
-            }
-
-            let angle = phase + i * frequency;
-            let coef = offset + Math.sin(angle) * amp;
-
-            let processedSample = sample * coef;
-            processedBuffer.push(processedSample);
-        }
-
-        return processedBuffer;
-    }
-
-    saveByteArrayAsFrame(data : any, settings : AmpModSettings)
-    {
-        let blob = new Blob([data], {type: "image/bmp"});
-        let url = window.URL.createObjectURL(blob);
-
-        State.addFrame({ url: url, data: blob, ampModSettings: settings });
+        State.setEncodingAlgorithm(encodingInput.value as "mulaw" | "alaw");
     }
 }

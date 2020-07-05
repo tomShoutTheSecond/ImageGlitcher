@@ -24,7 +24,7 @@ export class AnimationPreview extends React.Component<AnimationPreviewProps>
             display: "inline-block"
         };
 
-        let downloadButton = this.props.isLoading || this.props.url == "" ? null : <a href={this.props.url}>Download</a>;
+        let downloadButton = this.props.isLoading || this.props.url == "" ? null : <a href={this.props.url} target="_blank">Download</a>;
         let imagePreview = this.props.isLoading ? "Loading animation..." : <img style={Styles.bigImageStyle} src={this.props.url}/>;
 
         return (

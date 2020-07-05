@@ -2,42 +2,67 @@ import { Colors } from "./Colors";
 
 export class Styles
 {
-    static h1Style : React.CSSProperties = 
+    static get h1Style()
     {
-        padding: 0,
-        margin: "0 0 16px 0"
-    };
+        let style : React.CSSProperties = 
+        {
+            padding: 0,
+            margin: "0 0 16px 0"
+        };
 
-    static h2Style : React.CSSProperties = 
-    {
-        fontSize: "20px",
-        padding: 0,
-        margin: "0 0 16px 0"
-    };
+        return style;
+    }
 
-    static imageStyle : React.CSSProperties = 
-    {
-        maxWidth: 240,
-        maxHeight: 240,
-        display: "block"
-    };
+    static get h2Style()
+    { 
+        let style : React.CSSProperties = 
+        {
+            fontSize: "20px",
+            padding: 0,
+            margin: "0 0 16px 0"
+        };
 
-    static bigImageStyle : React.CSSProperties = 
-    {
-        maxWidth: 480,
-        maxHeight: 480,
-        display: "block"
-    };
+        return style;
+    }
 
-    static bigButtonStyle : React.CSSProperties = 
+    static get imageStyle() 
+    { 
+        let style : React.CSSProperties = 
+        {
+            maxWidth: 240,
+            maxHeight: 240,
+            display: "block"
+        };
+
+        return style;
+    }
+
+    static get bigImageStyle() 
+    { 
+        let style : React.CSSProperties = 
+        {
+            maxWidth: 480,
+            maxHeight: 480,
+            display: "block"
+        };
+
+        return style;
+    }
+
+    static get bigButtonStyle()
     {
-        color: Colors.white,
-        background: Colors.fill,
-        border: "none",
-        fontSize: "16px",
-        padding: "16px",
-        float: "right"
-    };
+        let style : React.CSSProperties = 
+        {
+            color: Colors.white,
+            background: Colors.fill,
+            border: "none",
+            fontSize: "16px",
+            padding: "16px",
+            float: "right"
+        };
+
+        return style;
+    }
 
     static get handCursor()
     {
@@ -46,6 +71,16 @@ export class Styles
             cursor: "pointer"
         };
 
-        return style
+        return style;
+    }
+
+    static get inlineBlock()
+    {
+        let style : React.CSSProperties =
+        {
+            display: "inline-block"
+        };
+
+        return style;
     }
 }

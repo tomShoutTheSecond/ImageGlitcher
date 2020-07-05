@@ -8,7 +8,7 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 import { Util } from './Util';
 import ArrowExpand from './icons/arrow-expand.svg';
-import { ImageProcessor } from './ImageProcessor';
+import { ImageProcessorWindow } from './ImageProcessorWindow';
 
 interface FrameInspectorProps
 {

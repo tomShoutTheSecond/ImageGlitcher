@@ -58,7 +58,7 @@ export class ImageLoader extends React.Component
             return;
         }
 
-        State.clearFrames();
+        State.clearFramebank();
         State.clearKeyframes();
 
         let imageIsBitmap = imageFile.name.endsWith(".bmp");

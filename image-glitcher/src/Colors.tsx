@@ -6,4 +6,6 @@ export class Colors
     static fill = "#222";
     static transparent = "transparent";
     static transBlack = "rgba(0,0,0,0.5)";
+
+    static complete = "#AACFEE"; //light blue
 }

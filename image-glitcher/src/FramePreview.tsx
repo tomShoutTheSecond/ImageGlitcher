@@ -8,19 +8,19 @@ import { saveAs } from 'file-saver';
 import { Util } from './Util';
 import { FrameHolder } from './FrameHolder';
 
-interface FramePreviewProps
+interface FramebankWindowProps
 {
     frames : Frame[],
     isLoading : boolean
 }
 
-export class FramePreview extends React.Component<FramePreviewProps>
+export class FramebankWindow extends React.Component<FramebankWindowProps>
 {
-    static instance : FramePreview | null = null;
+    static instance : FramebankWindow | null = null;
 
     componentDidMount()
     {
-        FramePreview.instance = this;
+        FramebankWindow.instance = this;
     }
 
     render()
@@ -44,7 +44,7 @@ export class FramePreview extends React.Component<FramePreviewProps>
 
         return (
             <div style={containerStyle}>
-                <h1 style={Styles.h1Style}>Frames</h1>
+                <h1 style={Styles.h1Style}>Framebank</h1>
                 {content}
                 <br />
                 <button onClick={() => this.createGif()}>Convert to GIF</button>
