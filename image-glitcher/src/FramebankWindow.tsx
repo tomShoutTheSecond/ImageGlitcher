@@ -39,7 +39,7 @@ export class FramebankWindow extends React.Component<FramebankWindowProps>
         };
 
         let content = this.props.isLoading ? "Loading frames..." : this.props.frames.map((frame, key) => 
-            <FrameHolder frame={frame} frameIndex={key}/>
+            <FrameHolder key={key} frame={frame} frameIndex={key}/>
         );
 
         return (
@@ -107,11 +107,11 @@ export class FramebankWindow extends React.Component<FramebankWindowProps>
         zip.generateAsync({ type:"blob" }).then(function(content) 
         {
             //see FileSaver.js
-            saveAs(content, "example.zip");
+            saveAs(content, "Framebank.zip");
         });
     }
 
-    //returns references to all the preview image elements in the download area
+    //returns references to all the preview image elements 
     getImageElements()
     {
         let thisNode = ReactDOM.findDOMNode(this)! as Element;

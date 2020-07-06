@@ -8,4 +8,5 @@ export class Colors
     static transBlack = "rgba(0,0,0,0.5)";
 
     static complete = "#AACFEE"; //light blue
+    static rendering = "#B04B49" //red
 }

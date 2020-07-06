@@ -3,7 +3,7 @@ import { State, Frame } from './App';
 import { Colors } from './Colors';
 import { Styles } from './Styles';
 import { Util } from './Util';
-import { FramebankWindow } from './FramePreview';
+import { FramebankWindow } from './FramebankWindow';
 import { ImageProcessorAmpMod } from './ImageProcessorAmpMod';
 
 export class AmpModSettings

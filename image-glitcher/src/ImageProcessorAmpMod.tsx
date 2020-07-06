@@ -1,11 +1,11 @@
 import { Util } from "./Util";
 import { AmpModSettings } from "./ImageProcessorWindow";
 import { State } from "./App";
-import { FramebankWindow } from "./FramePreview";
+import { FramebankWindow } from "./FramebankWindow";
 
 export class ImageProcessorAmpMod
 {
-    static processAnimation(imageData : Uint8Array, frames : number, firstFrameSettings : AmpModSettings, lastFrameSettings : AmpModSettings, boomerang : boolean, encodingAlgorithm : string)
+    static processAnimation(imageData : Uint8Array, frames : number, firstFrameSettings : AmpModSettings, lastFrameSettings : AmpModSettings, boomerang : boolean, encodingAlgorithm : string, transitionIndex ?: number)
     {
         let startFreq = firstFrameSettings.frequency;
         let endFreq = lastFrameSettings.frequency;
@@ -18,7 +18,7 @@ export class ImageProcessorAmpMod
 
         for (let i = 0; i < frames; i++) 
         {
-            let progress = i / frames;
+            let progress = i / (frames - 1);
             let frameFrequency = Util.mixNumber(startFreq, endFreq, progress);
             let framePhase = Util.mixNumber(startPhase, endPhase, progress);
             let frameAmp = Util.mixNumber(startAmp, endAmp, progress);
@@ -26,14 +26,14 @@ export class ImageProcessorAmpMod
 
             let settings = new AmpModSettings(frameFrequency, framePhase, frameAmp, frameOffset);
 
-            this.processFrame(imageData, settings, encodingAlgorithm);
+            this.processFrame(imageData, settings, encodingAlgorithm, transitionIndex);
         }
 
         if(boomerang)
         {
             for (let i = 0; i < frames; i++) 
             {
-                let progress = 1 - (i / frames);
+                let progress = 1 - (i / (frames - 1));
                 let frameFrequency = Util.mixNumber(startFreq, endFreq, progress);
                 let framePhase = Util.mixNumber(startPhase, endPhase, progress);
                 let frameAmp = Util.mixNumber(startAmp, endAmp, progress);
@@ -41,18 +41,26 @@ export class ImageProcessorAmpMod
 
                 let settings = new AmpModSettings(frameFrequency, framePhase, frameAmp, frameOffset);
 
-                this.processFrame(imageData, settings, encodingAlgorithm);
+                this.processFrame(imageData, settings, encodingAlgorithm, transitionIndex);
             }
         }
 
         State.setFrameLoadingState(false);
-
-        //create animation (once image previews are loaded)
-        let waitTime = 1000;
-        setTimeout(() => FramebankWindow.instance?.createGif(), waitTime);
+        
+        if(transitionIndex == null)
+        {
+            //create animation (once image previews are loaded)
+            let waitTime = 1000;
+            setTimeout(() => FramebankWindow.instance?.createGif(), waitTime);
+        }
+        else
+        {
+            //tell transition window that operation is complete
+            State.setTransitionFramebankStatus(transitionIndex, "complete");
+        }
     }
 
-    static processFrame(imageData : Uint8Array, settings : AmpModSettings, encodingAlgorithm : string)
+    static processFrame(imageData : Uint8Array, settings : AmpModSettings, encodingAlgorithm : string, transitionIndex ?: number)
     {
         //decode data
         let decodedFile = this.decodeFile(imageData, encodingAlgorithm);
@@ -63,7 +71,7 @@ export class ImageProcessorAmpMod
         //encode data
         let encodedFile = this.encodeFile(processedData, encodingAlgorithm);
         
-        this.saveByteArrayAsFrame(encodedFile, settings);
+        this.saveByteArrayAsFrame(encodedFile, settings, transitionIndex);
     }
 
     static encodeFile(rawData : number[], encodingAlgorithm : string)
@@ -108,11 +116,16 @@ export class ImageProcessorAmpMod
         return processedBuffer;
     }
 
-    static saveByteArrayAsFrame(data : any, settings : AmpModSettings)
+    static saveByteArrayAsFrame(data : any, settings : AmpModSettings, transitionIndex ?: number)
     {
         let blob = new Blob([data], {type: "image/bmp"});
         let url = window.URL.createObjectURL(blob);
 
-        State.addFrameToFramebank({ url: url, data: blob, ampModSettings: settings });
+        let frame = { url: url, data: blob, ampModSettings: settings };
+
+        if(transitionIndex == null)
+            State.addFrameToFramebank(frame);
+        else 
+            State.addFrameToTransitionFrames(frame, transitionIndex);
     }
 }

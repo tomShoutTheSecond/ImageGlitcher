@@ -28,6 +28,7 @@ export class FrameHolder extends React.Component<FrameHolderProps, FrameHolderSt
     {
         let containerStyle : React.CSSProperties = 
         {
+            verticalAlign: "top",
             display: "inline-block",
             position: "relative",
             height: 240 //from Styles

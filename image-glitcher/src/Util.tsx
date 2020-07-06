@@ -5,8 +5,11 @@ export class Util
         return val0 * (1 - mix) + val1 * mix;
     }
 
-    static getFrameName(index : number)
+    static getFrameName(index : number | string, name ?: string)
     {
+        if(name)
+            return name + index + ".bmp";
+
         return "image" + index + ".bmp";
     }
 
