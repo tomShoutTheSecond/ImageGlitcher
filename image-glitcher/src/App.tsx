@@ -44,7 +44,12 @@ export class State
         return true;
     }
 
-    static clearTransitionFrames(transitionIndex : number)
+    static clearAllTransitionFrames()
+    {
+        this.app.setState({ transitionFrames: [] });
+    }
+
+    static clearTransitionFramebank(transitionIndex : number)
     {
         let transitionFrames = this.app.state.transitionFrames;
         let transitionBank = transitionFrames[transitionIndex];

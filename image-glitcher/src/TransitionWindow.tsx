@@ -60,7 +60,7 @@ export class TransitionWindow extends React.Component<TransitionWindowProps>
     renderFrames()
     {
         //clear previously rendered frames
-        State.clearTransitionFrames(this.props.index);
+        State.clearTransitionFramebank(this.props.index);
 
         let framesInput = this.framesInput.current as HTMLInputElement;
         let frames = parseInt(framesInput.value);
