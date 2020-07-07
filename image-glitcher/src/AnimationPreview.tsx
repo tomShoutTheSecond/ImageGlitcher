@@ -5,7 +5,8 @@ import { Styles } from './Styles';
 interface AnimationPreviewProps
 {
     url : string,
-    isLoading : boolean
+    isLoading : boolean,
+    animationLength : number
 }
 
 export class AnimationPreview extends React.Component<AnimationPreviewProps>
@@ -30,6 +31,7 @@ export class AnimationPreview extends React.Component<AnimationPreviewProps>
         return (
             <div style={containerStyle}>
                 <h1 style={Styles.h1Style}>Animation</h1>
+                <p>Frames: {this.props.animationLength}</p>
                 {imagePreview}
                 {downloadButton}
             </div>

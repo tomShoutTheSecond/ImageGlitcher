@@ -90,6 +90,11 @@ export class State
         this.app.state.keyframes.length = 0;
     }
 
+    static setOmitFramePreference(value : boolean)
+    {
+        this.app.setState({ omitFramePreference: value });
+    }
+
     static inspectFrame(frame : Frame)
     {
         this.app.setState({ inspectedFrame: frame });
@@ -98,6 +103,11 @@ export class State
     static needsLoadWarning()
     {
         return this.app.state.frames.length > 0 || this.app.state.keyframes.length;
+    }
+
+    static setAnimationLength(frames : number)
+    {
+        this.app.setState({ animationLength : frames });
     }
 
     static setAnimationUrl(url : string)
@@ -124,8 +134,10 @@ interface AppState
     frames : Frame[],
     keyframes : Frame[],
     transitionFrames : TransitionFramebank[],
+    omitFramePreference : boolean,
     inspectedFrame : Frame | null,
     animationUrl : string,
+    animationLength : number,
     frameIsLoading : boolean,
     animationIsLoading : boolean,
     encodingAlgorithm : "mulaw" | "alaw";
@@ -151,7 +163,7 @@ export class TransitionFramebank
 
 class App extends React.Component<AppProps, AppState>
 {
-    state : AppState = { imageData: new Uint8Array(), frames: [], keyframes: [], transitionFrames: [], inspectedFrame: null, animationUrl: "", frameIsLoading: false, animationIsLoading: false, encodingAlgorithm: "mulaw" };
+    state : AppState = { imageData: new Uint8Array(), frames: [], keyframes: [], transitionFrames: [], omitFramePreference: false, inspectedFrame: null, animationUrl: "", animationLength: 0, frameIsLoading: false, animationIsLoading: false, encodingAlgorithm: "mulaw" };
 
     componentDidMount()
     {
@@ -170,12 +182,12 @@ class App extends React.Component<AppProps, AppState>
             <div style={containerStyle}>
                 <ImageLoader />
                 <ImageProcessorWindow imageData={this.state.imageData} encodingAlgorithm={this.state.encodingAlgorithm} />
-                <AnimationPreview url={this.state.animationUrl} isLoading={this.state.animationIsLoading} />
+                <AnimationPreview url={this.state.animationUrl} isLoading={this.state.animationIsLoading} animationLength={this.state.animationLength} />
                 <div>
                     <FrameInspector frame={this.state.inspectedFrame} />
                     <FramebankWindow frames={this.state.frames} isLoading={this.state.frameIsLoading}/>
                 </div>
-                <Timeline imageData={this.state.imageData} keyframes={this.state.keyframes} encodingAlgorithm={this.state.encodingAlgorithm} transitionFrames={this.state.transitionFrames} />
+                <Timeline imageData={this.state.imageData} keyframes={this.state.keyframes} encodingAlgorithm={this.state.encodingAlgorithm} transitionFrames={this.state.transitionFrames} omitFrame={this.state.omitFramePreference} />
             </div>
         );
     }

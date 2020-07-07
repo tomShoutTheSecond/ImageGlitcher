@@ -1,4 +1,4 @@
-import React, { createElement } from 'react';
+import React, { createElement, createRef } from 'react';
 import { State, Frame, TransitionFramebank } from './App';
 import { Colors } from './Colors';
 import { Styles } from './Styles';
@@ -13,12 +13,15 @@ interface TimelineProps
 {
     keyframes : Frame[],
     transitionFrames : TransitionFramebank[],
+    omitFrame : boolean,
     imageData : Uint8Array,
     encodingAlgorithm : "mulaw" | "alaw"
 }
 
 export class Timeline extends React.Component<TimelineProps>
 {
+    omitFrameCheckbox = createRef<HTMLInputElement>();
+
     render()
     {
         let containerStyle : React.CSSProperties = 
@@ -44,6 +47,7 @@ export class Timeline extends React.Component<TimelineProps>
                 <div>
                     <button onClick={() => this.createGif()}>Convert to GIF</button>
                     <button onClick={() => this.downloadFrames()}>Download Frames</button>
+                    <input ref={this.omitFrameCheckbox} type="checkbox" onClick={() => this.changeOmitFramePreference()} /><label>Omit last frame (for smooth loops)</label>
                 </div>
             </div>
         );
@@ -59,6 +63,8 @@ export class Timeline extends React.Component<TimelineProps>
         }
 
         State.setAnimationLoadingState(true);
+
+        let imgElements = this.getImageElements();
 
         //first find the actual image size of the first frame
         var newImg = new Image();
@@ -77,12 +83,11 @@ export class Timeline extends React.Component<TimelineProps>
             });
 
             //add frames to gif
-            let imgElements = this.getImageElements();
             imgElements.forEach(img => 
             {
-                gif.addFrame(img, {delay: 10});
+                gif.addFrame(img, { delay: 10 });
             });
-            
+
             gif.on('finished', function(blob : Blob) 
             {
                 let url = URL.createObjectURL(blob);
@@ -93,9 +98,7 @@ export class Timeline extends React.Component<TimelineProps>
             gif.render();
         }
 
-        //this.getImageElements();
-
-        let firstImage = this.getImageElements()[0] as HTMLImageElement;
+        let firstImage = imgElements[0] as HTMLImageElement;
         newImg.src = firstImage.src;
     }
 
@@ -103,10 +106,22 @@ export class Timeline extends React.Component<TimelineProps>
     getImageElements()
     {
         let allTransitionFrames : Frame[] = [];
-        this.props.transitionFrames.forEach((transitionBank) => 
+        
+        for (let i = 0; i < this.props.transitionFrames.length; i++) 
         {
-            allTransitionFrames = allTransitionFrames.concat(transitionBank.frames);
-        });
+            const transitionBank = this.props.transitionFrames[i];
+
+            //cut off the last frame of each transition to avoid duplicates
+            let framesToRemove = 1;
+            if(i === this.props.transitionFrames.length - 1 && !this.props.omitFrame) //last transition, omit frame disabled
+                framesToRemove = 0; //don't remove the frame
+            let croppedTransitionFrames = transitionBank.frames.slice(0, transitionBank.frames.length - framesToRemove);
+
+            //add to total frames
+            allTransitionFrames = allTransitionFrames.concat(croppedTransitionFrames);
+        }
+
+        State.setAnimationLength(allTransitionFrames.length);
 
         let imageElements : HTMLImageElement[] = [];
         allTransitionFrames.forEach((transitionFrame) => 
@@ -134,15 +149,29 @@ export class Timeline extends React.Component<TimelineProps>
         let zip = new JSZip();
 
         //add transition frames
-        for (let i = 0; i < this.props.transitionFrames.length; i++) 
+        for (let transitionIndex = 0; transitionIndex < this.props.transitionFrames.length; transitionIndex++) 
         {
-            let transitionBank = this.props.transitionFrames[i];
+            let transitionBank = this.props.transitionFrames[transitionIndex];
             
-            for (let j = 0; j < transitionBank.frames.length; j++) 
+            for (let frameIndex = 0; frameIndex < transitionBank.frames.length; frameIndex++) 
             {
-                const frame = transitionBank.frames[j];
-                let leadingZeros = 3;
-                zip.file(Util.getFrameName(String(j).padStart(leadingZeros, "0"), "transition" + String(j).padStart(leadingZeros, "0") + "frame"), frame.data);
+                //cut off the last frame of each transition to avoid duplicates
+
+                let isLastFrameOfTransition = frameIndex === transitionBank.frames.length - 1;
+                let isLastTransition = transitionIndex === this.props.transitionFrames.length - 1;
+                let skipFrame = (isLastFrameOfTransition && !isLastTransition); //skip last frames of transitions (except the last transition)
+
+                //omit last frame if requested
+                if(isLastFrameOfTransition && isLastTransition && this.props.omitFrame)
+                    skipFrame = true;
+
+                if(skipFrame)
+                    continue;
+
+                const frame = transitionBank.frames[frameIndex];
+
+                let leadingZeros = 4;
+                zip.file(Util.getFrameName(String(frameIndex).padStart(leadingZeros, "0"), "transition" + String(transitionIndex).padStart(leadingZeros, "0") + "frame"), frame.data);
             }
         }
 
@@ -151,5 +180,21 @@ export class Timeline extends React.Component<TimelineProps>
             //see FileSaver.js
             saveAs(content, "TimelineFrames.zip");
         });
+    }
+
+    changeOmitFramePreference()
+    {
+        let checkbox = this.omitFrameCheckbox.current;
+        if(!checkbox) return;
+
+        State.setOmitFramePreference(checkbox.checked);
+    }
+
+    isLastFrame(transitionIndex : number, frameIndex : number)
+    {
+        let lastTransition = transitionIndex === this.props.transitionFrames.length - 1;
+        let lastFrame = frameIndex === this.props.transitionFrames[transitionIndex].frames.length - 1;
+
+        return lastTransition && lastFrame;
     }
 }
