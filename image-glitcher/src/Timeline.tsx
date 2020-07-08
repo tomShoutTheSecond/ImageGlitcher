@@ -47,7 +47,7 @@ export class Timeline extends React.Component<TimelineProps>
                 <div>
                     <button onClick={() => this.createGif()}>Convert to GIF</button>
                     <button onClick={() => this.downloadFrames()}>Download Frames</button>
-                    <input ref={this.omitFrameCheckbox} type="checkbox" onClick={() => this.changeOmitFramePreference()} /><label>Omit last frame (for smooth loops)</label>
+                    <input ref={this.omitFrameCheckbox} type="checkbox" onClick={() => this.changeOmitFramePreference()} checked /><label>Omit last frame (for smooth loops)</label>
                 </div>
             </div>
         );
@@ -65,37 +65,47 @@ export class Timeline extends React.Component<TimelineProps>
         State.setAnimationLoadingState(true);
 
         let imgElements = this.getImageElements();
+        if(imgElements.length == 0)
+        {
+            alert("No transitions have been rendered!");
+            return;
+        }
 
         //first find the actual image size of the first frame
         var newImg = new Image();
         newImg.onload = () =>
         {
-            let width = newImg.width;
-            let height = newImg.height;
-
-            //@ts-ignore
-            let gif = new GIF(
+            //pause prevents black frames in the GIF
+            let pause = 100;
+            setTimeout(() => 
             {
-                workers: 2,
-                quality: 10,
-                width: width,
-                height: height
-            });
+                let width = newImg.width;
+                let height = newImg.height;
 
-            //add frames to gif
-            imgElements.forEach(img => 
-            {
-                gif.addFrame(img, { delay: 10 });
-            });
+                //@ts-ignore
+                let gif = new GIF(
+                {
+                    workers: 2,
+                    quality: 10,
+                    width: width,
+                    height: height
+                });
 
-            gif.on('finished', function(blob : Blob) 
-            {
-                let url = URL.createObjectURL(blob);
-                State.setAnimationUrl(url);
-                State.setAnimationLoadingState(false);
-            });
-            
-            gif.render();
+                //add frames to gif
+                imgElements.forEach(img => 
+                {
+                    gif.addFrame(img, { delay: 10 });
+                });
+
+                gif.on('finished', function(blob : Blob) 
+                {
+                    let url = URL.createObjectURL(blob);
+                    State.setAnimationUrl(url);
+                    State.setAnimationLoadingState(false);
+                });
+                
+                gif.render();
+            }, pause);
         }
 
         let firstImage = imgElements[0] as HTMLImageElement;

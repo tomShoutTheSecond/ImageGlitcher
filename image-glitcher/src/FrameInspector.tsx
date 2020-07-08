@@ -44,14 +44,10 @@ export class FrameInspector extends React.Component<FrameInspectorProps>
             let settingValue = Object.values(this.props.frame!.ampModSettings)[key];
             return(
                 <div key={key}>
-                    <label htmlFor={settingName}>{settingName}</label><input style={numberInputStyle} id={settingName} type="number" defaultValue={settingValue}/>
+                    <label htmlFor={settingName}>{settingName}</label> <input style={numberInputStyle} id={settingName} type="number" defaultValue={settingValue}/>
                 </div>
             );
         });
-
-
-        //form code:
-        //
 
         return (
             <div style={containerStyle}>

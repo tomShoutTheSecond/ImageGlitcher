@@ -84,6 +84,7 @@ export class ImageProcessorWindow extends React.Component<ImageProcessorWindowPr
                 <br />
                 <br />
                 <button style={Styles.bigButtonStyle} onClick={() => this.prepareToProcessAnimation()}>Process</button>
+                <button style={Styles.bigButtonStyle} onClick={() => this.generateRandomFrame()}>Random</button>
             </div>
         );
     }
@@ -129,6 +130,11 @@ export class ImageProcessorWindow extends React.Component<ImageProcessorWindowPr
         let endSettings = new AmpModSettings(endFreq, endPhase, endAmp, endOffset);
 
         ImageProcessorAmpMod.processAnimation(this.props.imageData, frames, startSettings, endSettings, boomerang, this.props.encodingAlgorithm);
+    }
+
+    generateRandomFrame()
+    {
+        ImageProcessorAmpMod.generateRandomFrame(this.props.imageData, this.props.encodingAlgorithm);
     }
 
     onChangeEncoding()

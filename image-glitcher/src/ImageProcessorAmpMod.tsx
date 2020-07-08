@@ -74,6 +74,51 @@ export class ImageProcessorAmpMod
         this.saveByteArrayAsFrame(encodedFile, settings, transitionIndex);
     }
 
+    static generateRandomFrame(imageData : Uint8Array, encodingAlgorithm : string)
+    {
+        //randomise frequency so each order of magnitude is equally likely
+        let maxFreqMagnitude = 5;
+        let randomFreqMagnitude = Math.floor(maxFreqMagnitude * Math.random());
+        let randomFreq = 0.1 * Math.random();
+        for(let i = 0; i < randomFreqMagnitude; i++)
+        {
+            randomFreq *= 0.1;
+        }
+
+        let minPhase = 0;
+        let maxPhase = 20;
+
+        let randomAmp = 1 * Math.random();
+        let maxAmpMagnitude = 5;
+        let randomAmpMagnitude = Math.floor(maxAmpMagnitude * Math.random());
+        for(let i = 0; i < randomAmpMagnitude; i++)
+        {
+            randomAmp *= 2;
+        }
+
+        if(Math.random() > 0.5) //50% chance
+            randomAmp = 0 - randomAmp;
+        
+        if(Math.random() < 0.1) //10% chance
+            randomAmp = 0;
+
+        let minOffset = -10;
+        let maxOffset = 10;
+        let randomOffset = Util.mixNumber(minOffset, maxOffset, Math.random());
+        if(Math.random() < 0.2 && randomAmp != 0) //20% chance, make sure amp and offset are not both zero (or it makes a blank white frame)
+            randomOffset = 0;
+
+        let settings : AmpModSettings = 
+        {
+            frequency: randomFreq,
+            phase : Util.mixNumber(minPhase, maxPhase, Math.random()),
+            amp : randomAmp,
+            offset : randomOffset
+        }
+
+        this.processFrame(imageData, settings, encodingAlgorithm);
+    }
+
     static encodeFile(rawData : number[], encodingAlgorithm : string)
     {
         //@ts-ignore

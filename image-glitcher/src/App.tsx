@@ -168,7 +168,7 @@ export class TransitionFramebank
 
 class App extends React.Component<AppProps, AppState>
 {
-    state : AppState = { imageData: new Uint8Array(), frames: [], keyframes: [], transitionFrames: [], omitFramePreference: false, inspectedFrame: null, animationUrl: "", animationLength: 0, frameIsLoading: false, animationIsLoading: false, encodingAlgorithm: "mulaw" };
+    state : AppState = { imageData: new Uint8Array(), frames: [], keyframes: [], transitionFrames: [], omitFramePreference: true, inspectedFrame: null, animationUrl: "", animationLength: 0, frameIsLoading: false, animationIsLoading: false, encodingAlgorithm: "mulaw" };
 
     componentDidMount()
     {
