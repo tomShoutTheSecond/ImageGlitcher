@@ -1,5 +1,10 @@
 export class Util
 {
+    static copy<AmpModSettings>(object : object)
+    {
+        return Object.assign({ }, object) as AmpModSettings;
+    }
+
     static mixNumber(val0 : number, val1 : number, mix : number)
     {
         return val0 * (1 - mix) + val1 * mix;

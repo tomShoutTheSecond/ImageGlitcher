@@ -189,7 +189,7 @@ class App extends React.Component<AppProps, AppState>
                 <ImageProcessorWindow imageData={this.state.imageData} encodingAlgorithm={this.state.encodingAlgorithm} />
                 <AnimationPreview url={this.state.animationUrl} isLoading={this.state.animationIsLoading} animationLength={this.state.animationLength} />
                 <div>
-                    <FrameInspector frame={this.state.inspectedFrame} />
+                    <FrameInspector frame={this.state.inspectedFrame} imageData={this.state.imageData} encodingAlgorithm={this.state.encodingAlgorithm}/>
                     <FramebankWindow frames={this.state.frames} isLoading={this.state.frameIsLoading}/>
                 </div>
                 <Timeline imageData={this.state.imageData} keyframes={this.state.keyframes} encodingAlgorithm={this.state.encodingAlgorithm} transitionFrames={this.state.transitionFrames} omitFrame={this.state.omitFramePreference} />
