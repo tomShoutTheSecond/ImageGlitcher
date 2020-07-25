@@ -46,6 +46,30 @@ export class ImageProcessorWindow extends React.Component<ImageProcessorWindowPr
             display: "inline-block"
         };
 
+        /*
+        <label htmlFor="startFreq">Start Frequency</label> <input id="startFreq" ref="startFreqInput" type="number" defaultValue="0.01"/>
+        <br />
+        <label htmlFor="endFreq">End Frequency</label> <input id="endFreq" ref="endFreqInput" type="number" defaultValue="0.01"/>
+        <br />
+        <br />
+        <label htmlFor="startPhase">Start Phase</label> <input id="startPhase" ref="startPhaseInput" type="number" defaultValue="0"/>
+        <br />
+        <label htmlFor="endPhase">End Phase</label> <input id="endPhase" ref="endPhaseInput" type="number" defaultValue="0"/>
+        <br />
+        <br />
+        <label htmlFor="startAmp">Start Amp</label> <input id="startAmp" ref="startAmpInput" type="number" defaultValue="1"/>
+        <br />
+        <label htmlFor="endAmp">End Amp</label> <input id="endAmp" ref="endAmpInput" type="number" defaultValue="1"/>
+        <br />
+        <br />
+        <label htmlFor="startOffset">Start DC Offset</label> <input id="startOffset" ref="startOffsetInput" type="number" defaultValue="1"/>
+        <br />
+        <label htmlFor="endOffset">End DC Offset</label> <input id="endOffset" ref="endOffsetInput" type="number" defaultValue="1"/>
+        <br />
+        <br />
+        <button style={Styles.bigButtonStyle} onClick={() => this.prepareToProcessAnimation()}>Process</button>
+        */
+
         return (
             <div style={containerStyle}>
                 <h1 style={Styles.h1Style}>Process Image</h1>
@@ -63,32 +87,11 @@ export class ImageProcessorWindow extends React.Component<ImageProcessorWindowPr
                 <br />
                 <br />
                 <h2 style={Styles.h2Style}>Amplitude Modulation</h2>
-                <label htmlFor="startFreq">Start Frequency</label> <input id="startFreq" ref="startFreqInput" type="number" defaultValue="0.01"/>
-                <br />
-                <label htmlFor="endFreq">End Frequency</label> <input id="endFreq" ref="endFreqInput" type="number" defaultValue="0.01"/>
-                <br />
-                <br />
-                <label htmlFor="startPhase">Start Phase</label> <input id="startPhase" ref="startPhaseInput" type="number" defaultValue="0"/>
-                <br />
-                <label htmlFor="endPhase">End Phase</label> <input id="endPhase" ref="endPhaseInput" type="number" defaultValue="0"/>
-                <br />
-                <br />
-                <label htmlFor="startAmp">Start Amp</label> <input id="startAmp" ref="startAmpInput" type="number" defaultValue="1"/>
-                <br />
-                <label htmlFor="endAmp">End Amp</label> <input id="endAmp" ref="endAmpInput" type="number" defaultValue="1"/>
-                <br />
-                <br />
-                <label htmlFor="startOffset">Start DC Offset</label> <input id="startOffset" ref="startOffsetInput" type="number" defaultValue="1"/>
-                <br />
-                <label htmlFor="endOffset">End DC Offset</label> <input id="endOffset" ref="endOffsetInput" type="number" defaultValue="1"/>
-                <br />
-                <br />
-                <button style={Styles.bigButtonStyle} onClick={() => this.prepareToProcessAnimation()}>Process</button>
                 <button style={Styles.bigButtonStyle} onClick={() => this.generateRandomFrame()}>Random</button>
             </div>
         );
     }
-
+/*
     prepareToProcessAnimation()
     {
         //clear downloads area
@@ -131,7 +134,7 @@ export class ImageProcessorWindow extends React.Component<ImageProcessorWindowPr
 
         ImageProcessorAmpMod.processAnimation(this.props.imageData, frames, startSettings, endSettings, boomerang, this.props.encodingAlgorithm);
     }
-
+*/
     generateRandomFrame()
     {
         ImageProcessorAmpMod.generateRandomFrame(this.props.imageData, this.props.encodingAlgorithm);

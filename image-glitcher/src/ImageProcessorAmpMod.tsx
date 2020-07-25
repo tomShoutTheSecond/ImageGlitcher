@@ -59,7 +59,7 @@ export class ImageProcessorAmpMod
             State.setTransitionFramebankStatus(transitionIndex, "complete");
         }
     }
-
+    
     static processFrame(imageData : Uint8Array, settings : AmpModSettings, encodingAlgorithm : string, transitionIndex ?: number)
     {
         //decode data
