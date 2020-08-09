@@ -90,6 +90,20 @@ export class State
         this.app.setState({ keyframes: newKeyframes, transitionFrames: transitionFrames });
     }
 
+    static deleteKeyFrame(frame : Frame)
+    {
+        //remove keyframe
+        let newKeyframes = this.app.state.keyframes;
+        let frameKeyframeIndex = newKeyframes.indexOf(frame);
+        newKeyframes.splice(frameKeyframeIndex, 1);
+
+        //remove transition framebank
+        let transitionFrames = this.app.state.transitionFrames;
+        transitionFrames.splice(frameKeyframeIndex, 1);
+
+        this.app.setState({ keyframes: newKeyframes, transitionFrames: transitionFrames });
+    }
+
     static clearKeyframes()
     {
         this.app.state.keyframes.length = 0;
