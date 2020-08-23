@@ -22,4 +22,9 @@ export class Util
     {
         return process.env.PUBLIC_URL + '/icons/' + name;
     }
+
+    static getPublicFile(name : string)
+    {
+        return process.env.PUBLIC_URL + "/" + name;
+    }
 }

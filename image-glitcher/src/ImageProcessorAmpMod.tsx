@@ -5,76 +5,34 @@ import { FramebankWindow } from "./FramebankWindow";
 
 export class ImageProcessorAmpMod
 {
-    static processAnimation(imageData : Uint8Array, frames : number, firstFrameSettings : AmpModSettings, lastFrameSettings : AmpModSettings, boomerang : boolean, encodingAlgorithm : string, transitionIndex ?: number)
+    static instance : ImageProcessorAmpMod = new ImageProcessorAmpMod();
+
+    frameRenderWorker = new Worker(Util.getPublicFile("frameRenderer.js"));
+
+    processAnimation(imageData : Uint8Array, frames : number, firstFrameSettings : AmpModSettings, lastFrameSettings : AmpModSettings, encodingAlgorithm : string, transitionIndex : number)
     {
-        let startFreq = firstFrameSettings.frequency;
-        let endFreq = lastFrameSettings.frequency;
-        let startPhase = firstFrameSettings.phase;
-        let endPhase = lastFrameSettings.phase;
-        let startAmp = firstFrameSettings.amp;
-        let endAmp = lastFrameSettings.amp;
-        let startOffset = firstFrameSettings.offset;
-        let endOffset = lastFrameSettings.offset;
-
-        for (let i = 0; i < frames; i++) 
-        {
-            let progress = i / (frames - 1);
-            let frameFrequency = Util.mixNumber(startFreq, endFreq, progress);
-            let framePhase = Util.mixNumber(startPhase, endPhase, progress);
-            let frameAmp = Util.mixNumber(startAmp, endAmp, progress);
-            let frameOffset = Util.mixNumber(startOffset, endOffset, progress);
-
-            let settings = new AmpModSettings(frameFrequency, framePhase, frameAmp, frameOffset);
-
-            this.processFrame(imageData, settings, encodingAlgorithm, transitionIndex);
-        }
-
-        if(boomerang)
-        {
-            for (let i = 0; i < frames; i++) 
+        this.backgroundRenderAnimation(imageData, frames, firstFrameSettings, lastFrameSettings, encodingAlgorithm, transitionIndex).then((processedData) => 
+        { 
+            //processedData is an array of { frame: buffer, settings: AmpModSettings }
+            processedData.forEach((renderedFrame : { frame : Uint8Array, settings : AmpModSettings }) => 
             {
-                let progress = 1 - (i / (frames - 1));
-                let frameFrequency = Util.mixNumber(startFreq, endFreq, progress);
-                let framePhase = Util.mixNumber(startPhase, endPhase, progress);
-                let frameAmp = Util.mixNumber(startAmp, endAmp, progress);
-                let frameOffset = Util.mixNumber(startOffset, endOffset, progress);
+                this.saveByteArrayAsFrame(renderedFrame.frame, renderedFrame.settings, transitionIndex);
+            });
 
-                let settings = new AmpModSettings(frameFrequency, framePhase, frameAmp, frameOffset);
-
-                this.processFrame(imageData, settings, encodingAlgorithm, transitionIndex);
-            }
-        }
-
-        State.setFrameLoadingState(false);
-        
-        if(transitionIndex == null)
-        {
-            //create animation (once image previews are loaded)
-            let waitTime = 1000;
-            setTimeout(() => FramebankWindow.instance?.createGif(), waitTime);
-        }
-        else
-        {
             //tell transition window that operation is complete
-            State.setTransitionFramebankStatus(transitionIndex, "complete");
-        }
+            State.setTransitionRenderStatus(transitionIndex, "complete");
+        });
     }
     
-    static processFrame(imageData : Uint8Array, settings : AmpModSettings, encodingAlgorithm : string, transitionIndex ?: number)
+    processFrame(imageData : Uint8Array, settings : AmpModSettings, encodingAlgorithm : string, transitionIndex ?: number)
     {
-        //decode data
-        let decodedFile = this.decodeFile(imageData, encodingAlgorithm);
-
-        //process data
-        let processedData = this.bufferProcess(decodedFile, settings);
-
-        //encode data
-        let encodedFile = this.encodeFile(processedData, encodingAlgorithm);
-        
-        this.saveByteArrayAsFrame(encodedFile, settings, transitionIndex);
+        this.backgroundRenderFrame(imageData, settings, encodingAlgorithm).then((processedData) => 
+        { 
+            this.saveByteArrayAsFrame(processedData, settings, transitionIndex);
+        });
     }
 
-    static generateRandomFrame(imageData : Uint8Array, encodingAlgorithm : string)
+    generateRandomFrame(imageData : Uint8Array, encodingAlgorithm : string)
     {
         //randomise frequency so each order of magnitude is equally likely
         let maxFreqMagnitude = 5;
@@ -119,49 +77,38 @@ export class ImageProcessorAmpMod
         this.processFrame(imageData, settings, encodingAlgorithm);
     }
 
-    static encodeFile(rawData : number[], encodingAlgorithm : string)
+    async backgroundRenderFrame(buffer : any, settings : AmpModSettings, encodingAlgorithm : string) : Promise<any>
     {
-        //@ts-ignore
-        return encodingAlgorithm === "mulaw" ? alawmulaw.mulaw.encode(rawData) : alawmulaw.alaw.encode(rawData);
-    }
-
-    static decodeFile(rawData : Uint8Array, encodingAlgorithm : string)
-    {
-        //@ts-ignore
-        return encodingAlgorithm === "mulaw" ? alawmulaw.mulaw.decode(rawData) : alawmulaw.alaw.decode(rawData);
-    }
-
-    static bufferProcess(buffer : any, settings : AmpModSettings)
-    {
-        let headerLength = 54; //value seems to work well for bitmap files
-
-        let frequency = settings.frequency
-        let phase = settings.phase;
-        let amp = settings.amp;
-        let offset = settings.offset;
-
-        let processedBuffer = [];
-        for (let i = 0; i < buffer.length; i++) 
+        return new Promise<any>((resolve, reject) =>
         {
-            const sample = buffer[i];
-
-            if(i < headerLength)
+            this.frameRenderWorker.onmessage = (message) => 
             {
-                processedBuffer.push(sample);
-                continue;
+                resolve(message.data.output);
             }
 
-            let angle = phase + i * frequency;
-            let coef = offset + Math.sin(angle) * amp;
-
-            let processedSample = sample * coef;
-            processedBuffer.push(processedSample);
-        }
-
-        return processedBuffer;
+            this.frameRenderWorker.postMessage({ id: "renderFrame", buffer: buffer, ampModSettings: settings, encodingAlgorithm: encodingAlgorithm });
+        });
     }
 
-    static saveByteArrayAsFrame(data : any, settings : AmpModSettings, transitionIndex ?: number)
+    async backgroundRenderAnimation(buffer : any, frames : number, firstFrameSettings : AmpModSettings, lastFrameSettings : AmpModSettings, encodingAlgorithm : string, transitionIndex : number) : Promise<any>
+    {
+        return new Promise<any>((resolve, reject) =>
+        {
+            this.frameRenderWorker.onmessage = (message) => 
+            {
+                if(message.data.id == "renderAnimation")
+                    resolve(message.data.output);
+                else if(message.data.id == "progress")
+                {
+                    State.setTransitionRenderProgress(transitionIndex, message.data.progress);
+                }
+            }
+
+            this.frameRenderWorker.postMessage({ id: "renderAnimation", buffer: buffer, frames: frames, firstFrameSettings: firstFrameSettings, lastFrameSettings: lastFrameSettings, encodingAlgorithm: encodingAlgorithm });
+        });
+    }
+
+    saveByteArrayAsFrame(data : any, settings : AmpModSettings, transitionIndex ?: number)
     {
         let blob = new Blob([data], {type: "image/bmp"});
         let url = window.URL.createObjectURL(blob);

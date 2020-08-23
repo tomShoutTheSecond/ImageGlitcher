@@ -67,6 +67,7 @@ export class Timeline extends React.Component<TimelineProps>
         let imgElements = this.getImageElements();
         if(imgElements.length == 0)
         {
+            State.setAnimationLoadingState(false);
             alert("No transitions have been rendered!");
             return;
         }
@@ -159,6 +160,7 @@ export class Timeline extends React.Component<TimelineProps>
         let zip = new JSZip();
 
         //add transition frames
+        let fileNumber = 0;
         for (let transitionIndex = 0; transitionIndex < this.props.transitionFrames.length; transitionIndex++) 
         {
             let transitionBank = this.props.transitionFrames[transitionIndex];
@@ -181,7 +183,10 @@ export class Timeline extends React.Component<TimelineProps>
                 const frame = transitionBank.frames[frameIndex];
 
                 let leadingZeros = 4;
-                zip.file(Util.getFrameName(String(frameIndex).padStart(leadingZeros, "0"), "transition" + String(transitionIndex).padStart(leadingZeros, "0") + "frame"), frame.data);
+                let fileName = Util.getFrameName(String(fileNumber).padStart(leadingZeros, "0"));
+                zip.file(fileName, frame.data);
+
+                fileNumber++;
             }
         }
 

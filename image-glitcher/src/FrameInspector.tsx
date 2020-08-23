@@ -69,7 +69,7 @@ export class FrameInspector extends React.Component<FrameInspectorProps, FrameIn
 
     renderFrame()
     {
-        ImageProcessorAmpMod.processFrame(this.props.imageData, this.state.ampModSettings, this.props.encodingAlgorithm);
+        ImageProcessorAmpMod.instance.processFrame(this.props.imageData, this.state.ampModSettings, this.props.encodingAlgorithm);
     }
 
     componentWillReceiveProps(nextProps : FrameInspectorProps)

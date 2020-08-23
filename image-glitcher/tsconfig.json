@@ -20,6 +20,6 @@
     "jsx": "react"
   },
   "include": [
-    "src", "public/alawmulaw.js", "public/gif.js", "public/gif.worker.js"
+    "src", "public/alawmulaw.js", "public/gif.js", "public/gif.worker.js", "public/frameRenderer.js"
   ]
 }

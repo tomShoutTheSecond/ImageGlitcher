@@ -69,10 +69,18 @@ export class State
         this.app.setState({ transitionFrames: transitionFrames });
     }
 
-    static setTransitionFramebankStatus(transitionIndex : number, status : "pending" | "rendering" | "complete")
+    static setTransitionRenderStatus(transitionIndex : number, status : "pending" | "rendering" | "complete")
     {
         let transitionFrames = this.app.state.transitionFrames;
         transitionFrames[transitionIndex].status = status;
+
+        this.app.setState({ transitionFrames: transitionFrames });
+    }
+
+    static setTransitionRenderProgress(transitionIndex : number, progress : number)
+    {
+        let transitionFrames = this.app.state.transitionFrames;
+        transitionFrames[transitionIndex].progress = progress;
 
         this.app.setState({ transitionFrames: transitionFrames });
     }
@@ -139,9 +147,9 @@ export class State
         this.app.setState({ animationIsLoading: isLoading });
     }
 
-    static setFrameLoadingState(isLoading : boolean)
+    static setFramebankLoadingState(isLoading : boolean)
     {
-        this.app.setState({ frameIsLoading: isLoading });
+        this.app.setState({ framebankIsLoading: isLoading });
     }
 }
 
@@ -157,7 +165,7 @@ interface AppState
     inspectedFrame : Frame | null,
     animationUrl : string,
     animationLength : number,
-    frameIsLoading : boolean,
+    framebankIsLoading : boolean,
     animationIsLoading : boolean,
     encodingAlgorithm : "mulaw" | "alaw";
 }
@@ -172,6 +180,7 @@ export interface Frame
 export class TransitionFramebank
 {
     status : "pending" | "rendering" | "complete" = "pending";
+    progress : number = 0;
     frames : Frame[] = [];
 
     clear()
@@ -182,7 +191,7 @@ export class TransitionFramebank
 
 class App extends React.Component<AppProps, AppState>
 {
-    state : AppState = { imageData: new Uint8Array(), frames: [], keyframes: [], transitionFrames: [], omitFramePreference: true, inspectedFrame: null, animationUrl: "", animationLength: 0, frameIsLoading: false, animationIsLoading: false, encodingAlgorithm: "mulaw" };
+    state : AppState = { imageData: new Uint8Array(), frames: [], keyframes: [], transitionFrames: [], omitFramePreference: true, inspectedFrame: null, animationUrl: "", animationLength: 0, framebankIsLoading: false, animationIsLoading: false, encodingAlgorithm: "mulaw" };
 
     componentDidMount()
     {
@@ -204,7 +213,7 @@ class App extends React.Component<AppProps, AppState>
                 <AnimationPreview url={this.state.animationUrl} isLoading={this.state.animationIsLoading} animationLength={this.state.animationLength} />
                 <div>
                     <FrameInspector frame={this.state.inspectedFrame} imageData={this.state.imageData} encodingAlgorithm={this.state.encodingAlgorithm}/>
-                    <FramebankWindow frames={this.state.frames} isLoading={this.state.frameIsLoading}/>
+                    <FramebankWindow frames={this.state.frames} isLoading={this.state.framebankIsLoading}/>
                 </div>
                 <Timeline imageData={this.state.imageData} keyframes={this.state.keyframes} encodingAlgorithm={this.state.encodingAlgorithm} transitionFrames={this.state.transitionFrames} omitFrame={this.state.omitFramePreference} />
             </div>
