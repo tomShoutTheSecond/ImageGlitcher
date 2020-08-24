@@ -5,7 +5,7 @@ import { FramebankWindow } from "./FramebankWindow";
 
 export class ImageProcessorAmpMod
 {
-    static instance : ImageProcessorAmpMod = new ImageProcessorAmpMod();
+    static instance = new ImageProcessorAmpMod();
 
     frameRenderWorker = new Worker(Util.getPublicFile("frameRenderer.js"));
 

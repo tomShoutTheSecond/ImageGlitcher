@@ -5,6 +5,7 @@ import { FramebankWindow } from './FramebankWindow';
 import { AnimationPreview } from './AnimationPreview';
 import { Timeline } from './Timeline';
 import { FrameInspector } from './FrameInspector';
+import { DatabaseControllerTESTWINDOW } from './DatabaseControllerTESTWINDOW';
 
 export class State
 {
@@ -208,6 +209,7 @@ class App extends React.Component<AppProps, AppState>
 
         return (
             <div style={containerStyle}>
+                <DatabaseControllerTESTWINDOW />
                 <ImageLoader />
                 <ImageProcessorWindow imageData={this.state.imageData} encodingAlgorithm={this.state.encodingAlgorithm} />
                 <AnimationPreview url={this.state.animationUrl} isLoading={this.state.animationIsLoading} animationLength={this.state.animationLength} />
