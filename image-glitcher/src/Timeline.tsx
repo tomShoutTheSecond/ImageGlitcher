@@ -41,7 +41,7 @@ export class Timeline extends React.Component<TimelineProps>
                 {this.props.keyframes.map((keyframe, key) => 
                     <div key={key} style={Styles.inlineBlock}>
                         <FrameHolder frame={keyframe} frameIndex={key} />
-                        {key == this.props.keyframes.length - 1 ? "" : <TransitionWindow index={key} imageData={this.props.imageData} encodingAlgorithm={this.props.encodingAlgorithm} keyframes={this.props.keyframes} transitionFrames={this.props.transitionFrames[key]}/>}
+                        {key == this.props.keyframes.length - 1 ? "" : <TransitionWindow index={key} imageData={this.props.imageData} encodingAlgorithm={this.props.encodingAlgorithm} keyframes={this.props.keyframes} transitionFrames={this.props.transitionFrames}/>}
                     </div>
                 )}
                 <div>

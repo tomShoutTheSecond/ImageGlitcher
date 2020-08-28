@@ -1,7 +1,6 @@
 import { Util } from "./Util";
 import { AmpModSettings } from "./ImageProcessorWindow";
-import { State } from "./App";
-import { FramebankWindow } from "./FramebankWindow";
+import { State, Frame } from "./App";
 
 export class ImageProcessorAmpMod
 {
@@ -113,7 +112,7 @@ export class ImageProcessorAmpMod
         let blob = new Blob([data], {type: "image/bmp"});
         let url = window.URL.createObjectURL(blob);
 
-        let frame = { url: url, data: blob, ampModSettings: settings };
+        let frame = new Frame(url, data, settings);
 
         if(transitionIndex == null)
             State.addFrameToFramebank(frame);

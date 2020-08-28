@@ -9,7 +9,7 @@ interface TransitionWindowProps
 { 
     imageData : Uint8Array,
     keyframes : Frame[],
-    transitionFrames : TransitionFramebank,
+    transitionFrames : TransitionFramebank[],
     encodingAlgorithm : "mulaw" | "alaw",
     index : number
 }
@@ -20,8 +20,10 @@ export class TransitionWindow extends React.Component<TransitionWindowProps>
 
     render()
     {
+        let thisTransition = this.props.transitionFrames[this.props.index];
+
         let backgroundColor = Colors.background;
-        switch(this.props.transitionFrames.status)
+        switch(thisTransition.status)
         {
             case "pending":
                 backgroundColor = Colors.background;
@@ -57,23 +59,30 @@ export class TransitionWindow extends React.Component<TransitionWindowProps>
 
         let progressBarInnerStyle : React.CSSProperties = 
         {
-            visibility: this.props.transitionFrames.progress === 0 ? "hidden" : "visible",
+            visibility: thisTransition.progress === 0 ? "hidden" : "visible",
             background: Colors.white,
             outline: "1px solid black",
-            width: progressWidth * this.props.transitionFrames.progress,
+            width: progressWidth * thisTransition.progress,
             height: "16px"
         };
+
+        let somethingIsRendering = false;
+        this.props.transitionFrames.forEach((transition : TransitionFramebank) => 
+        { 
+            if(transition.status === "rendering")
+                somethingIsRendering = true;
+        });
 
         return (
             <div style={containerStyle}>
                 <h1 style={Styles.h1Style}>Transition</h1>
-                <p>{this.props.transitionFrames.status}</p>
+                <p>{thisTransition.status}</p>
                 <div style={progressBarStyle}>
                     <div style={progressBarInnerStyle}/>
                 </div>
                 <label>Frames </label><input type="number" ref={this.framesInput}></input>
                 <br/>
-                <button onClick={() => this.renderFrames()} style={{ float: "right", marginTop: "16px" }}>Render</button>
+                <button onClick={() => this.renderFrames()} style={{ float: "right", marginTop: "16px" }} disabled={somethingIsRendering}>Render</button>
             </div>
         );
     }

@@ -20,14 +20,13 @@ export class DatabaseControllerTESTWINDOW extends React.Component
 
         return (
             <div style={containerStyle}>
-                <button onClick={() => this.test()}>TEST</button>
+                <button onClick={async () => await this.test()}>TEST</button>
             </div>
         );
     }
 
-    test()
+    async test()
     {
-        let db = DatabaseController.instance;
-        
+        await DatabaseController.init();
     }
 }

@@ -1,4 +1,4 @@
-import React, { CSSProperties, createRef } from 'react';
+import React, { CSSProperties, createRef, Fragment } from 'react';
 import { ImageLoader } from './ImageLoader';
 import { ImageProcessorWindow, AmpModSettings } from './ImageProcessorWindow';
 import { FramebankWindow } from './FramebankWindow';
@@ -6,6 +6,8 @@ import { AnimationPreview } from './AnimationPreview';
 import { Timeline } from './Timeline';
 import { FrameInspector } from './FrameInspector';
 import { DatabaseControllerTESTWINDOW } from './DatabaseControllerTESTWINDOW';
+import { v4 as uuidv4 } from 'uuid';
+import { DatabaseController } from './DatabaseController';
 
 export class State
 {
@@ -30,6 +32,7 @@ export class State
 
     static clearFramebank()
     {
+        this.app.state.frames.forEach(frame => frame.dispose());
         this.app.state.frames.length = 0;
     }
 
@@ -47,6 +50,9 @@ export class State
 
     static clearAllTransitionFrames()
     {
+        //revoke object URLs to avoid memory leak
+        this.app.state.transitionFrames.forEach(transition => transition.clear());
+
         this.app.setState({ transitionFrames: [] });
     }
 
@@ -171,11 +177,37 @@ interface AppState
     encodingAlgorithm : "mulaw" | "alaw";
 }
 
-export interface Frame
+export class Frame
 {
-    url : string,
-    data : Blob,
-    ampModSettings : AmpModSettings
+    id : string;
+    url : string;
+    data : Blob;
+    ampModSettings : AmpModSettings;
+
+    constructor(url : string, data : Blob, ampModSettings : AmpModSettings)
+    {
+        this.id = uuidv4();
+        this.url = url;
+        this.data = data;
+        this.ampModSettings = ampModSettings;
+
+        //this.saveDataInDB(this.id, data);
+    }
+
+    dispose()
+    {
+        URL.revokeObjectURL(this.url);
+    }
+/*
+    saveDataInDB(id : string, data : Blob)
+    {
+        DatabaseController.add(id, data);
+    }
+
+    get data()
+    {
+        return DatabaseController.get(this.id);
+    }*/
 }
 
 export class TransitionFramebank
@@ -186,6 +218,9 @@ export class TransitionFramebank
 
     clear()
     {
+        //revoke objectUrl to avoid memory leak
+        this.frames.forEach(frame => { frame.dispose(); });
+
         this.frames = [];
     }
 }

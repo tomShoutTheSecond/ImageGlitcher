@@ -2,58 +2,79 @@ import { Frame } from "./App";
 
 export class DatabaseController
 {
-    static instance = new DatabaseController();
-    db : IDBDatabase = new IDBDatabase();
+    static db : IDBDatabase | null = null;
+    static initialized = false;
 
-    constructor()
+    static async init()
     {
-        let initialData = [ { id: "abc" }, { id: "def" } ];
+        if(this.initialized) return;
+        this.initialized = true;
 
-        const dbName = "imageDB";
-        
-        var request = indexedDB.open(dbName, 0);
+        return new Promise<void>((resolve, reject) => 
+        { 
+            let initialData = [ { id: "abc" }, { id: "def" } ];
 
-        request.onerror = event =>
-        {
-            console.log("Database error");
-        };
-
-        request.onupgradeneeded = event =>
-        {
-            //@ts-ignore
-            this.db = event.target.result as IDBDatabase;
-
-            // Create an objectStore to hold information about our customers. We're
-            // going to use "ssn" as our key path because it's guaranteed to be
-            // unique - or at least that's what I was told during the kickoff meeting.
-            let objectStore = this.db.createObjectStore("framebank", { keyPath: "id" });
-            /*
-            // Create an index to search customers by name. We may have duplicates
-            // so we can't use a unique index.
-            objectStore.createIndex("name", "name", { unique: false });
-
-            // Create an index to search customers by email. We want to ensure that
-            // no two customers have the same email, so use a unique index.
-            objectStore.createIndex("email", "email", { unique: true });
-            */
-            // Use transaction oncomplete to make sure the objectStore creation is 
-            // finished before adding data into it.
-            objectStore.transaction.oncomplete = event => 
+            const dbName = "imageDB";
+            
+            var request = indexedDB.open(dbName, 1);
+    
+            request.onerror = event =>
             {
-                // Store values in the newly created objectStore.
-                let customerObjectStore =this. db.transaction("framebank", "readwrite").objectStore("framebank");
-                initialData.forEach(element =>
-                {
-                    customerObjectStore.add(element);
-                    console.log("Initial data was added");
-                });
+                console.log("Database error");
+                reject();
             };
-        };
+    
+            request.onsuccess = event =>
+            {
+                //@ts-ignore
+                this.db = event.target.result;
+    
+                console.log("Database open");
+                resolve();
+            };
+    
+            request.onupgradeneeded = event =>
+            {
+                //@ts-ignore
+                this.db = event.target.result as IDBDatabase;
+    
+                // Create an objectStore to hold information about our customers. We're
+                // going to use "ssn" as our key path because it's guaranteed to be
+                // unique - or at least that's what I was told during the kickoff meeting.
+                let objectStore = this.db.createObjectStore("framebank", { keyPath: "id" });
+                /*
+                // Create an index to search customers by name. We may have duplicates
+                // so we can't use a unique index.
+                objectStore.createIndex("name", "name", { unique: false });
+    
+                // Create an index to search customers by email. We want to ensure that
+                // no two customers have the same email, so use a unique index.
+                objectStore.createIndex("email", "email", { unique: true });
+                */
+                // Use transaction oncomplete to make sure the objectStore creation is 
+                // finished before adding data into it.
+                
+                objectStore.transaction.oncomplete = event => 
+                {
+                    // Store values in the newly created objectStore.
+                    let customerObjectStore = this.db!.transaction("framebank", "readwrite").objectStore("framebank");
+                    initialData.forEach(element =>
+                    {
+                        customerObjectStore.add(element);
+                        console.log("Initial data was added");
+                    });
+
+                    resolve();
+                };
+            };
+        });
     }
 
-    add(newFrame : Frame)
+    static add(id : string, data : Blob)
     {
-        var transaction = this.db.transaction(["customers"], "readwrite");
+        if(!this.initialized) throw new Error("DB not initialized");
+
+        var transaction = this.db!.transaction(["framebank"], "readwrite");
         // Note: Older experimental implementations use the deprecated constant IDBTransaction.READ_WRITE instead of "readwrite".
         // In case you want to support such an implementation, you can write: 
         // var transaction = db.transaction(["customers"], IDBTransaction.READ_WRITE);
@@ -68,35 +89,40 @@ export class DatabaseController
         {
             // Don't forget to handle errors!
         };
+
+        let newData = { id: id, data: data };
         
-        var objectStore = transaction.objectStore("customers");
-        var request = objectStore.add(newFrame);
+        var objectStore = transaction.objectStore("framebank");
+        var request = objectStore.add(newData);
         request.onsuccess = event => 
         {
             // event.target.result === customer.ssn;
         };
     }
 
-    delete()
+    static delete(id : string)
     {
-        var request = this.db.transaction(["customers"], "readwrite").objectStore("customers").delete("444-44-4444");
-        request.onsuccess = (event : any) => 
+        if(!this.initialized) throw new Error("DB not initialized");
+
+        var request = this.db!.transaction(["framebank"], "readwrite").objectStore("framebank").delete(id);
+        request.onsuccess = event => 
         {
             console.log("Data was deleted");
         };
     }
 
-    async get()
+    static async get(id : string)
     {
-        return new Promise<string>((resolve, reject) => 
+        if(!this.initialized) throw new Error("DB not initialized");
+
+        return new Promise<Blob>((resolve, reject) => 
         {
-            this.db.transaction("customers").objectStore("customers").get("444-44-4444").onsuccess = event =>
+            this.db!.transaction("framebank").objectStore("framebank").get(id).onsuccess = event =>
             {
                 //@ts-ignore
-                let result = event.target.result.name as string;
+                let result = event.target.result;
 
-                console.log("Name for SSN 444-44-4444 is " + result);
-
+                console.log(result);
                 resolve(result);
             };
         });
