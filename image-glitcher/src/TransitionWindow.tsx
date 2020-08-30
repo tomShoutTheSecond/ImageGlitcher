@@ -1,14 +1,14 @@
 import React, { createRef } from 'react';
 import { Colors } from './Colors';
 import { Styles } from './Styles';
-import { Frame, TransitionFramebank, State } from './App';
+import { KeyFrame, TransitionFramebank, State } from './App';
 import { ImageProcessorAmpMod } from './ImageProcessorAmpMod';
 import { settings } from 'cluster';
 
 interface TransitionWindowProps 
 { 
     imageData : Uint8Array,
-    keyframes : Frame[],
+    keyframes : KeyFrame[],
     transitionFrames : TransitionFramebank[],
     encodingAlgorithm : "mulaw" | "alaw",
     index : number

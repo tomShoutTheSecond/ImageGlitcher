@@ -1,5 +1,5 @@
 import React from 'react';
-import { State, Frame } from './App';
+import { State, KeyFrame } from './App';
 import { Colors } from './Colors';
 import { Styles } from './Styles';
 import { Util } from './Util';

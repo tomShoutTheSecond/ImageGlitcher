@@ -1,6 +1,6 @@
 import { Util } from "./Util";
 import { AmpModSettings } from "./ImageProcessorWindow";
-import { State, Frame } from "./App";
+import { State, KeyFrame as KeyFrame, TransitionFrame } from "./App";
 
 export class ImageProcessorAmpMod
 {
@@ -15,7 +15,7 @@ export class ImageProcessorAmpMod
             //processedData is an array of { frame: buffer, settings: AmpModSettings }
             processedData.forEach((renderedFrame : { frame : Uint8Array, settings : AmpModSettings }) => 
             {
-                this.saveByteArrayAsFrame(renderedFrame.frame, renderedFrame.settings, transitionIndex);
+                this.saveTransitionFrame(renderedFrame.frame, renderedFrame.settings, transitionIndex);
             });
 
             //tell transition window that operation is complete
@@ -23,11 +23,11 @@ export class ImageProcessorAmpMod
         });
     }
     
-    processFrame(imageData : Uint8Array, settings : AmpModSettings, encodingAlgorithm : string, transitionIndex ?: number)
+    processKeyFrame(imageData : Uint8Array, settings : AmpModSettings, encodingAlgorithm : string)
     {
         this.backgroundRenderFrame(imageData, settings, encodingAlgorithm).then((processedData) => 
         { 
-            this.saveByteArrayAsFrame(processedData, settings, transitionIndex);
+            this.saveKeyFrame(processedData, settings);
         });
     }
 
@@ -73,7 +73,7 @@ export class ImageProcessorAmpMod
             offset : randomOffset
         }
 
-        this.processFrame(imageData, settings, encodingAlgorithm);
+        this.processKeyFrame(imageData, settings, encodingAlgorithm);
     }
 
     async backgroundRenderFrame(buffer : any, settings : AmpModSettings, encodingAlgorithm : string) : Promise<any>
@@ -107,16 +107,21 @@ export class ImageProcessorAmpMod
         });
     }
 
-    saveByteArrayAsFrame(data : any, settings : AmpModSettings, transitionIndex ?: number)
+    saveKeyFrame(data : any, settings : AmpModSettings)
     {
         let blob = new Blob([data], {type: "image/bmp"});
-        let url = window.URL.createObjectURL(blob);
+        let url = URL.createObjectURL(blob);
 
-        let frame = new Frame(url, data, settings);
+        let frame = new KeyFrame(url, blob, settings);
 
-        if(transitionIndex == null)
-            State.addFrameToFramebank(frame);
-        else 
-            State.addFrameToTransitionFrames(frame, transitionIndex);
+        State.addFrameToFramebank(frame);
+    }
+    
+    saveTransitionFrame(data : any, settings : AmpModSettings, transitionIndex : number)
+    {
+        let blob = new Blob([data], {type: "image/bmp"});
+        let frame = new TransitionFrame(blob, settings);
+
+        State.addFrameToTransitionFrames(frame, transitionIndex);
     }
 }

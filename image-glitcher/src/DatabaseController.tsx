@@ -1,7 +1,9 @@
-import { Frame } from "./App";
+import { KeyFrame } from "./App";
 
 export class DatabaseController
 {
+    static get objectStoreId() { return "transitionFrames" };
+
     static db : IDBDatabase | null = null;
     static initialized = false;
 
@@ -12,7 +14,7 @@ export class DatabaseController
 
         return new Promise<void>((resolve, reject) => 
         { 
-            let initialData = [ { id: "abc" }, { id: "def" } ];
+            //let initialData = [ { id: "abc" }, { id: "def" } ];
 
             const dbName = "imageDB";
             
@@ -41,7 +43,7 @@ export class DatabaseController
                 // Create an objectStore to hold information about our customers. We're
                 // going to use "ssn" as our key path because it's guaranteed to be
                 // unique - or at least that's what I was told during the kickoff meeting.
-                let objectStore = this.db.createObjectStore("framebank", { keyPath: "id" });
+                let objectStore = this.db.createObjectStore(this.objectStoreId, { keyPath: "id" });
                 /*
                 // Create an index to search customers by name. We may have duplicates
                 // so we can't use a unique index.
@@ -56,14 +58,15 @@ export class DatabaseController
                 
                 objectStore.transaction.oncomplete = event => 
                 {
+                    /*
                     // Store values in the newly created objectStore.
-                    let customerObjectStore = this.db!.transaction("framebank", "readwrite").objectStore("framebank");
+                    let customerObjectStore = this.db!.transaction(this.objectStoreId, "readwrite").objectStore(this.objectStoreId);
                     initialData.forEach(element =>
                     {
                         customerObjectStore.add(element);
                         console.log("Initial data was added");
                     });
-
+                    */
                     resolve();
                 };
             };
@@ -74,12 +77,11 @@ export class DatabaseController
     {
         if(!this.initialized) throw new Error("DB not initialized");
 
-        var transaction = this.db!.transaction(["framebank"], "readwrite");
+        var transaction = this.db!.transaction([this.objectStoreId], "readwrite");
         // Note: Older experimental implementations use the deprecated constant IDBTransaction.READ_WRITE instead of "readwrite".
         // In case you want to support such an implementation, you can write: 
         // var transaction = db.transaction(["customers"], IDBTransaction.READ_WRITE);
 
-        // Do something when all the data is added to the database.
         transaction.oncomplete = event => 
         {
             console.log("Data was added");
@@ -87,12 +89,12 @@ export class DatabaseController
         
         transaction.onerror = event => 
         {
-            // Don't forget to handle errors!
+            console.log("Error adding data");
         };
 
         let newData = { id: id, data: data };
         
-        var objectStore = transaction.objectStore("framebank");
+        var objectStore = transaction.objectStore(this.objectStoreId);
         var request = objectStore.add(newData);
         request.onsuccess = event => 
         {
@@ -104,7 +106,7 @@ export class DatabaseController
     {
         if(!this.initialized) throw new Error("DB not initialized");
 
-        var request = this.db!.transaction(["framebank"], "readwrite").objectStore("framebank").delete(id);
+        var request = this.db!.transaction([this.objectStoreId], "readwrite").objectStore(this.objectStoreId).delete(id);
         request.onsuccess = event => 
         {
             console.log("Data was deleted");
@@ -117,13 +119,13 @@ export class DatabaseController
 
         return new Promise<Blob>((resolve, reject) => 
         {
-            this.db!.transaction("framebank").objectStore("framebank").get(id).onsuccess = event =>
+            this.db!.transaction(this.objectStoreId).objectStore(this.objectStoreId).get(id).onsuccess = event =>
             {
                 //@ts-ignore
                 let result = event.target.result;
 
                 console.log(result);
-                resolve(result);
+                resolve(result.data);
             };
         });
     }

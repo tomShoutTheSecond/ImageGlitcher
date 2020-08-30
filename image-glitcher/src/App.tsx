@@ -23,7 +23,7 @@ export class State
         this.app.setState({ imageData: imageData });
     }
 
-    static addFrameToFramebank(frame : Frame)
+    static addFrameToFramebank(frame : KeyFrame)
     {
         let newFrames = this.app.state.frames;
         newFrames.push(frame);
@@ -64,8 +64,19 @@ export class State
 
         this.app.setState({ transitionFrames: transitionFrames });
     }
+/*
+    static addFrameToTransitionFrames(frame : KeyFrame, transitionIndex : number)
+    {
+        let transitionFrames = this.app.state.transitionFrames;
+        let transitionBank = transitionFrames[transitionIndex];
+        transitionBank.frames.push(frame);
 
-    static addFrameToTransitionFrames(frame : Frame, transitionIndex : number)
+        transitionFrames[transitionIndex] = transitionBank;
+
+        this.app.setState({ transitionFrames: transitionFrames });
+    }
+*/
+    static addFrameToTransitionFrames(frame : TransitionFrame, transitionIndex : number)
     {
         let transitionFrames = this.app.state.transitionFrames;
         let transitionBank = transitionFrames[transitionIndex];
@@ -92,7 +103,7 @@ export class State
         this.app.setState({ transitionFrames: transitionFrames });
     }
 
-    static addKeyFrame(frame : Frame)
+    static addKeyFrame(frame : KeyFrame)
     {
         let newKeyframes = this.app.state.keyframes;
         newKeyframes.push(frame);
@@ -105,7 +116,7 @@ export class State
         this.app.setState({ keyframes: newKeyframes, transitionFrames: transitionFrames });
     }
 
-    static deleteKeyFrame(frame : Frame)
+    static deleteKeyFrame(frame : KeyFrame)
     {
         //remove keyframe
         let newKeyframes = this.app.state.keyframes;
@@ -129,7 +140,7 @@ export class State
         this.app.setState({ omitFramePreference: value });
     }
 
-    static inspectFrame(frame : Frame)
+    static inspectFrame(frame : KeyFrame)
     {
         this.app.setState({ inspectedFrame: frame });
     }
@@ -165,11 +176,11 @@ interface AppProps { }
 interface AppState
 {
     imageData : Uint8Array,
-    frames : Frame[],
-    keyframes : Frame[],
+    frames : KeyFrame[],
+    keyframes : KeyFrame[],
     transitionFrames : TransitionFramebank[],
     omitFramePreference : boolean,
-    inspectedFrame : Frame | null,
+    inspectedFrame : KeyFrame | null,
     animationUrl : string,
     animationLength : number,
     framebankIsLoading : boolean,
@@ -177,7 +188,7 @@ interface AppState
     encodingAlgorithm : "mulaw" | "alaw";
 }
 
-export class Frame
+export class KeyFrame
 {
     id : string;
     url : string;
@@ -190,35 +201,52 @@ export class Frame
         this.url = url;
         this.data = data;
         this.ampModSettings = ampModSettings;
-
-        //this.saveDataInDB(this.id, data);
     }
 
     dispose()
     {
         URL.revokeObjectURL(this.url);
     }
-/*
+}
+
+export class TransitionFrame
+{
+    id : string;
+    ampModSettings : AmpModSettings;
+
+    constructor(data : Blob, ampModSettings : AmpModSettings)
+    {
+        this.id = uuidv4();
+        this.ampModSettings = ampModSettings;
+
+        this.saveDataInDB(this.id, data);
+    }
+
+    dispose()
+    {
+        DatabaseController.delete(this.id);
+    }
+
     saveDataInDB(id : string, data : Blob)
     {
         DatabaseController.add(id, data);
     }
 
-    get data()
+    getDataAsync()
     {
         return DatabaseController.get(this.id);
-    }*/
+    }
 }
 
 export class TransitionFramebank
 {
     status : "pending" | "rendering" | "complete" = "pending";
     progress : number = 0;
-    frames : Frame[] = [];
+    frames : TransitionFrame[] = [];
 
     clear()
     {
-        //revoke objectUrl to avoid memory leak
+        //deletes frame from database
         this.frames.forEach(frame => { frame.dispose(); });
 
         this.frames = [];
@@ -233,6 +261,14 @@ class App extends React.Component<AppProps, AppState>
     {
         //provide App reference to State
         State.app = this;
+
+        //initialize app
+        this.init();
+    }
+
+    async init()
+    {
+        await DatabaseController.init();
     }
 
     render()

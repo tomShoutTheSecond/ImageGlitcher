@@ -1,5 +1,5 @@
 import React from 'react';
-import { State, Frame } from './App';
+import { State, KeyFrame } from './App';
 import { Colors } from './Colors';
 import { Styles } from './Styles';
 import ReactDOM from 'react-dom';
@@ -11,7 +11,7 @@ import ArrowExpand from './icons/arrow-expand.svg';
 
 interface FrameHolderProps
 {
-    frame : Frame,
+    frame : KeyFrame,
     frameIndex : number
 }
 

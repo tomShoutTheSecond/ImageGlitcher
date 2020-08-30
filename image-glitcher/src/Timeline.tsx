@@ -1,5 +1,5 @@
 import React, { createElement, createRef } from 'react';
-import { State, Frame, TransitionFramebank } from './App';
+import { State, KeyFrame, TransitionFramebank, TransitionFrame } from './App';
 import { Colors } from './Colors';
 import { Styles } from './Styles';
 import ReactDOM from 'react-dom';
@@ -11,7 +11,7 @@ import { TransitionWindow } from './TransitionWindow';
 
 interface TimelineProps
 {
-    keyframes : Frame[],
+    keyframes : KeyFrame[],
     transitionFrames : TransitionFramebank[],
     omitFrame : boolean,
     imageData : Uint8Array,
@@ -45,7 +45,7 @@ export class Timeline extends React.Component<TimelineProps>
                     </div>
                 )}
                 <div>
-                    <button onClick={() => this.createGif()}>Convert to GIF</button>
+                    <button onClick={async () => await this.createGif()}>Convert to GIF</button>
                     <button onClick={() => this.downloadFrames()}>Download Frames</button>
                     <input ref={this.omitFrameCheckbox} type="checkbox" onClick={() => this.changeOmitFramePreference()} checked /><label>Omit last frame (for smooth loops)</label>
                 </div>
@@ -53,7 +53,7 @@ export class Timeline extends React.Component<TimelineProps>
         );
     }
 
-    createGif()
+    async createGif()
     {
         //check if any transition frames are rendering, and cancel operation if so
         if(!State.transitionFramesAreComplete())
@@ -64,7 +64,7 @@ export class Timeline extends React.Component<TimelineProps>
 
         State.setAnimationLoadingState(true);
 
-        let imgElements = this.getImageElements();
+        let imgElements = await this.getImageElements();
         if(imgElements.length == 0)
         {
             State.setAnimationLoadingState(false);
@@ -114,9 +114,9 @@ export class Timeline extends React.Component<TimelineProps>
     }
 
     //puts each frame in an image element 
-    getImageElements()
+    async getImageElements()
     {
-        let allTransitionFrames : Frame[] = [];
+        let allTransitionFrames : TransitionFrame[] = [];
         
         for (let i = 0; i < this.props.transitionFrames.length; i++) 
         {
@@ -135,20 +135,26 @@ export class Timeline extends React.Component<TimelineProps>
         State.setAnimationLength(allTransitionFrames.length);
 
         let imageElements : HTMLImageElement[] = [];
-        allTransitionFrames.forEach((transitionFrame) => 
+        for (let i = 0; i < allTransitionFrames.length; i++) 
         {
+            const transitionFrame = allTransitionFrames[i];
+            let frameData = await transitionFrame.getDataAsync();
+
+            //TODO: FIX THIS MEMORY LEAK!
+            let frameUrl = URL.createObjectURL(frameData); 
+
             let imageElement = new Image();
-            imageElement.src = transitionFrame.url;
+            imageElement.src = frameUrl;
             imageElement.width = 20;
             imageElement.height = 20;
 
             imageElements.push(imageElement);
-        });
+        }
 
         return imageElements;
     }
 
-    downloadFrames()
+    async downloadFrames()
     {
         //check if any transition frames are rendering, and cancel operation if so
         if(!State.transitionFramesAreComplete())
@@ -184,7 +190,8 @@ export class Timeline extends React.Component<TimelineProps>
 
                 let leadingZeros = 4;
                 let fileName = Util.getFrameName(String(fileNumber).padStart(leadingZeros, "0"));
-                zip.file(fileName, frame.data);
+                let frameData = await frame.getDataAsync();
+                zip.file(fileName, frameData);
 
                 fileNumber++;
             }
