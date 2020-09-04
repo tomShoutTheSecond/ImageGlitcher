@@ -5,7 +5,6 @@ import { FramebankWindow } from './FramebankWindow';
 import { AnimationPreview } from './AnimationPreview';
 import { Timeline } from './Timeline';
 import { FrameInspector } from './FrameInspector';
-import { DatabaseControllerTESTWINDOW } from './DatabaseControllerTESTWINDOW';
 import { v4 as uuidv4 } from 'uuid';
 import { DatabaseController } from './DatabaseController';
 
@@ -13,7 +12,7 @@ export class State
 {
     static app : App;
 
-    static setEncodingAlgorithm(encodingAlgorithm : "mulaw" | "alaw")
+    static setEncodingAlgorithm(encodingAlgorithm : EncodingAlgorithm)
     {
         this.app.setState({ encodingAlgorithm: encodingAlgorithm });
     }
@@ -87,7 +86,7 @@ export class State
         this.app.setState({ transitionFrames: transitionFrames });
     }
 
-    static setTransitionRenderStatus(transitionIndex : number, status : "pending" | "rendering" | "complete")
+    static setTransitionRenderStatus(transitionIndex : number, status : Status)
     {
         let transitionFrames = this.app.state.transitionFrames;
         transitionFrames[transitionIndex].status = status;
@@ -187,7 +186,7 @@ interface AppState
     animationLength : number,
     framebankIsLoading : boolean,
     animationIsLoading : boolean,
-    encodingAlgorithm : "mulaw" | "alaw";
+    encodingAlgorithm : EncodingAlgorithm;
 }
 
 export class KeyFrame
@@ -240,9 +239,12 @@ export class TransitionFrame
     }
 }
 
+export type Status = "pending" | "rendering" | "complete";
+export type EncodingAlgorithm = "mulaw" | "alaw";
+
 export class TransitionFramebank
 {
-    status : "pending" | "rendering" | "complete" = "pending";
+    status : Status = "pending";
     progress : number = 0;
     frames : TransitionFrame[] = [];
 

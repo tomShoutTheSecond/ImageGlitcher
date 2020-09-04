@@ -1,5 +1,5 @@
 import React, { createElement, createRef } from 'react';
-import { State, KeyFrame, TransitionFramebank, TransitionFrame } from './App';
+import { State, KeyFrame, TransitionFramebank, TransitionFrame, EncodingAlgorithm } from './App';
 import { Colors } from './Colors';
 import { Styles } from './Styles';
 import ReactDOM from 'react-dom';
@@ -15,7 +15,7 @@ interface TimelineProps
     transitionFrames : TransitionFramebank[],
     omitFrame : boolean,
     imageData : Uint8Array,
-    encodingAlgorithm : "mulaw" | "alaw"
+    encodingAlgorithm : EncodingAlgorithm
 }
 
 export class Timeline extends React.Component<TimelineProps>

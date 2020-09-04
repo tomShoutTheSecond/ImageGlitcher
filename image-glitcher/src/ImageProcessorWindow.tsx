@@ -1,5 +1,5 @@
 import React from 'react';
-import { State, KeyFrame } from './App';
+import { State, KeyFrame, EncodingAlgorithm } from './App';
 import { Colors } from './Colors';
 import { Styles } from './Styles';
 import { Util } from './Util';
@@ -25,7 +25,7 @@ export class AmpModSettings
 interface ImageProcessorWindowProps
 {
     imageData : Uint8Array,
-    encodingAlgorithm : "mulaw" | "alaw"
+    encodingAlgorithm : EncodingAlgorithm,
 }
 
 export class ImageProcessorWindow extends React.Component<ImageProcessorWindowProps>
@@ -70,6 +70,6 @@ export class ImageProcessorWindow extends React.Component<ImageProcessorWindowPr
     onChangeEncoding()
     {
         let encodingInput = this.refs.encodingInput as HTMLInputElement;
-        State.setEncodingAlgorithm(encodingInput.value as "mulaw" | "alaw");
+        State.setEncodingAlgorithm(encodingInput.value as EncodingAlgorithm);
     }
 }
