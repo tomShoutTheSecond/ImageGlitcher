@@ -10,6 +10,7 @@ import { Util } from './Util';
 import ArrowExpand from './icons/arrow-expand.svg';
 import { ImageProcessorWindow, AmpModSettings } from './ImageProcessorWindow';
 import { ImageProcessorAmpMod } from './ImageProcessorAmpMod';
+import { IconButton } from './IconButton';
 
 interface FrameInspectorProps
 {
@@ -62,7 +63,9 @@ export class FrameInspector extends React.Component<FrameInspectorProps, FrameIn
                 <h1 style={Styles.h1Style}>Frame Inspector</h1>
                 {previewImage}
                 {ampModSettingsForm}
-                <button style={Styles.bigButtonStyle} onClick={() => this.renderFrame()}>Re-render</button>
+                <div style={Styles.floatRight}>
+                    <IconButton iconName="image-move" onClick={() => this.renderFrame()}/>
+                </div>
             </div>
         );
     }

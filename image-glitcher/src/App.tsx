@@ -49,7 +49,7 @@ export class State
 
     static clearAllTransitionFrames()
     {
-        //revoke object URLs to avoid memory leak
+        //delete transition frames from database 
         this.app.state.transitionFrames.forEach(transition => transition.clear());
 
         this.app.setState({ transitionFrames: [] });

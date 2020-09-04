@@ -7,6 +7,7 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 import { Util } from './Util';
 import { FrameHolder } from './FrameHolder';
+import { IconButton } from './IconButton';
 
 interface FramebankWindowProps
 {
@@ -47,7 +48,7 @@ export class FramebankWindow extends React.Component<FramebankWindowProps>
                 <h1 style={Styles.h1Style}>Framebank</h1>
                 {content}
                 <br />
-                <button onClick={() => this.downloadFrames()}>Download Frames</button>
+                <IconButton iconName="download" onClick={() => this.downloadFrames()}/>
             </div>
         );
     }
