@@ -47,51 +47,9 @@ export class FramebankWindow extends React.Component<FramebankWindowProps>
                 <h1 style={Styles.h1Style}>Framebank</h1>
                 {content}
                 <br />
-                <button onClick={() => this.createGif()}>Convert to GIF</button>
                 <button onClick={() => this.downloadFrames()}>Download Frames</button>
             </div>
         );
-    }
-
-    createGif()
-    {
-        State.setAnimationLoadingState(true);
-
-        //first find the actual image size of the first frame
-        var newImg = new Image();
-        newImg.onload = () =>
-        {
-            let width = newImg.width;
-            let height = newImg.height;
-
-            //@ts-ignore
-            let gif = new GIF(
-            {
-                workers: 2,
-                quality: 10,
-                width: width,
-                height: height
-            });
-
-            //add frames to gif
-            let imgElements = this.getImageElements();
-            imgElements.forEach(img => 
-            {
-                gif.addFrame(img, {delay: 10});
-            });
-            
-            gif.on('finished', function(blob : Blob) 
-            {
-                let url = URL.createObjectURL(blob);
-                State.setAnimationUrl(url);
-                State.setAnimationLoadingState(false);
-            });
-            
-            gif.render();
-        }
-
-        let firstImage = this.getImageElements()[0] as HTMLImageElement;
-        newImg.src = firstImage.src;
     }
 
     downloadFrames()
@@ -109,12 +67,5 @@ export class FramebankWindow extends React.Component<FramebankWindowProps>
             //see FileSaver.js
             saveAs(content, "Framebank.zip");
         });
-    }
-
-    //returns references to all the preview image elements 
-    getImageElements()
-    {
-        let thisNode = ReactDOM.findDOMNode(this)! as Element;
-        return Array.from(thisNode.getElementsByClassName('downloadImg'));
     }
 }

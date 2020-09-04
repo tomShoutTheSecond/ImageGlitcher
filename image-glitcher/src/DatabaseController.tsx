@@ -14,8 +14,6 @@ export class DatabaseController
 
         return new Promise<void>((resolve, reject) => 
         { 
-            //let initialData = [ { id: "abc" }, { id: "def" } ];
-
             const dbName = "imageDB";
             
             var request = indexedDB.open(dbName, 1);
@@ -119,13 +117,20 @@ export class DatabaseController
 
         return new Promise<Blob>((resolve, reject) => 
         {
-            this.db!.transaction(this.objectStoreId).objectStore(this.objectStoreId).get(id).onsuccess = event =>
+            let request = this.db!.transaction(this.objectStoreId).objectStore(this.objectStoreId).get(id);
+            
+            request.onsuccess = event =>
             {
                 //@ts-ignore
                 let result = event.target.result;
 
                 console.log(result);
                 resolve(result.data);
+            };
+
+            request.onerror = event =>
+            {
+                reject();
             };
         });
     }

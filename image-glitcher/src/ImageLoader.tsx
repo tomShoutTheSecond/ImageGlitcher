@@ -109,6 +109,7 @@ export class ImageLoader extends React.Component
             State.setImageData(convertedImageData);
 
             //show converted image in preview
+            URL.revokeObjectURL(this.state.previewUrl);
             let convertedImageUrl = window.URL.createObjectURL(imageBlob);
             this.setState({ previewUrl: convertedImageUrl, isConverting: false });
 

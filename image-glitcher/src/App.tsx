@@ -157,6 +157,8 @@ export class State
 
     static setAnimationUrl(url : string)
     {
+        URL.revokeObjectURL(this.app.state.animationUrl);
+        
         this.app.setState({ animationUrl: url });
     }
 

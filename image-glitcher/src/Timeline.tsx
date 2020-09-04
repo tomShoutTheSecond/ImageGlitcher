@@ -41,7 +41,7 @@ export class Timeline extends React.Component<TimelineProps>
                 {this.props.keyframes.map((keyframe, key) => 
                     <div key={key} style={Styles.inlineBlock}>
                         <FrameHolder frame={keyframe} frameIndex={key} />
-                        {key == this.props.keyframes.length - 1 ? "" : <TransitionWindow index={key} imageData={this.props.imageData} encodingAlgorithm={this.props.encodingAlgorithm} keyframes={this.props.keyframes} transitionFrames={this.props.transitionFrames}/>}
+                        {key === this.props.keyframes.length - 1 ? "" : <TransitionWindow index={key} imageData={this.props.imageData} encodingAlgorithm={this.props.encodingAlgorithm} keyframes={this.props.keyframes} transitionFrames={this.props.transitionFrames}/>}
                     </div>
                 )}
                 <div>
@@ -100,6 +100,14 @@ export class Timeline extends React.Component<TimelineProps>
 
                 gif.on('finished', function(blob : Blob) 
                 {
+                    //clean up virtual img elements to avoid memory leak
+                    for (let i = 0; i < imgElements.length; i++) 
+                    {
+                        const img = imgElements[i];
+                        URL.revokeObjectURL(img.src);
+                        img.remove();
+                    }
+
                     let url = URL.createObjectURL(blob);
                     State.setAnimationUrl(url);
                     State.setAnimationLoadingState(false);
