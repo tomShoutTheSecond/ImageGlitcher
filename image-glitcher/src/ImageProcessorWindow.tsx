@@ -5,6 +5,7 @@ import { Styles } from './Styles';
 import { Util } from './Util';
 import { FramebankWindow } from './FramebankWindow';
 import { ImageProcessorAmpMod } from './ImageProcessorAmpMod';
+import { IconButton } from './IconButton';
 
 export class AmpModSettings
 {
@@ -57,7 +58,9 @@ export class ImageProcessorWindow extends React.Component<ImageProcessorWindowPr
                 <br />
                 <br />
                 <h2 style={Styles.h2Style}>Amplitude Modulation</h2>
-                <button style={Styles.bigButtonStyle} onClick={() => this.generateRandomFrame()}>Random</button>
+                <div style={Styles.floatRight}>
+                    <IconButton iconName="dice-multiple" onClick={() => this.generateRandomFrame()}/>
+                </div>
             </div>
         );
     }

@@ -1,6 +1,7 @@
 export class DatabaseController
 {
     static get objectStoreId() { return "transitionFrames" };
+    static get dbName() { return "imageDB" };
 
     static db : IDBDatabase | null = null;
     static initialized = false;
@@ -10,11 +11,11 @@ export class DatabaseController
         if(this.initialized) return;
         this.initialized = true;
 
+        await this.clearDatabase();
+
         return new Promise<void>((resolve, reject) => 
         { 
-            const dbName = "imageDB";
-            
-            var request = indexedDB.open(dbName, 1);
+            var request = indexedDB.open(this.dbName, 1);
             request.onerror = event =>
             {
                 console.log("Database error");
@@ -40,6 +41,31 @@ export class DatabaseController
                 {
                     resolve();
                 };
+            };
+        });
+    }
+
+    private static async clearDatabase()
+    {
+        return new Promise<boolean>((resolve, reject) => 
+        {
+            let request = indexedDB.deleteDatabase(this.dbName);
+            request.onsuccess = event => 
+            {
+                console.log("Deleted database successfully");
+                resolve(true);
+            };
+
+            request.onerror = event => 
+            {
+                console.log("Couldn't delete database");
+                reject();
+            };
+
+            request.onblocked = event => 
+            {
+                console.log("Couldn't delete database due to the operation being blocked");
+                reject();
             };
         });
     }
@@ -94,6 +120,14 @@ export class DatabaseController
                 let result = event.target.result;
 
                 console.log(result);
+
+                if(result == null)
+                {
+                    alert("DB error: a frame was missing. Local storage may be full.");
+                    reject();
+                    return;
+                }
+
                 resolve(result.data);
             };
 

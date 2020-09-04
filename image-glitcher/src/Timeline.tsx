@@ -8,6 +8,7 @@ import { saveAs } from 'file-saver';
 import { Util } from './Util';
 import { FrameHolder } from './FrameHolder';
 import { TransitionWindow } from './TransitionWindow';
+import { IconButton } from './IconButton';
 
 interface TimelineProps
 {
@@ -15,12 +16,19 @@ interface TimelineProps
     transitionFrames : TransitionFramebank[],
     omitFrame : boolean,
     imageData : Uint8Array,
-    encodingAlgorithm : EncodingAlgorithm
+    encodingAlgorithm : EncodingAlgorithm,
+    loadingGif : boolean
 }
 
-export class Timeline extends React.Component<TimelineProps>
+interface TimelineState
+{
+    loadingDownload : boolean
+}
+
+export class Timeline extends React.Component<TimelineProps, TimelineState>
 {
     omitFrameCheckbox = createRef<HTMLInputElement>();
+    state = { loadingDownload: false }
 
     render()
     {
@@ -45,9 +53,9 @@ export class Timeline extends React.Component<TimelineProps>
                     </div>
                 )}
                 <div>
-                    <button onClick={async () => await this.createGif()}>Convert to GIF</button>
-                    <button onClick={() => this.downloadFrames()}>Download Frames</button>
-                    <input ref={this.omitFrameCheckbox} type="checkbox" onClick={() => this.changeOmitFramePreference()} checked /><label>Omit last frame (for smooth loops)</label>
+                    <IconButton iconName="gif" loading={this.props.loadingGif} onClick={async () => await this.createGif()}/>
+                    <IconButton leftMargin iconName="download" loading={this.state.loadingDownload} onClick={async () => await this.downloadFrames()}>Download Frames</IconButton>
+                    <input ref={this.omitFrameCheckbox} type="checkbox" onClick={() => this.changeOmitFramePreference()} checked={this.props.omitFrame} /><label>Omit last frame (for smooth loops)</label>
                 </div>
             </div>
         );
@@ -148,9 +156,7 @@ export class Timeline extends React.Component<TimelineProps>
             const transitionFrame = allTransitionFrames[i];
             let frameData = await transitionFrame.getDataAsync();
 
-            //TODO: FIX THIS MEMORY LEAK!
             let frameUrl = URL.createObjectURL(frameData); 
-
             let imageElement = new Image();
             imageElement.src = frameUrl;
             imageElement.width = 20;
@@ -170,6 +176,8 @@ export class Timeline extends React.Component<TimelineProps>
             alert("Frames are still rendering!");
             return;
         }
+
+        this.setState({ loadingDownload: true });
 
         let zip = new JSZip();
 
@@ -191,8 +199,7 @@ export class Timeline extends React.Component<TimelineProps>
                 if(isLastFrameOfTransition && isLastTransition && this.props.omitFrame)
                     skipFrame = true;
 
-                if(skipFrame)
-                    continue;
+                if(skipFrame) continue;
 
                 const frame = transitionBank.frames[frameIndex];
 
@@ -205,10 +212,12 @@ export class Timeline extends React.Component<TimelineProps>
             }
         }
 
-        zip.generateAsync({ type:"blob" }).then(function(content) 
+        zip.generateAsync({ type: "blob" }).then(content =>
         {
             //see FileSaver.js
             saveAs(content, "TimelineFrames.zip");
+
+            this.setState({ loadingDownload: false });
         });
     }
 

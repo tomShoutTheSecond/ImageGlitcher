@@ -8,6 +8,7 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 import { Util } from './Util';
 import ArrowExpand from './icons/arrow-expand.svg';
+import { Icon } from './Icon';
 
 interface FrameHolderProps
 {
@@ -66,11 +67,11 @@ export class FrameHolder extends React.Component<FrameHolderProps, FrameHolderSt
             <div style={containerStyle} onMouseEnter={() => this.mouseEnter()} onMouseLeave={() => this.mouseLeave()}>
                 <img className="downloadImg" src={this.props.frame.url} style={Styles.imageStyle}></img>
                 <div style={overlayContainerStyle}>
-                    <a href={this.props.frame.url} target="_blank"><img src={process.env.PUBLIC_URL + '/icons/arrow-expand.svg'} style={iconStyle}/></a>
-                    <a href={this.props.frame.url} download={Util.getFrameName(this.props.frameIndex)}><img src={Util.getIcon('download.svg')} style={iconStyle}/></a>
-                    <a onClick={() => State.inspectFrame(this.props.frame)} style={Styles.handCursor}><img src={Util.getIcon('pencil.svg')} style={iconStyle}/></a>
-                    <a onClick={() => State.addKeyFrame(this.props.frame)} style={Styles.handCursor}><img src={Util.getIcon('key-plus.svg')} style={iconStyle}/></a>
-                    <a onClick={() => State.deleteKeyFrame(this.props.frame)} style={Styles.handCursor}><img src={Util.getIcon('key-remove.svg')} style={iconStyle}/></a>
+                    <a href={this.props.frame.url} target="_blank"><Icon iconName={'arrow-expand'}/></a>
+                    <a href={this.props.frame.url} download={Util.getFrameName(this.props.frameIndex)}><Icon iconName={'download'}/></a>
+                    <a onClick={() => State.inspectFrame(this.props.frame)} style={Styles.handCursor}><Icon iconName={'pencil'}/></a>
+                    <a onClick={() => State.addKeyFrame(this.props.frame)} style={Styles.handCursor}><Icon iconName={'key-plus'}/></a>
+                    <a onClick={() => State.deleteKeyFrame(this.props.frame)} style={Styles.handCursor}><Icon iconName={'key-remove'}/></a>
                     {Object.keys(this.props.frame.ampModSettings).map((settingName, key) => {
                         let settingValue = Object.values(this.props.frame.ampModSettings)[key];
                         return(

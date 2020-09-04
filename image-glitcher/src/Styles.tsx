@@ -83,4 +83,14 @@ export class Styles
 
         return style;
     }
+
+    static get floatRight()
+    {
+        let style : React.CSSProperties =
+        {
+            float: "right"
+        };
+
+        return style;
+    }
 }
