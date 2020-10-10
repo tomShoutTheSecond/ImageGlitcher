@@ -1,9 +1,10 @@
 export class Colors
 {
     static background = "#CACACA";
-    static border = "#999";
-    static white = "#fff";
-    static fill = "#222";
+    static border = "#999999";
+    static white = "#ffffff";
+    static black = "#000000";
+    static fill = "#222222";
     static transparent = "transparent";
     static transBlack = "rgba(0,0,0,0.5)";
 

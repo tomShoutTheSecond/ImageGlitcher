@@ -152,13 +152,15 @@ export class Waveform extends React.Component<WaveformProps, WaveformState>
             sampleBin.push(currentSample);
         }
 
+        //draw horizontal line across canvas (so silent samples don't appear blank)
         let halfCanvasHeight = canvas.height * 0.5;
         context.strokeStyle = Colors.white;
-
-        //draw horizontal line across canvas (so silent samples don't appear blank)
+        context.beginPath();
         context.moveTo(0, halfCanvasHeight);
         context.lineTo(canvas.width, halfCanvasHeight);
         context.stroke();
+
+        let zeroCrossing = canvas.height * 0.5;
 
         //draw the chosen samples
         for(let i = 0; i < samplesToDraw.length; i++)
@@ -166,32 +168,30 @@ export class Waveform extends React.Component<WaveformProps, WaveformState>
             //draw symmetrical waveform because we only have data for one side of the waveform
             let thisSample = samplesToDraw[i];
             
-            let positiveYValue = halfCanvasHeight + thisSample * halfCanvasHeight * -1;
-            //let negativeYValue = halfCanvasHeight + thisSample * halfCanvasHeight;
-            let zeroCrossing = canvas.height;
+            let positiveYValue = zeroCrossing - thisSample * canvas.height;// halfCanvasHeight + thisSample * halfCanvasHeight * -1;
+            context.beginPath();
             context.moveTo(i, positiveYValue);
             context.lineTo(i, zeroCrossing);
             context.stroke();
         }
 
         //draw the outline
-        /*
+        context.strokeStyle = Colors.black;
         for(let i = 0; i < samplesToDraw.length; i++)
         {
             if(i + 1 <= samplesToDraw.length - 1)
             {
-                context.strokeStyle = Colors.transBlack;
-
                 let thisSample = samplesToDraw[i];
                 let nextSample = samplesToDraw[i + 1];
-                let thisPositiveYValue = halfCanvasHeight + thisSample * halfCanvasHeight * -1;
-                let nextPositiveYValue = halfCanvasHeight + nextSample * halfCanvasHeight * -1;
+                let thisPositiveYValue = zeroCrossing - thisSample * canvas.height;//halfCanvasHeight + thisSample * halfCanvasHeight * -1;
+                let nextPositiveYValue = zeroCrossing - nextSample * canvas.height;//halfCanvasHeight + nextSample * halfCanvasHeight * -1;
 
+                context.beginPath();
                 context.moveTo(i, thisPositiveYValue);
                 context.lineTo(i + 1, nextPositiveYValue);
                 context.stroke();
             }
-        }*/
+        }
     }
 
     drawGrainCenter()
