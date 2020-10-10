@@ -7,6 +7,7 @@ import { Timeline } from './Timeline';
 import { FrameInspector } from './FrameInspector';
 import { v4 as uuidv4 } from 'uuid';
 import { DatabaseController } from './DatabaseController';
+import { AudioProcessorWindow } from './AudioProcessorWindow';
 
 export class State
 {
@@ -170,6 +171,12 @@ export class State
     {
         this.app.setState({ framebankIsLoading: isLoading });
     }
+
+    static setAudioEnvelope(buffer : number[])
+    {
+        //let newAudioBuffer = new AudioBuffer(buffer);
+        this.app.setState({ audioBuffer: buffer });
+    }
 }
 
 interface AppProps { }
@@ -186,7 +193,8 @@ interface AppState
     animationLength : number,
     framebankIsLoading : boolean,
     animationIsLoading : boolean,
-    encodingAlgorithm : EncodingAlgorithm;
+    encodingAlgorithm : EncodingAlgorithm,
+    audioBuffer : number[]
 }
 
 export class KeyFrame
@@ -259,7 +267,7 @@ export class TransitionFramebank
 
 class App extends React.Component<AppProps, AppState>
 {
-    state : AppState = { imageData: new Uint8Array(), frames: [], keyframes: [], transitionFrames: [], omitFramePreference: true, inspectedFrame: null, animationUrl: "", animationLength: 0, framebankIsLoading: false, animationIsLoading: false, encodingAlgorithm: "mulaw" };
+    state : AppState = { imageData: new Uint8Array(), frames: [], keyframes: [], transitionFrames: [], omitFramePreference: true, inspectedFrame: null, animationUrl: "", animationLength: 0, framebankIsLoading: false, animationIsLoading: false, encodingAlgorithm: "mulaw", audioBuffer: [] };
 
     componentDidMount()
     {
@@ -292,6 +300,8 @@ class App extends React.Component<AppProps, AppState>
                     <FramebankWindow frames={this.state.frames} isLoading={this.state.framebankIsLoading}/>
                 </div>
                 <Timeline imageData={this.state.imageData} keyframes={this.state.keyframes} encodingAlgorithm={this.state.encodingAlgorithm} transitionFrames={this.state.transitionFrames} omitFrame={this.state.omitFramePreference} loadingGif={this.state.animationIsLoading}/>
+            
+                <AudioProcessorWindow buffer={this.state.audioBuffer} />
             </div>
         );
     }
