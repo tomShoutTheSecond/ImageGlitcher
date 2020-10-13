@@ -194,7 +194,8 @@ interface AppState
     framebankIsLoading : boolean,
     animationIsLoading : boolean,
     encodingAlgorithm : EncodingAlgorithm,
-    audioBuffer : number[]
+    audioBuffer : number[],
+    audioSources : string[]
 }
 
 export class KeyFrame
@@ -267,7 +268,7 @@ export class TransitionFramebank
 
 class App extends React.Component<AppProps, AppState>
 {
-    state : AppState = { imageData: new Uint8Array(), frames: [], keyframes: [], transitionFrames: [], omitFramePreference: true, inspectedFrame: null, animationUrl: "", animationLength: 0, framebankIsLoading: false, animationIsLoading: false, encodingAlgorithm: "mulaw", audioBuffer: [] };
+    state : AppState = { imageData: new Uint8Array(), frames: [], keyframes: [], transitionFrames: [], omitFramePreference: true, inspectedFrame: null, animationUrl: "", animationLength: 0, framebankIsLoading: false, animationIsLoading: false, encodingAlgorithm: "mulaw", audioBuffer: [], audioSources: [] };
 
     componentDidMount()
     {
@@ -299,7 +300,7 @@ class App extends React.Component<AppProps, AppState>
                     <FrameInspector frame={this.state.inspectedFrame} imageData={this.state.imageData} encodingAlgorithm={this.state.encodingAlgorithm}/>
                     <FramebankWindow frames={this.state.frames} isLoading={this.state.framebankIsLoading}/>
                 </div>
-                <Timeline imageData={this.state.imageData} keyframes={this.state.keyframes} encodingAlgorithm={this.state.encodingAlgorithm} transitionFrames={this.state.transitionFrames} omitFrame={this.state.omitFramePreference} loadingGif={this.state.animationIsLoading}/>
+                <Timeline imageData={this.state.imageData} keyframes={this.state.keyframes} encodingAlgorithm={this.state.encodingAlgorithm} transitionFrames={this.state.transitionFrames} omitFrame={this.state.omitFramePreference} loadingGif={this.state.animationIsLoading} audioSources={this.state.audioSources}/>
             
                 <AudioProcessorWindow buffer={this.state.audioBuffer} />
             </div>

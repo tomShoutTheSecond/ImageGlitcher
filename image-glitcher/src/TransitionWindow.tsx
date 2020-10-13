@@ -11,7 +11,8 @@ interface TransitionWindowProps
     keyframes : KeyFrame[],
     transitionFrames : TransitionFramebank[],
     encodingAlgorithm : EncodingAlgorithm,
-    index : number
+    index : number,
+    audioSources : string[]
 }
 
 export class TransitionWindow extends React.Component<TransitionWindowProps>
@@ -81,6 +82,16 @@ export class TransitionWindow extends React.Component<TransitionWindowProps>
                     <div style={progressBarInnerStyle}/>
                 </div>
                 <label>Frames </label><input type="number" ref={this.framesInput}></input>
+                <br/>
+
+                <label htmlFor="audioSources">Audio source </label>
+                <select name="audioSources" id="audioSources">
+                    <option value="none">none</option>
+                    {
+                        this.props.audioSources.map((audioSource, key) => 
+                        <option key={key} value={audioSource}>{audioSource}</option>)
+                    }
+                </select>
                 <br/>
                 <button onClick={() => this.renderFrames()} style={{ float: "right", marginTop: "16px" }} disabled={somethingIsRendering}>Render</button>
             </div>

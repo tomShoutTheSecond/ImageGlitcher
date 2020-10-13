@@ -19,6 +19,7 @@ interface AudioProcessorWindowProps
 interface AudioProcessorWindowState
 {
     smoothing : number,
+    framesPerSecond : number,
     audioFile : File | null
 }
 
@@ -26,10 +27,11 @@ export class AudioProcessorWindow extends React.Component<AudioProcessorWindowPr
 {
     fileInput = createRef<HTMLInputElement>();
     smoothingInput = createRef<HTMLInputElement>();
+    framesPerSecondInput = createRef<HTMLInputElement>();
 
     audioProcessor = new AudioProcessor();
 
-    state : AudioProcessorWindowState = { smoothing : 4, audioFile : null };
+    state : AudioProcessorWindowState = { smoothing : 4, audioFile : null, framesPerSecond : 24 };
 
     render()
     {
@@ -50,7 +52,8 @@ export class AudioProcessorWindow extends React.Component<AudioProcessorWindowPr
             <div style={containerStyle}>
                 <h1 style={Styles.h1Style}>Audio Processor</h1>
                 <input type="file" ref={this.fileInput} onChange={async () => await this.loadAudioFromFile()} />
-                <input type="number" ref={this.smoothingInput} onChange={() => this.changeSmoothing()} />
+                <input type="number" ref={this.smoothingInput} onChange={() => this.changeSmoothing()} defaultValue={4} />
+                <input type="number" ref={this.framesPerSecondInput} onChange={() => this.changeFramesPerSecond()} defaultValue={24} />
                 <button onClick={async () => await this.analyse()}>Analyse</button>
 
                 <Waveform fileName="no file" buffer={this.props.buffer} />
@@ -63,7 +66,7 @@ export class AudioProcessorWindow extends React.Component<AudioProcessorWindowPr
 
         let audioBuffer = await this.audioProcessor.decodeFile(this.state.audioFile);
 
-        let bufferVolumeEnvelope = this.audioProcessor.processBuffer(audioBuffer, this.state.smoothing);
+        let bufferVolumeEnvelope = this.audioProcessor.processBuffer(audioBuffer, this.state.smoothing, this.state.framesPerSecond);
         State.setAudioEnvelope(bufferVolumeEnvelope);
     }
 
@@ -73,6 +76,14 @@ export class AudioProcessorWindow extends React.Component<AudioProcessorWindowPr
         if (smoothing == undefined) return;
 
         this.setState({ smoothing: Math.round(smoothing) });
+    }
+
+    changeFramesPerSecond()
+    {
+        let fps = this.framesPerSecondInput.current?.valueAsNumber;
+        if (fps == undefined) return;
+
+        this.setState({ framesPerSecond: Math.round(fps) });
     }
 
     async loadAudioFromFile()

@@ -17,7 +17,8 @@ interface TimelineProps
     omitFrame : boolean,
     imageData : Uint8Array,
     encodingAlgorithm : EncodingAlgorithm,
-    loadingGif : boolean
+    loadingGif : boolean,
+    audioSources : string[]
 }
 
 interface TimelineState
@@ -49,7 +50,7 @@ export class Timeline extends React.Component<TimelineProps, TimelineState>
                 {this.props.keyframes.map((keyframe, key) => 
                     <div key={key} style={Styles.inlineBlock}>
                         <FrameHolder frame={keyframe} frameIndex={key} />
-                        {key === this.props.keyframes.length - 1 ? "" : <TransitionWindow index={key} imageData={this.props.imageData} encodingAlgorithm={this.props.encodingAlgorithm} keyframes={this.props.keyframes} transitionFrames={this.props.transitionFrames}/>}
+                        {key === this.props.keyframes.length - 1 ? "" : <TransitionWindow index={key} imageData={this.props.imageData} encodingAlgorithm={this.props.encodingAlgorithm} keyframes={this.props.keyframes} transitionFrames={this.props.transitionFrames} audioSources={this.props.audioSources}/>}
                     </div>
                 )}
                 <div>
