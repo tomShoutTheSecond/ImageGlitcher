@@ -58,20 +58,35 @@ export class AudioProcessor
             lowpassedBuffer.push(sampleLowpassed);
         }
 
-        //find interpolated values for where the frames land
-        let outputBuffer = [];
-
-        //frames land every sampleRateCoef elements
+        //instead of above method, throw samples into a separate bucket for each frame, then take averages of the bucket contents 
         let sampleRateCoef = buffer.sampleRate / framesPerSecond;
-        let totalFramesAudioCovers = buffer.length / sampleRateCoef;
-        for (let i = 0; i < totalFramesAudioCovers; i++) 
+        let totalFrames = buffer.length / sampleRateCoef;
+        let samplesPerFrame = buffer.length / totalFrames;
+        let buckets : number[][] = [];
+        for (let sampleIndex = 0; sampleIndex < lowpassedBuffer.length; sampleIndex++) 
         {
-            let floatingIndex = sampleRateCoef * i;
-            let interpolatedSample = this.findInterpolatedValue(lowpassedBuffer, floatingIndex);
-            outputBuffer.push(interpolatedSample);
+            let sample = lowpassedBuffer[sampleIndex];
+            let frameIndex = Math.floor(sampleIndex / samplesPerFrame);
+
+            //add new bucket if needed
+            if(buckets.length - 1 < frameIndex) 
+                buckets[frameIndex] = [];
+
+            buckets[frameIndex].push(sample);
         }
 
-        return outputBuffer;
+        let bucketAverages : number[] = [];
+        buckets.forEach(bucket => 
+        {
+            bucketAverages.push(this.averageOfArray(bucket));
+        });
+
+        return bucketAverages;
+    }
+
+    getFrameIndexForSample(sampleIndex : number, samplesPerFrame : number)
+    {
+        return Math.floor(sampleIndex / samplesPerFrame);
     }
 
     //returns an interpolated value from a buffer when you need a value for an abstract (non integer) index

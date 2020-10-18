@@ -41,7 +41,7 @@ export class Waveform extends React.Component<WaveformProps, WaveformState>
 
     render()
     {
-        let waveformWidth = 512;
+        let waveformWidth = 720;
         let waveformHeight = 240;
         let marginHorizontal = 16;
         let marginTop = 16;
@@ -118,16 +118,15 @@ export class Waveform extends React.Component<WaveformProps, WaveformState>
         let context = canvas.getContext("2d")!;
         InterfaceUtilities.canvasFixDpi(canvas, context);
 
-        //determines the image quality
-        canvas.width = 500; //increasing this will slow it down
+        let samplesPerPixel = bufferData.length / canvas.width;//Math.floor(bufferData.length / canvas.width);//
+        let samplesToDraw : number[] = [];
 
-        let samplesPerPixel = Math.floor(bufferData.length / canvas.width);
-        let samplesToDraw = [];
-
+        console.log("samplesPerPixel", samplesPerPixel)
+/*
         let sampleBin = []; //current bin of samples that will be averaged together
         for(let i = 0; i < bufferData.length; i++)
         {
-            if(sampleBin.length === samplesPerPixel) //bin is full
+            if(sampleBin.length >= samplesPerPixel) //bin is full
             {
                 //average bin samples together
                 let samplesTotal = 0;
@@ -136,7 +135,7 @@ export class Waveform extends React.Component<WaveformProps, WaveformState>
                     samplesTotal += sample;
                 });
 
-                let binAverage = samplesTotal / samplesPerPixel;
+                let binAverage = samplesTotal / sampleBin.length;
                 samplesToDraw.push(binAverage);
 
                 //empty the bin
@@ -151,6 +150,41 @@ export class Waveform extends React.Component<WaveformProps, WaveformState>
             //put sample in bin
             sampleBin.push(currentSample);
         }
+*/
+        let sampleBin = new SampleBin();
+        for(let i = 0; i < bufferData.length; i++)
+        {
+            let currentSample = bufferData[i];
+            if(currentSample < 0)
+                currentSample = 0 - currentSample;
+
+            if(sampleBin.totalSamples >= samplesPerPixel - 1) //bin is full
+            {
+                let overlappingFraction = sampleBin.totalSamples - (samplesPerPixel - 1); //proportion of the sample that falls in this bin
+
+                //add overlapping fraction of the next sample into this bin
+                sampleBin.addSample(currentSample, overlappingFraction);
+
+                //average bin samples together
+                let binAverage = sampleBin.getAverage();
+                samplesToDraw.push(binAverage);
+
+                //empty the bin
+                sampleBin = new SampleBin();
+
+                //add remaining fraction of the overlapping sample into the next bin
+                let remainingFraction = 1 - overlappingFraction;
+                sampleBin.addSample(currentSample, remainingFraction);
+
+                continue;
+            }
+
+            //put sample in bin
+            sampleBin.addSample(currentSample);
+        }
+
+        console.log("samplesToDraw.length", samplesToDraw.length)
+        canvas.width = samplesToDraw.length;
 
         //draw horizontal line across canvas (so silent samples don't appear blank)
         let halfCanvasHeight = canvas.height * 0.5;
@@ -213,5 +247,24 @@ export class Waveform extends React.Component<WaveformProps, WaveformState>
         context.moveTo(xValue, 0);
         context.lineTo(xValue, canvas.height);
         context.stroke();
+    }
+}
+
+class SampleBin
+{
+    cumulativeSample : number = 0; //adds all the samples together
+    totalSamples : number = 0; //counts the number of samples (including fractions!)
+
+    //allows you to add a whole sample, or a fraction of a sample which enables you
+    //to create interpolated averages by splitting bin edge samples between bins
+    addSample(sample : number, sampleFraction : number = 1)
+    {
+        this.cumulativeSample += sample * sampleFraction;
+        this.totalSamples += sampleFraction;
+    }
+
+    getAverage()
+    {
+        return this.cumulativeSample / this.totalSamples;
     }
 }

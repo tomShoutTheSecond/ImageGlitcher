@@ -115,8 +115,8 @@ export class ZoomScrollSlider extends React.Component<ZoomScrollSliderProps>
 
         //draw handle circles
 
-        let circleMargin = canvas.width * 0.02;//0.04;
-        let circleRadius = canvas.height * 0.1;
+        let circleMargin = 10;
+        let circleRadius = 3;
 
         context.fillStyle = Colors.white;
         context.arc(barLeft + circleMargin, circleMargin, circleRadius, 0, MathUtils.radians(360));

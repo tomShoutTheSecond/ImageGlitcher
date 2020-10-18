@@ -45,17 +45,23 @@ export class AudioProcessorWindow extends React.Component<AudioProcessorWindowPr
             borderStyle: "solid",
             borderColor: Colors.border,
             display: "inline-block",
-            width: "70%"
+            width: "70%",
+            userSelect: "none"
         };
 
         return (
             <div style={containerStyle}>
                 <h1 style={Styles.h1Style}>Audio Processor</h1>
                 <input type="file" ref={this.fileInput} onChange={async () => await this.loadAudioFromFile()} />
+                <br /><br />
+                <label>Smoothing: </label>
                 <input type="number" ref={this.smoothingInput} onChange={() => this.changeSmoothing()} defaultValue={4} />
-                <input type="number" ref={this.framesPerSecondInput} onChange={() => this.changeFramesPerSecond()} defaultValue={24} />
+                <br /><br />
+                <label>Sync (FPS): </label>
+                <input type="number" style={{ marginRight : "24px" }} ref={this.framesPerSecondInput} onChange={() => this.changeFramesPerSecond()} defaultValue={24} />
+                
                 <button onClick={async () => await this.analyse()}>Analyse</button>
-
+                <br /><br />
                 <Waveform fileName="no file" buffer={this.props.buffer} />
             </div>);
     }
@@ -67,7 +73,18 @@ export class AudioProcessorWindow extends React.Component<AudioProcessorWindowPr
         let audioBuffer = await this.audioProcessor.decodeFile(this.state.audioFile);
 
         let bufferVolumeEnvelope = this.audioProcessor.processBuffer(audioBuffer, this.state.smoothing, this.state.framesPerSecond);
-        State.setAudioEnvelope(bufferVolumeEnvelope);
+
+        if(this.fileInput.current?.value == null) return;
+
+        let fullPath = this.fileInput.current.value;
+        let startIndex = (fullPath.indexOf('\\') >= 0 ? fullPath.lastIndexOf('\\') : fullPath.lastIndexOf('/'));
+        let filename = fullPath.substring(startIndex);
+        if (filename.indexOf('\\') === 0 || filename.indexOf('/') === 0) 
+        {
+            filename = filename.substring(1);
+        }
+
+        State.setAudioEnvelope(bufferVolumeEnvelope, filename);
     }
 
     changeSmoothing()

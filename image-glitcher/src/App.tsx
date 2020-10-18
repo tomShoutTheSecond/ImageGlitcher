@@ -172,10 +172,10 @@ export class State
         this.app.setState({ framebankIsLoading: isLoading });
     }
 
-    static setAudioEnvelope(buffer : number[])
+    static setAudioEnvelope(buffer : number[], fileName : string)
     {
         //let newAudioBuffer = new AudioBuffer(buffer);
-        this.app.setState({ audioBuffer: buffer });
+        this.app.setState({ audioBuffer: buffer, audioSources: [ fileName ] });
     }
 }
 
