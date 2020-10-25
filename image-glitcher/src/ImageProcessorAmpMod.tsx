@@ -31,6 +31,27 @@ export class ImageProcessorAmpMod
         });
     }
 
+    processFrameSequence(imageData : Uint8Array[], settings : AmpModSettings, encodingAlgorithm : string)
+    {
+        let processNextSequenceFrame = (frameCounter : number) => 
+        { 
+            if(frameCounter > imageData.length - 1)
+            {
+                alert("framesequence rendered");
+                return;
+            }
+
+            this.backgroundRenderFrame(imageData[frameCounter], settings, encodingAlgorithm).then((processedData) => 
+            { 
+                this.saveSequenceFrame(processedData);
+                
+                processNextSequenceFrame(frameCounter + 1);
+            });
+        };
+        
+        processNextSequenceFrame(0);
+    }
+
     generateRandomFrame(imageData : Uint8Array, encodingAlgorithm : string)
     {
         //randomise frequency so each order of magnitude is equally likely
@@ -109,7 +130,7 @@ export class ImageProcessorAmpMod
 
     saveKeyFrame(data : any, settings : AmpModSettings)
     {
-        let blob = new Blob([data], {type: "image/bmp"});
+        let blob = new Blob([data], { type: "image/bmp" });
         let url = URL.createObjectURL(blob);
 
         let frame = new KeyFrame(url, blob, settings);
@@ -119,9 +140,19 @@ export class ImageProcessorAmpMod
     
     saveTransitionFrame(data : any, settings : AmpModSettings, transitionIndex : number)
     {
-        let blob = new Blob([data], {type: "image/bmp"});
+        let blob = new Blob([data], { type: "image/bmp" });
         let frame = new TransitionFrame(blob, settings);
 
         State.addFrameToTransitionFrames(frame, transitionIndex);
+    }
+
+    saveSequenceFrame(data : any)
+    {
+        let blob = new Blob([data], { type: "image/bmp" });
+        //let frame = new TransitionFrame(blob, settings);
+
+        console.log("new sequence frame processed")
+
+        State.addProcessedSequenceFrame(blob);
     }
 }

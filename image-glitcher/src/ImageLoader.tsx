@@ -3,6 +3,7 @@ import { State } from './App';
 import { Colors } from './Colors';
 import { Styles } from './Styles';
 import Jimp from 'jimp';
+import { Util } from './Util';
 
 export class ImageLoader extends React.Component
 {
@@ -86,7 +87,7 @@ export class ImageLoader extends React.Component
                 if(!imageIsBitmap)
                 {
                     this.setState({ isConverting: true });
-                    this.convertImage(originalImageUrl);
+                    Util.convertImage(originalImageUrl, imageBlob => this.loadConvertedImage(imageBlob));
                 }
                 else
                 {
@@ -118,27 +119,5 @@ export class ImageLoader extends React.Component
         fileReader.readAsArrayBuffer(imageBlob);
     }
 
-    convertImage(imageUrl : string)
-    {
-        Jimp.read(imageUrl, (err, image) =>
-        {
-            if(err) 
-            {
-                console.log(err);
-            } 
-            else 
-            {
-                image.getBuffer(Jimp.MIME_BMP, (error, data) => 
-                {
-                    let convertedImageBlob = this.bufferToBlob(data, "image/bmp");
-                    this.loadConvertedImage(convertedImageBlob)
-                });
-            }
-        });
-    }
-
-    bufferToBlob(buffer : Buffer, contentType : string)
-    {
-        return new Blob([ buffer ], { type: contentType });
-    }
+    
 }

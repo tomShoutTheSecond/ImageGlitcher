@@ -1,3 +1,5 @@
+import Jimp from "jimp";
+
 export class Util
 {
     static copy<AmpModSettings>(object : object)
@@ -26,5 +28,29 @@ export class Util
     static getPublicFile(name : string)
     {
         return process.env.PUBLIC_URL + "/" + name;
+    }
+
+    static bufferToBlob(buffer : Buffer, contentType : string)
+    {
+        return new Blob([ buffer ], { type: contentType });
+    }
+
+    static convertImage(imageUrl : string, loadConvertedImage : (blob : Blob) => void)
+    {
+        Jimp.read(imageUrl, (err, image) =>
+        {
+            if(err) 
+            {
+                console.log(err);
+            } 
+            else 
+            {
+                image.getBuffer(Jimp.MIME_BMP, (error, data) => 
+                {
+                    let convertedImageBlob = Util.bufferToBlob(data, "image/bmp");
+                    loadConvertedImage(convertedImageBlob)
+                });
+            }
+        });
     }
 }

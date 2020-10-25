@@ -188,6 +188,31 @@ export class State
 
         console.log("buffers: ", this.app.state.audioBuffers);
     }
+
+    //loads a frame to the animation sequence buffer (for applying effect to videos)
+    static addFrameToSequence(frame : Uint8Array)
+    {
+        let frameSequence = this.app.state.frameSequence;
+        frameSequence.push(frame);
+        this.app.setState({ frameSequence: frameSequence });
+    }
+
+    static clearFrameSequence()
+    {
+        this.app.setState({ frameSequence: [] });
+    }
+
+    static addProcessedSequenceFrame(frame : Blob)
+    {
+        let processedFrameSequence = this.app.state.processedFrameSequence;
+        processedFrameSequence.push(frame);
+        this.app.setState({ processedFrameSequence: processedFrameSequence });
+    }
+
+    static clearProcessedFrameSequence()
+    {
+        this.app.setState({ processedFrameSequence: [] });
+    }
 }
 
 interface AppProps { }
@@ -206,7 +231,9 @@ interface AppState
     animationIsLoading : boolean,
     encodingAlgorithm : EncodingAlgorithm,
     audioBuffers : number[][],
-    audioSources : string[]
+    audioSources : string[],
+    frameSequence : Uint8Array[],
+    processedFrameSequence : Blob[]
 }
 
 export class KeyFrame
@@ -279,7 +306,7 @@ export class TransitionFramebank
 
 class App extends React.Component<AppProps, AppState>
 {
-    state : AppState = { imageData: new Uint8Array(), frames: [], keyframes: [], transitionFrames: [], omitFramePreference: true, inspectedFrame: null, animationUrl: "", animationLength: 0, framebankIsLoading: false, animationIsLoading: false, encodingAlgorithm: "mulaw", audioBuffers: [], audioSources: [] };
+    state : AppState = { imageData: new Uint8Array(), frames: [], keyframes: [], transitionFrames: [], omitFramePreference: true, inspectedFrame: null, animationUrl: "", animationLength: 0, framebankIsLoading: false, animationIsLoading: false, encodingAlgorithm: "mulaw", audioBuffers: [], audioSources: [], frameSequence: [], processedFrameSequence: [] };
 
     componentDidMount()
     {
@@ -308,7 +335,7 @@ class App extends React.Component<AppProps, AppState>
                 <ImageProcessorWindow imageData={this.state.imageData} encodingAlgorithm={this.state.encodingAlgorithm}/>
                 <AnimationPreview url={this.state.animationUrl} isLoading={this.state.animationIsLoading} animationLength={this.state.animationLength}/>
                 <div>
-                    <FrameInspector frame={this.state.inspectedFrame} imageData={this.state.imageData} encodingAlgorithm={this.state.encodingAlgorithm}/>
+                    <FrameInspector frame={this.state.inspectedFrame} imageData={this.state.imageData} encodingAlgorithm={this.state.encodingAlgorithm} frameSequence={this.state.frameSequence} processedFrameSequence={this.state.processedFrameSequence}/>
                     <FramebankWindow frames={this.state.frames} isLoading={this.state.framebankIsLoading}/>
                 </div>
                 <Timeline imageData={this.state.imageData} keyframes={this.state.keyframes} encodingAlgorithm={this.state.encodingAlgorithm} transitionFrames={this.state.transitionFrames} omitFrame={this.state.omitFramePreference} loadingGif={this.state.animationIsLoading} audioSources={this.state.audioSources}/>
