@@ -172,10 +172,21 @@ export class State
         this.app.setState({ framebankIsLoading: isLoading });
     }
 
-    static setAudioEnvelope(buffer : number[], fileName : string)
+    static setAudioEnvelope(index : number, buffer : number[], fileName : string)
     {
-        //let newAudioBuffer = new AudioBuffer(buffer);
-        this.app.setState({ audioBuffer: buffer, audioSources: [ fileName ] });
+        let audioBuffers = this.app.state.audioBuffers;
+        audioBuffers[index] = buffer;
+
+        this.app.setState({ audioBuffers: audioBuffers, audioSources: [ fileName ] });
+    }
+
+    static addAudioSource()
+    {
+        let buffers = this.app.state.audioBuffers;
+        buffers.push([]);
+        this.app.setState({ audioBuffers: buffers });
+
+        console.log("buffers: ", this.app.state.audioBuffers);
     }
 }
 
@@ -194,7 +205,7 @@ interface AppState
     framebankIsLoading : boolean,
     animationIsLoading : boolean,
     encodingAlgorithm : EncodingAlgorithm,
-    audioBuffer : number[],
+    audioBuffers : number[][],
     audioSources : string[]
 }
 
@@ -268,7 +279,7 @@ export class TransitionFramebank
 
 class App extends React.Component<AppProps, AppState>
 {
-    state : AppState = { imageData: new Uint8Array(), frames: [], keyframes: [], transitionFrames: [], omitFramePreference: true, inspectedFrame: null, animationUrl: "", animationLength: 0, framebankIsLoading: false, animationIsLoading: false, encodingAlgorithm: "mulaw", audioBuffer: [], audioSources: [] };
+    state : AppState = { imageData: new Uint8Array(), frames: [], keyframes: [], transitionFrames: [], omitFramePreference: true, inspectedFrame: null, animationUrl: "", animationLength: 0, framebankIsLoading: false, animationIsLoading: false, encodingAlgorithm: "mulaw", audioBuffers: [], audioSources: [] };
 
     componentDidMount()
     {
@@ -302,7 +313,7 @@ class App extends React.Component<AppProps, AppState>
                 </div>
                 <Timeline imageData={this.state.imageData} keyframes={this.state.keyframes} encodingAlgorithm={this.state.encodingAlgorithm} transitionFrames={this.state.transitionFrames} omitFrame={this.state.omitFramePreference} loadingGif={this.state.animationIsLoading} audioSources={this.state.audioSources}/>
             
-                <AudioProcessorWindow buffer={this.state.audioBuffer} />
+                <AudioProcessorWindow buffers={this.state.audioBuffers} />
             </div>
         );
     }
