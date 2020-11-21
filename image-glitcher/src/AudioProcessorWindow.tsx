@@ -72,6 +72,8 @@ export class AudioProcessorWindow extends React.Component<AudioProcessorWindowPr
                         <input type="number" ref={fpsInput => this.fpsInputs[key] = fpsInput} style={{ marginRight : "24px" }} defaultValue={this.defaultFramerate} />
                         <button onClick={async () => await this.analyse(key)}>Analyse</button>
                         <br /><br />
+                        <label>Total frames: {buffer.length}</label>
+                        <br /><br />
                         <Waveform fileName="no file" buffer={buffer} />
                     </div>
                 ), this)}

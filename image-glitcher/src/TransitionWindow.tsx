@@ -4,6 +4,7 @@ import { Styles } from './Styles';
 import { KeyFrame, TransitionFramebank, State, EncodingAlgorithm } from './App';
 import { ImageProcessorAmpMod } from './ImageProcessorAmpMod';
 import { settings } from 'cluster';
+import { AudioLink, ParameterType } from './AudioLink';
 
 interface TransitionWindowProps 
 { 
@@ -12,12 +13,18 @@ interface TransitionWindowProps
     transitionFrames : TransitionFramebank[],
     encodingAlgorithm : EncodingAlgorithm,
     index : number,
-    audioSources : string[]
+    audioSources : string[],
+    audioBuffers : number[][]
 }
 
 export class TransitionWindow extends React.Component<TransitionWindowProps>
 {
     framesInput = createRef<HTMLInputElement>();
+    audioSourceMenu = createRef<HTMLSelectElement>();
+    audioParamMenu = createRef<HTMLSelectElement>();
+    audioLinkAmountInput = createRef<HTMLInputElement>();
+
+    parameterList = [ "none", "frequency", "phase", "amp", "offset" ];
 
     render()
     {
@@ -82,16 +89,28 @@ export class TransitionWindow extends React.Component<TransitionWindowProps>
                     <div style={progressBarInnerStyle}/>
                 </div>
                 <label>Frames </label><input type="number" ref={this.framesInput}></input>
-                <br/>
+                <br/><br/><br/>
 
                 <label htmlFor="audioSources">Audio source </label>
-                <select name="audioSources" id="audioSources">
+                <select name="audioSources" id="audioSources" ref={this.audioSourceMenu}>
                     <option value="none">none</option>
                     {
                         this.props.audioSources.map((audioSource, key) => 
                         <option key={key} value={audioSource}>{audioSource}</option>)
                     }
                 </select>
+                <br/>
+
+                <label htmlFor="audioParam">Audio link parameter </label>
+                <select name="audioParam" id="audioParam" ref={this.audioParamMenu}>
+                    {
+                        this.parameterList.map((parameter, key) => 
+                        <option key={key} value={parameter}>{parameter}</option>)
+                    }
+                </select>
+                <br/>
+
+                <label>Link amount </label><input type="number" ref={this.audioLinkAmountInput} defaultValue={0}></input>
                 <br/>
                 <button onClick={() => this.renderFrames()} style={{ float: "right", marginTop: "16px" }} disabled={somethingIsRendering}>Render</button>
             </div>
@@ -111,9 +130,31 @@ export class TransitionWindow extends React.Component<TransitionWindowProps>
 
         State.setTransitionRenderStatus(this.props.index, "rendering");
 
+        let selectedAudioSourceIndex = this.audioSourceMenu.current?.selectedIndex;
+        let audioLink : AudioLink = { audioBuffer: [], parameterType: "none", amount: 0 };
+
+        if(selectedAudioSourceIndex != null && selectedAudioSourceIndex != 0)
+        {
+            let selectedAudioBuffer = this.props.audioBuffers[selectedAudioSourceIndex - 1];
+            audioLink.audioBuffer = selectedAudioBuffer;
+
+            let selectedAudioLinkParameter = this.getAudioLinkParameterType(this.audioParamMenu.current?.selectedIndex);
+            audioLink.parameterType = selectedAudioLinkParameter;
+
+            let linkInput = this.audioLinkAmountInput.current as HTMLInputElement;
+            audioLink.amount = linkInput.valueAsNumber;
+        }
+
         setTimeout(() => 
         { 
-            ImageProcessorAmpMod.instance.processAnimation(this.props.imageData, frames, firstFrameSettings, lastFrameSettings, this.props.encodingAlgorithm, this.props.index); 
+            ImageProcessorAmpMod.instance.processAnimation(this.props.imageData, frames, firstFrameSettings, lastFrameSettings, this.props.encodingAlgorithm, this.props.index, audioLink); 
         }, 100);
+    }
+
+    getAudioLinkParameterType(index : number | undefined) : ParameterType
+    {
+        if(index == undefined || index > this.parameterList.length - 1) return "none"; //error state, should never happen
+
+        return this.parameterList[index] as ParameterType;
     }
 }

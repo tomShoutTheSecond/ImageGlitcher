@@ -1,6 +1,7 @@
 import { Util } from "./Util";
 import { AmpModSettings } from "./ImageProcessorWindow";
 import { State, KeyFrame as KeyFrame, TransitionFrame } from "./App";
+import { AudioLink } from "./AudioLink";
 
 export class ImageProcessorAmpMod
 {
@@ -8,9 +9,9 @@ export class ImageProcessorAmpMod
 
     frameRenderWorker = new Worker(Util.getPublicFile("frameRenderer.js"));
 
-    processAnimation(imageData : Uint8Array, frames : number, firstFrameSettings : AmpModSettings, lastFrameSettings : AmpModSettings, encodingAlgorithm : string, transitionIndex : number)
+    processAnimation(imageData : Uint8Array, frames : number, firstFrameSettings : AmpModSettings, lastFrameSettings : AmpModSettings, encodingAlgorithm : string, transitionIndex : number, audioLink : AudioLink)
     {
-        this.backgroundRenderAnimation(imageData, frames, firstFrameSettings, lastFrameSettings, encodingAlgorithm, transitionIndex).then((processedData) => 
+        this.backgroundRenderAnimation(imageData, frames, firstFrameSettings, lastFrameSettings, encodingAlgorithm, transitionIndex, audioLink).then((processedData) => 
         { 
             //processedData is an array of { frame: buffer, settings: AmpModSettings }
             processedData.forEach((renderedFrame : { frame : Uint8Array, settings : AmpModSettings }) => 
@@ -110,7 +111,7 @@ export class ImageProcessorAmpMod
         });
     }
 
-    async backgroundRenderAnimation(buffer : any, frames : number, firstFrameSettings : AmpModSettings, lastFrameSettings : AmpModSettings, encodingAlgorithm : string, transitionIndex : number) : Promise<any>
+    async backgroundRenderAnimation(buffer : any, frames : number, firstFrameSettings : AmpModSettings, lastFrameSettings : AmpModSettings, encodingAlgorithm : string, transitionIndex : number, audioLink : AudioLink) : Promise<any>
     {
         return new Promise<any>((resolve, reject) =>
         {
@@ -124,7 +125,7 @@ export class ImageProcessorAmpMod
                 }
             }
 
-            this.frameRenderWorker.postMessage({ id: "renderAnimation", buffer: buffer, frames: frames, firstFrameSettings: firstFrameSettings, lastFrameSettings: lastFrameSettings, encodingAlgorithm: encodingAlgorithm });
+            this.frameRenderWorker.postMessage({ id: "renderAnimation", buffer: buffer, frames: frames, firstFrameSettings: firstFrameSettings, lastFrameSettings: lastFrameSettings, encodingAlgorithm: encodingAlgorithm, audioLink: audioLink });
         });
     }
 

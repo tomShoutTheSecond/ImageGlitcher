@@ -83,8 +83,8 @@ export class FrameInspector extends React.Component<FrameInspectorProps, FrameIn
                 <img src={this.state.sequencePreviewUrl} style={Styles.imageStyle}/>
                 {sequenceConvertingText}
                 <div style={Styles.floatRight}>
-                    <IconButton iconName="" onClick={() => this.processFrameSequence()}/>
-                    <IconButton leftMargin iconName="download" onClick={() => this.downloadProcessedFrameSequence()}/>
+                    <IconButton iconName="process" onClick={() => this.processFrameSequence()}/>
+                    <IconButton leftMargin iconName="download" onClick={async () => await this.downloadProcessedFrameSequence()}/>
                 </div>
             </div>
         );
@@ -239,7 +239,7 @@ export class FrameInspector extends React.Component<FrameInspectorProps, FrameIn
         ImageProcessorAmpMod.instance.processFrameSequence(this.props.frameSequence, this.props.frame.ampModSettings, this.props.encodingAlgorithm);
     }
 
-    downloadProcessedFrameSequence()
+    async downloadProcessedFrameSequence()
     {
         let zip = new JSZip();
 
@@ -252,16 +252,15 @@ export class FrameInspector extends React.Component<FrameInspectorProps, FrameIn
             zip.file(Util.getFrameName(i), frame);
 
             tenFramesCounter++;
-            if(tenFramesCounter > 10)
+            if(tenFramesCounter > 9)
             {
                 tenFramesCounter = 0;
 
                 //split to a new zip file every 10 frames
-                zip.generateAsync({ type:"blob" }).then(function(content) 
-                {
-                    //see FileSaver.js
-                    saveAs(content, "FrameSequence.zip");
-                });
+                let content = await zip.generateAsync({ type:"blob" });
+
+                //see FileSaver.js
+                saveAs(content, "FrameSequence.zip");
 
                 zip = new JSZip();
             }
@@ -269,11 +268,10 @@ export class FrameInspector extends React.Component<FrameInspectorProps, FrameIn
 
         if(zip.length > 0)
         {
-            zip.generateAsync({ type:"blob" }).then(function(content) 
-            {
-                //see FileSaver.js
-                saveAs(content, "FrameSequence.zip");
-            });
+            let content = await zip.generateAsync({ type:"blob" });
+
+            //see FileSaver.js
+            saveAs(content, "FrameSequence.zip");
         }
     }
 }

@@ -11,7 +11,7 @@ class FrameRendererAmpMod
         return encodedBuffer;
     }
 
-    renderAnimation(imageData, frames, firstFrameSettings, lastFrameSettings, encodingAlgorithm)
+    renderAnimation(imageData, frames, firstFrameSettings, lastFrameSettings, encodingAlgorithm, audioLink)
     {
         let decodedBuffer = this.decodeFile(imageData, encodingAlgorithm);
         let renderedFrames = [];
@@ -28,10 +28,35 @@ class FrameRendererAmpMod
         for (let i = 0; i < frames; i++) 
         {
             let progress = i / (frames - 1);
+            if(frames == 1) 
+            {
+                //avoid progress = NaN when only one frame is requested
+                progress = 1;
+            }
+                
             let frameFrequency = Util.mixNumber(startFreq, endFreq, progress);
             let framePhase = Util.mixNumber(startPhase, endPhase, progress);
             let frameAmp = Util.mixNumber(startAmp, endAmp, progress);
             let frameOffset = Util.mixNumber(startOffset, endOffset, progress);
+
+            //apply audio link parameter shift
+            switch(audioLink.parameterType)
+            {
+                case "none":
+                    break;
+                case "frequency":
+                    frameFrequency += Util.getValueFromAudioLink(audioLink, i);
+                    break;
+                case "phase":
+                    framePhase += Util.getValueFromAudioLink(audioLink, i);
+                    break;
+                case "amp":
+                    frameAmp += Util.getValueFromAudioLink(audioLink, i);
+                    break;
+                case "offset":
+                    frameOffset += Util.getValueFromAudioLink(audioLink, i);
+                    break;
+            }
 
             let settings = new AmpModSettings(frameFrequency, framePhase, frameAmp, frameOffset);
             let newFrame = this.bufferProcess(decodedBuffer, settings);
@@ -91,6 +116,13 @@ class Util
     {
         return val0 * (1 - mix) + val1 * mix;
     }
+
+    static getValueFromAudioLink(audioLink, frameIndex)
+    {
+        if(audioLink.audioBuffer.length - 1 < frameIndex) return 0;
+
+        return audioLink.amount * audioLink.audioBuffer[frameIndex];
+    }
 }
 
 class AmpModSettings
@@ -120,7 +152,7 @@ onmessage = function(message)
     }
     else if(message.data.id == "renderAnimation")
     {
-        let newFrames = frameRenderer.renderAnimation(message.data.buffer, message.data.frames, message.data.firstFrameSettings, message.data.lastFrameSettings, message.data.encodingAlgorithm);
+        let newFrames = frameRenderer.renderAnimation(message.data.buffer, message.data.frames, message.data.firstFrameSettings, message.data.lastFrameSettings, message.data.encodingAlgorithm, message.data.audioLink);
         postMessage({ id: message.data.id, output: newFrames });
     }
 }
