@@ -2,8 +2,9 @@ import { Util } from "./Util";
 import { AmpModSettings } from "./ImageProcessorWindow";
 import { State, KeyFrame as KeyFrame, TransitionFrame } from "./App";
 import { AudioLink } from "./AudioLink";
+import { ImageProcessorInterface } from "./ImageProcessorInterface";
 
-export class ImageProcessorAmpMod
+export class ImageProcessorAmpMod implements ImageProcessorInterface<AmpModSettings>
 {
     static instance = new ImageProcessorAmpMod();
 

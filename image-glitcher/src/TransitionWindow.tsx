@@ -23,6 +23,8 @@ export class TransitionWindow extends React.Component<TransitionWindowProps>
     audioSourceMenu = createRef<HTMLSelectElement>();
     audioParamMenu = createRef<HTMLSelectElement>();
     audioLinkAmountInput = createRef<HTMLInputElement>();
+    audioLinkStartInput = createRef<HTMLInputElement>();
+    audioLinkEndInput = createRef<HTMLInputElement>();
 
     parameterList = [ "none", "frequency", "phase", "amp", "offset" ];
 
@@ -101,7 +103,13 @@ export class TransitionWindow extends React.Component<TransitionWindowProps>
                 </select>
                 <br/>
 
-                <label htmlFor="audioParam">Audio link parameter </label>
+                <label>Start frame </label><input type="number" ref={this.audioLinkStartInput} defaultValue={0}></input>
+                <br/>
+
+                <label>End frame </label><input type="number" ref={this.audioLinkEndInput} defaultValue={0}></input>
+                <br/>
+
+                <label htmlFor="audioParam">Link parameter </label>
                 <select name="audioParam" id="audioParam" ref={this.audioParamMenu}>
                     {
                         this.parameterList.map((parameter, key) => 
@@ -136,7 +144,12 @@ export class TransitionWindow extends React.Component<TransitionWindowProps>
         if(selectedAudioSourceIndex != null && selectedAudioSourceIndex != 0)
         {
             let selectedAudioBuffer = this.props.audioBuffers[selectedAudioSourceIndex - 1];
-            audioLink.audioBuffer = selectedAudioBuffer;
+            let audioBufferStart = (this.audioLinkStartInput.current as HTMLInputElement).valueAsNumber;
+            let audioBufferEnd = (this.audioLinkEndInput.current as HTMLInputElement).valueAsNumber;
+            if(audioBufferEnd == 0)
+                audioBufferEnd = selectedAudioBuffer.length;
+
+            audioLink.audioBuffer = selectedAudioBuffer.slice(audioBufferStart, audioBufferEnd);
 
             let selectedAudioLinkParameter = this.getAudioLinkParameterType(this.audioParamMenu.current?.selectedIndex);
             audioLink.parameterType = selectedAudioLinkParameter;
