@@ -8,6 +8,7 @@ import { FrameInspector } from './FrameInspector';
 import { v4 as uuidv4 } from 'uuid';
 import { DatabaseController } from './DatabaseController';
 import { AudioProcessorWindow } from './AudioProcessorWindow';
+import { DSPTestBenchWindow } from './DSPTestBenchWindow';
 
 export class State
 {
@@ -341,6 +342,7 @@ class App extends React.Component<AppProps, AppState>
                 <Timeline imageData={this.state.imageData} keyframes={this.state.keyframes} encodingAlgorithm={this.state.encodingAlgorithm} transitionFrames={this.state.transitionFrames} omitFrame={this.state.omitFramePreference} loadingGif={this.state.animationIsLoading} audioSources={this.state.audioSources} audioBuffers={this.state.audioBuffers}/>
             
                 <AudioProcessorWindow buffers={this.state.audioBuffers} />
+                <DSPTestBenchWindow />
             </div>
         );
     }
