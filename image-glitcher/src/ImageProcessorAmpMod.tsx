@@ -1,7 +1,36 @@
 import { Util } from "./Util";
-import { AmpModSettings } from "./ImageProcessorWindow";
 import { State, KeyFrame as KeyFrame, TransitionFrame } from "./App";
 import { AudioLink } from "./AudioLink";
+
+export class DelaySettings
+{
+    delay = 0;
+    feedback = 0;
+    mix = 0;
+
+    constructor(delay : number, feedback : number, mix : number)
+    {
+        this.delay = delay;
+        this.feedback = feedback;
+        this.mix = mix;
+    }
+}
+
+export class AmpModSettings
+{
+    frequency = 0;
+    phase = 0;
+    amp = 0;
+    offset = 0;
+
+    constructor(frequency : number, phase : number, amp : number, offset : number)
+    {
+        this.frequency = frequency;
+        this.phase = phase;
+        this.amp = amp;
+        this.offset = offset;
+    }
+}
 
 export class ImageProcessorAmpMod
 {

@@ -1,4 +1,5 @@
 import { saveAs } from 'file-saver';
+import { DelaySettings } from './ImageProcessorAmpMod';
 
 export class DSPTestBench
 {
@@ -15,21 +16,111 @@ export class DSPTestBench
         return this.saveAsWavFile(leftSamplesProcessed, rightSamplesProcessed);
     }
 
-    private bufferProcess(samples : Float32Array, settings : AmpModSettings)
+    //modify this method to test new DSP
+    private bufferProcess(samples : Float32Array, settings : DelaySettings)
     {
+        this.delayPrepareToProcess(settings);
+
         let processedBuffer = [];
         for (let i = 0; i < samples.length; i++) 
         {
             const sample = samples[i];
-
-            let angle = settings.phase + i * settings.frequency;
-            let coef = settings.offset + Math.sin(angle) * settings.amp;
-
-            let processedSample = sample * coef;
+            
+            let processedSample = this.delayProcessSample(sample, settings);//this.ampModProcessSample(sample, i, settings);
             processedBuffer.push(processedSample);
         }
 
+        console.log(processedBuffer)
+
         return new Float32Array(processedBuffer);
+    }
+
+    ampModProcessSample(sampleToProcess : number, sampleIndex : number, ampModSettings : AmpModSettings)
+    {
+        let angle = ampModSettings.phase + sampleIndex * ampModSettings.frequency;
+        let coef = ampModSettings.offset + Math.sin(angle) * ampModSettings.amp;
+
+        return sampleToProcess * coef;
+    }
+
+    m_indexRead = 0;
+    m_indexWrite = 0;
+    m_delayBuffer : number[] = [];
+
+    delayPrepareToProcess(delaySettings : DelaySettings)
+    {
+        //set the circular buffer to fit the length of the delay exactly, fill it with zeros
+        this.m_delayBuffer = new Array(delaySettings.delay).fill(0);
+    }
+
+    delayProcessSample(sampleToProcess : number, delaySettings : DelaySettings)
+    {
+        //find theoretical read index (with decimal points)
+        this.m_indexRead = this.m_indexWrite - delaySettings.delay;
+
+        //wrap the read index to start of array if necessary
+        if (this.m_indexRead < 0)
+            this.m_indexRead += this.m_delayBuffer.length;
+
+        //find two nearest indexes
+        let m_indexRead1 = Math.floor(this.m_indexRead);
+
+        //click remover part 1
+        if (this.m_indexRead == this.m_delayBuffer.length)
+        {
+            m_indexRead1 -= 1;
+        }
+
+        let m_indexRead2 = m_indexRead1 + 1;
+        if (m_indexRead2 >= this.m_delayBuffer.length)
+            m_indexRead2 -= this.m_delayBuffer.length;
+
+        let m_distanceWeighting = 0;
+
+        //find distance weighting & click remover part 2
+        if (this.m_indexRead == this.m_delayBuffer.length)
+        {
+            m_distanceWeighting = 1.0;
+        }
+        else
+            m_distanceWeighting = this.m_indexRead % 1;
+
+        //read the input, xn, from the incoming sample
+        let xn = sampleToProcess;
+
+        //read the output, yn, from the circular buffer at the read position
+        let yn1 = this.m_delayBuffer[m_indexRead1];
+        let yn2 = this.m_delayBuffer[m_indexRead2];
+
+        let yn = yn2*m_distanceWeighting + yn1*(1 - m_distanceWeighting);
+
+        //write the current input sample, plus some feedback of the output sample to m_sampleToWrite
+        //process m_sampleToWrite so it stays between 1 and -1
+        //write sample into the circular buffer at the write position
+        let m_sampleToWrite = xn + yn*delaySettings.feedback;
+        m_sampleToWrite = this.clipSample(m_sampleToWrite);
+
+        this.m_delayBuffer[this.m_indexWrite] = m_sampleToWrite;
+
+        //increment the write index, wrapping the index back to the top of 
+        //the circular buffer if necessary
+        this.m_indexWrite++;
+        if (this.m_indexWrite >= this.m_delayBuffer.length)
+            this.m_indexWrite = 0;
+
+        //set the incoming sample with the correct amounts of input and output
+        //based on the wet/dry mix
+
+        return delaySettings.mix*yn + (1.0 - delaySettings.mix)*xn;
+    }
+
+    private clipSample(sample : number)
+    {
+        if (sample > 1) return 1;
+
+        if (sample < -1) return -1;
+
+        return sample;
     }
 
     private saveAsWavFile(left : Float32Array, right : Float32Array)

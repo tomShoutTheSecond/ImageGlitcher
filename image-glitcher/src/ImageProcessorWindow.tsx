@@ -7,22 +7,6 @@ import { FramebankWindow } from './FramebankWindow';
 import { ImageProcessorAmpMod } from './ImageProcessorAmpMod';
 import { IconButton } from './IconButton';
 
-export class AmpModSettings
-{
-    frequency = 0;
-    phase = 0;
-    amp = 0;
-    offset = 0;
-
-    constructor(frequency : number, phase : number, amp : number, offset : number)
-    {
-        this.frequency = frequency;
-        this.phase = phase;
-        this.amp = amp;
-        this.offset = offset;
-    }
-}
-
 interface ImageProcessorWindowProps
 {
     imageData : Uint8Array,

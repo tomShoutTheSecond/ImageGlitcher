@@ -22,7 +22,7 @@ export class DSPTestBenchWindow extends React.Component<DSPTestBenchWindowProps,
     audioProcessor = new AudioProcessor();
     dspTestBench = new DSPTestBench();
 
-    parameters = [ "frequency", "phase", "amp", "offset" ];
+    parameters = [ "delay", "feedback", "mix" ];
     paramInputs : HTMLInputElement[] | null[] = [];
     fileInput = createRef<HTMLInputElement>();
 

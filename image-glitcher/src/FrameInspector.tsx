@@ -8,8 +8,8 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 import { Util } from './Util';
 import ArrowExpand from './icons/arrow-expand.svg';
-import { ImageProcessorWindow, AmpModSettings } from './ImageProcessorWindow';
-import { ImageProcessorAmpMod } from './ImageProcessorAmpMod';
+import { ImageProcessorWindow } from './ImageProcessorWindow';
+import { ImageProcessorAmpMod, AmpModSettings } from './ImageProcessorAmpMod';
 import { IconButton } from './IconButton';
 import Jimp from 'jimp';
 

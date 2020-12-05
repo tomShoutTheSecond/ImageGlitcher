@@ -1,6 +1,6 @@
 import React, { CSSProperties, createRef, Fragment } from 'react';
 import { ImageLoader } from './ImageLoader';
-import { ImageProcessorWindow, AmpModSettings } from './ImageProcessorWindow';
+import { ImageProcessorWindow } from './ImageProcessorWindow';
 import { FramebankWindow } from './FramebankWindow';
 import { AnimationPreview } from './AnimationPreview';
 import { Timeline } from './Timeline';
