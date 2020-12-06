@@ -9,7 +9,7 @@ import { saveAs } from 'file-saver';
 import { Util } from './Util';
 import ArrowExpand from './icons/arrow-expand.svg';
 import { ImageProcessorWindow } from './ImageProcessorWindow';
-import { ImageProcessorAmpMod, AmpModSettings, ImageProcessorSettings, DelaySettings } from './ImageProcessorAmpMod';
+import { ImageProcessor, AmpModSettings, ImageProcessorSettings, DelaySettings } from './ImageProcessor';
 import { IconButton } from './IconButton';
 import Jimp from 'jimp';
 
@@ -93,7 +93,7 @@ export class FrameInspector extends React.Component<FrameInspectorProps, FrameIn
     renderFrame()
     {
         let settings = new ImageProcessorSettings("ampMod", this.state.ampModSettings, DelaySettings.default);
-        ImageProcessorAmpMod.instance.processKeyFrame(this.props.imageData, settings, this.props.encodingAlgorithm);
+        ImageProcessor.instance.processKeyFrame(this.props.imageData, settings, this.props.encodingAlgorithm);
     }
 
     componentWillReceiveProps(nextProps : FrameInspectorProps)
@@ -237,7 +237,7 @@ export class FrameInspector extends React.Component<FrameInspectorProps, FrameIn
             return;
         }
 
-        ImageProcessorAmpMod.instance.processFrameSequence(this.props.frameSequence, this.props.frame.settings, this.props.encodingAlgorithm);
+        ImageProcessor.instance.processFrameSequence(this.props.frameSequence, this.props.frame.settings, this.props.encodingAlgorithm);
     }
 
     async downloadProcessedFrameSequence()

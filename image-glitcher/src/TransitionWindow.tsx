@@ -2,7 +2,7 @@ import React, { createRef } from 'react';
 import { Colors } from './Colors';
 import { Styles } from './Styles';
 import { KeyFrame, TransitionFramebank, State, EncodingAlgorithm } from './App';
-import { ImageProcessorAmpMod } from './ImageProcessorAmpMod';
+import { ImageProcessor } from './ImageProcessor';
 import { settings } from 'cluster';
 import { AudioLink, ParameterType } from './AudioLink';
 
@@ -160,7 +160,7 @@ export class TransitionWindow extends React.Component<TransitionWindowProps>
 
         setTimeout(() => 
         { 
-            ImageProcessorAmpMod.instance.processAnimation(this.props.imageData, frames, firstFrameSettings, lastFrameSettings, this.props.encodingAlgorithm, this.props.index, audioLink); 
+            ImageProcessor.instance.processAnimation(this.props.imageData, frames, firstFrameSettings, lastFrameSettings, this.props.encodingAlgorithm, this.props.index, audioLink); 
         }, 100);
     }
 

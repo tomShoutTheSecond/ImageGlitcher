@@ -52,9 +52,9 @@ export class DelaySettings
     }
 }
 
-export class ImageProcessorAmpMod
+export class ImageProcessor
 {
-    static instance = new ImageProcessorAmpMod();
+    static instance = new ImageProcessor();
 
     frameRenderWorker = new Worker(Util.getPublicFile("frameRenderer.js"));
 

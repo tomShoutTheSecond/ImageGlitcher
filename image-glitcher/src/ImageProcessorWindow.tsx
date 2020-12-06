@@ -4,7 +4,7 @@ import { Colors } from './Colors';
 import { Styles } from './Styles';
 import { Util } from './Util';
 import { FramebankWindow } from './FramebankWindow';
-import { ImageProcessorAmpMod } from './ImageProcessorAmpMod';
+import { ImageProcessor } from './ImageProcessor';
 import { IconButton } from './IconButton';
 
 interface ImageProcessorWindowProps
@@ -51,7 +51,7 @@ export class ImageProcessorWindow extends React.Component<ImageProcessorWindowPr
 
     generateRandomFrame()
     {
-        ImageProcessorAmpMod.instance.generateRandomFrame(this.props.imageData, this.props.encodingAlgorithm);
+        ImageProcessor.instance.generateRandomFrame(this.props.imageData, this.props.encodingAlgorithm);
     }
 
     onChangeEncoding()

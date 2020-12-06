@@ -1,5 +1,5 @@
 import { saveAs } from 'file-saver';
-import { DelaySettings } from './ImageProcessorAmpMod';
+import { DelaySettings } from './ImageProcessor';
 
 export class DSPTestBench
 {

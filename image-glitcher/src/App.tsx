@@ -9,7 +9,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { DatabaseController } from './DatabaseController';
 import { AudioProcessorWindow } from './AudioProcessorWindow';
 import { DSPTestBenchWindow } from './DSPTestBenchWindow';
-import { ImageProcessorSettings } from './ImageProcessorAmpMod';
+import { ImageProcessorSettings } from './ImageProcessor';
 
 export class State
 {
