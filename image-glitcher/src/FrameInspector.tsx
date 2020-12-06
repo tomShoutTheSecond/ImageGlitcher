@@ -24,7 +24,7 @@ interface FrameInspectorProps
 
 interface FrameInspectorState
 {
-    ampModSettings : AmpModSettings,
+    settings : ImageProcessorSettings,
     sequenceConverting : boolean,
     sequencePreviewUrl : string,
     frameImportCounter : number,
@@ -33,7 +33,7 @@ interface FrameInspectorState
 
 export class FrameInspector extends React.Component<FrameInspectorProps, FrameInspectorState>
 {
-    state = { ampModSettings: new AmpModSettings(0, 0, 0, 0), sequenceConverting: false, sequencePreviewUrl: "", frameImportCounter: 0, totalFrames: 0 };
+    state = { settings: new ImageProcessorSettings("ampMod", AmpModSettings.default, DelaySettings.default), sequenceConverting: false, sequencePreviewUrl: "", frameImportCounter: 0, totalFrames: 0 };
     
     fileInput = createRef<HTMLInputElement>();
 
@@ -58,14 +58,28 @@ export class FrameInspector extends React.Component<FrameInspectorProps, FrameIn
 
         let previewImage = this.props.frame == null ? <p>No image</p> : <img src={this.props.frame.url} style={Styles.imageStyle}/>;
         let ampModSettingsForm = this.props.frame == null ? "" : 
-        Object.keys(this.state.ampModSettings).map((settingName, key) => {
-            let settingValue = Object.values(this.state.ampModSettings)[key];
-            return(
-                <div key={key}>
-                    <label htmlFor={settingName}>{settingName}</label> <input onChange={(e) => this.updateSettings(settingName, parseFloat((e.target as HTMLInputElement).value))} style={numberInputStyle} id={settingName} type="number" value={settingValue}/>
-                </div>
-            );
-        });
+        <div><br/>ampMod
+        {
+            Object.keys(this.state.settings.ampModSettings).map((settingName, key) => {
+                let settingValue = Object.values(this.state.settings.ampModSettings)[key];
+                return(
+                    <div key={key}>
+                        <label htmlFor={settingName}>{settingName}</label> <input onChange={(e) => this.updateSettings(settingName, parseFloat((e.target as HTMLInputElement).value))} style={numberInputStyle} id={settingName} type="number" value={settingValue}/>
+                    </div>
+                );
+            })
+        }<br/>delay
+        {
+            Object.keys(this.state.settings.delaySettings).map((settingName, key) => {
+                let settingValue = Object.values(this.state.settings.delaySettings)[key];
+                return(
+                    <div key={key}>
+                        <label htmlFor={settingName}>{settingName}</label> <input onChange={(e) => this.updateSettings(settingName, parseFloat((e.target as HTMLInputElement).value))} style={numberInputStyle} id={settingName} type="number" value={settingValue}/>
+                    </div>
+                );
+            })
+        }
+        </div>
 
         let sequenceConvertingText = this.state.sequenceConverting ? <h2>Converting image {this.state.frameImportCounter}/{this.state.totalFrames}</h2> : "";
 
@@ -74,7 +88,7 @@ export class FrameInspector extends React.Component<FrameInspectorProps, FrameIn
                 <h1 style={Styles.h1Style}>Frame Inspector</h1>
                 {previewImage}
                 {ampModSettingsForm}
-                <div style={Styles.floatRight}>
+                <div style={Styles.alignRight}>
                     <IconButton iconName="image-move" onClick={() => this.renderFrame()}/>
                 </div>
                 <br/><br/><br/><br/>
@@ -82,7 +96,7 @@ export class FrameInspector extends React.Component<FrameInspectorProps, FrameIn
                 <input ref={this.fileInput} type="file" onChange={() => this.importImageSequence()} multiple />
                 <img src={this.state.sequencePreviewUrl} style={Styles.imageStyle}/>
                 {sequenceConvertingText}
-                <div style={Styles.floatRight}>
+                <div style={Styles.alignRight}>
                     <IconButton iconName="process" onClick={() => this.processFrameSequence()}/>
                     <IconButton leftMargin iconName="download" onClick={async () => await this.downloadProcessedFrameSequence()}/>
                 </div>
@@ -92,8 +106,7 @@ export class FrameInspector extends React.Component<FrameInspectorProps, FrameIn
 
     renderFrame()
     {
-        let settings = new ImageProcessorSettings("ampMod", this.state.ampModSettings, DelaySettings.default);
-        ImageProcessor.instance.processKeyFrame(this.props.imageData, settings, this.props.encodingAlgorithm);
+        ImageProcessor.instance.processKeyFrame(this.props.imageData, this.state.settings, this.props.encodingAlgorithm);
     }
 
     componentWillReceiveProps(nextProps : FrameInspectorProps)
@@ -101,32 +114,43 @@ export class FrameInspector extends React.Component<FrameInspectorProps, FrameIn
         if(!nextProps.frame) return;
 
         //update settings when a frame is loaded to the inspector
-        if(nextProps.frame.settings.ampModSettings != this.props.frame?.settings.ampModSettings)
+        if(nextProps.frame.settings != this.props.frame?.settings)
         {
-            this.setState({ ampModSettings: nextProps.frame.settings.ampModSettings });
+            this.setState({ settings: nextProps.frame.settings });
         }
     }
 
     updateSettings(settingName : string, newValue : number)
     {
-        let settings = Util.copy<AmpModSettings>(this.state.ampModSettings);
+        let ampModSettings = Util.copy<AmpModSettings>(this.state.settings.ampModSettings);
+        let delaySettings = Util.copy<DelaySettings>(this.state.settings.delaySettings);
         switch(settingName)
         {
             case "frequency":
-                settings.frequency = newValue;
+                ampModSettings.frequency = newValue;
                 break;
             case "phase":
-                settings.phase = newValue;
+                ampModSettings.phase = newValue;
                 break;
             case "amp":
-                settings.amp = newValue;
+                ampModSettings.amp = newValue;
                 break;
             case "offset":
-                settings.offset = newValue;
+                ampModSettings.offset = newValue;
+                break;
+            case "delay":
+                delaySettings.delay = newValue;
+                break;
+            case "feedback":
+                delaySettings.feedback = newValue;
+                break;
+            case "mix":
+                delaySettings.mix = newValue;
                 break;
         }
 
-        this.setState({ ampModSettings: settings });
+        let settings = new ImageProcessorSettings(this.state.settings.mode, ampModSettings, delaySettings);
+        this.setState({ settings: settings });
     }
 
     importImageSequence()

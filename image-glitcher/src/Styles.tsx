@@ -84,11 +84,11 @@ export class Styles
         return style;
     }
 
-    static get floatRight()
+    static get alignRight()
     {
         let style : React.CSSProperties =
         {
-            float: "right"
+            textAlign: "right"
         };
 
         return style;

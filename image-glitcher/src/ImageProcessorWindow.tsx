@@ -42,11 +42,11 @@ export class ImageProcessorWindow extends React.Component<ImageProcessorWindowPr
                 <br />
                 <br />
                 <h2 style={Styles.h2Style}>Amplitude Modulation</h2>
-                <div style={Styles.floatRight}>
+                <div style={Styles.alignRight}>
                     <IconButton iconName="dice-multiple" onClick={() => this.generateRandomFrame("ampMod")}/>
                 </div>
                 <h2 style={Styles.h2Style}>Delay</h2>
-                <div style={Styles.floatRight}>
+                <div style={Styles.alignRight}>
                     <IconButton iconName="dice-multiple" onClick={() => this.generateRandomFrame("delay")}/>
                 </div>
             </div>
