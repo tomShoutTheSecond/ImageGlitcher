@@ -72,8 +72,8 @@ export class FrameHolder extends React.Component<FrameHolderProps, FrameHolderSt
                     <a onClick={() => State.inspectFrame(this.props.frame)} style={Styles.handCursor}><Icon iconName={'pencil'}/></a>
                     <a onClick={() => State.addKeyFrame(this.props.frame)} style={Styles.handCursor}><Icon iconName={'key-plus'}/></a>
                     <a onClick={() => State.deleteKeyFrame(this.props.frame)} style={Styles.handCursor}><Icon iconName={'key-remove'}/></a>
-                    {Object.keys(this.props.frame.ampModSettings).map((settingName, key) => {
-                        let settingValue = Object.values(this.props.frame.ampModSettings)[key];
+                    {Object.keys(this.props.frame.settings.ampModSettings).map((settingName, key) => {
+                        let settingValue = Object.values(this.props.frame.settings.ampModSettings)[key];
                         return(
                             <p key={key} style={settingStyle}>{settingName}: {settingValue}</p>
                         );

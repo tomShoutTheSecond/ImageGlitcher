@@ -2,22 +2,26 @@ import { Util } from "./Util";
 import { State, KeyFrame as KeyFrame, TransitionFrame } from "./App";
 import { AudioLink } from "./AudioLink";
 
-export class DelaySettings
-{
-    delay = 0;
-    feedback = 0;
-    mix = 0;
+export type ProcessorMode = "ampMod" | "delay";
 
-    constructor(delay : number, feedback : number, mix : number)
+export class ImageProcessorSettings
+{
+    mode : ProcessorMode = "ampMod";
+    ampModSettings = AmpModSettings.default;
+    delaySettings = DelaySettings.default;
+
+    constructor(mode : ProcessorMode, ampModSettings : AmpModSettings, delaySettings : DelaySettings)
     {
-        this.delay = delay;
-        this.feedback = feedback;
-        this.mix = mix;
+        this.mode = mode;
+        this.ampModSettings = ampModSettings;
+        this.delaySettings = delaySettings;
     }
 }
 
 export class AmpModSettings
 {
+    static default : AmpModSettings = { frequency: 0, phase: 0, amp: 0, offset: 0 };
+
     frequency = 0;
     phase = 0;
     amp = 0;
@@ -32,18 +36,34 @@ export class AmpModSettings
     }
 }
 
+export class DelaySettings
+{
+    static default : DelaySettings = { delay: 0, feedback: 0, mix: 0 };
+
+    delay = 0;
+    feedback = 0;
+    mix = 0;
+
+    constructor(delay : number, feedback : number, mix : number)
+    {
+        this.delay = delay;
+        this.feedback = feedback;
+        this.mix = mix;
+    }
+}
+
 export class ImageProcessorAmpMod
 {
     static instance = new ImageProcessorAmpMod();
 
     frameRenderWorker = new Worker(Util.getPublicFile("frameRenderer.js"));
 
-    processAnimation(imageData : Uint8Array, frames : number, firstFrameSettings : AmpModSettings, lastFrameSettings : AmpModSettings, encodingAlgorithm : string, transitionIndex : number, audioLink : AudioLink)
+    processAnimation(imageData : Uint8Array, frames : number, firstFrameSettings : ImageProcessorSettings, lastFrameSettings : ImageProcessorSettings, encodingAlgorithm : string, transitionIndex : number, audioLink : AudioLink)
     {
         this.backgroundRenderAnimation(imageData, frames, firstFrameSettings, lastFrameSettings, encodingAlgorithm, transitionIndex, audioLink).then((processedData) => 
         { 
-            //processedData is an array of { frame: buffer, settings: AmpModSettings }
-            processedData.forEach((renderedFrame : { frame : Uint8Array, settings : AmpModSettings }) => 
+            //processedData is an array of { frame: buffer, settings: ImageProcessorSettings }
+            processedData.forEach((renderedFrame : { frame : Uint8Array, settings : ImageProcessorSettings }) => 
             {
                 this.saveTransitionFrame(renderedFrame.frame, renderedFrame.settings, transitionIndex);
             });
@@ -53,7 +73,7 @@ export class ImageProcessorAmpMod
         });
     }
     
-    processKeyFrame(imageData : Uint8Array, settings : AmpModSettings, encodingAlgorithm : string)
+    processKeyFrame(imageData : Uint8Array, settings : ImageProcessorSettings, encodingAlgorithm : string)
     {
         this.backgroundRenderFrame(imageData, settings, encodingAlgorithm).then((processedData) => 
         { 
@@ -61,7 +81,7 @@ export class ImageProcessorAmpMod
         });
     }
 
-    processFrameSequence(imageData : Uint8Array[], settings : AmpModSettings, encodingAlgorithm : string)
+    processFrameSequence(imageData : Uint8Array[], settings : ImageProcessorSettings, encodingAlgorithm : string)
     {
         let processNextSequenceFrame = (frameCounter : number) => 
         { 
@@ -116,7 +136,7 @@ export class ImageProcessorAmpMod
         if(Math.random() < 0.2 && randomAmp != 0) //20% chance, make sure amp and offset are not both zero (or it makes a blank white frame)
             randomOffset = 0;
 
-        let settings : AmpModSettings = 
+        let ampModSettings : AmpModSettings = 
         {
             frequency: randomFreq,
             phase : Util.mixNumber(minPhase, maxPhase, Math.random()),
@@ -124,10 +144,11 @@ export class ImageProcessorAmpMod
             offset : randomOffset
         }
 
+        let settings = new ImageProcessorSettings("ampMod", ampModSettings, DelaySettings.default);
         this.processKeyFrame(imageData, settings, encodingAlgorithm);
     }
 
-    async backgroundRenderFrame(buffer : any, settings : AmpModSettings, encodingAlgorithm : string) : Promise<any>
+    async backgroundRenderFrame(buffer : any, settings : ImageProcessorSettings, encodingAlgorithm : string) : Promise<any>
     {
         return new Promise<any>((resolve, reject) =>
         {
@@ -136,11 +157,11 @@ export class ImageProcessorAmpMod
                 resolve(message.data.output);
             }
 
-            this.frameRenderWorker.postMessage({ id: "renderFrame", buffer: buffer, ampModSettings: settings, encodingAlgorithm: encodingAlgorithm });
+            this.frameRenderWorker.postMessage({ id: "renderFrame", buffer: buffer, settings: settings, encodingAlgorithm: encodingAlgorithm });
         });
     }
 
-    async backgroundRenderAnimation(buffer : any, frames : number, firstFrameSettings : AmpModSettings, lastFrameSettings : AmpModSettings, encodingAlgorithm : string, transitionIndex : number, audioLink : AudioLink) : Promise<any>
+    async backgroundRenderAnimation(buffer : any, frames : number, firstFrameSettings : ImageProcessorSettings, lastFrameSettings : ImageProcessorSettings, encodingAlgorithm : string, transitionIndex : number, audioLink : AudioLink) : Promise<any>
     {
         return new Promise<any>((resolve, reject) =>
         {
@@ -158,7 +179,7 @@ export class ImageProcessorAmpMod
         });
     }
 
-    saveKeyFrame(data : any, settings : AmpModSettings)
+    saveKeyFrame(data : any, settings : ImageProcessorSettings)
     {
         let blob = new Blob([data], { type: "image/bmp" });
         let url = URL.createObjectURL(blob);
@@ -168,7 +189,7 @@ export class ImageProcessorAmpMod
         State.addFrameToFramebank(frame);
     }
     
-    saveTransitionFrame(data : any, settings : AmpModSettings, transitionIndex : number)
+    saveTransitionFrame(data : any, settings : ImageProcessorSettings, transitionIndex : number)
     {
         let blob = new Blob([data], { type: "image/bmp" });
         let frame = new TransitionFrame(blob, settings);

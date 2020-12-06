@@ -133,8 +133,8 @@ export class TransitionWindow extends React.Component<TransitionWindowProps>
         let framesInput = this.framesInput.current as HTMLInputElement;
         let frames = parseInt(framesInput.value);
 
-        let firstFrameSettings = this.props.keyframes[this.props.index].ampModSettings;
-        let lastFrameSettings = this.props.keyframes[this.props.index + 1].ampModSettings;
+        let firstFrameSettings = this.props.keyframes[this.props.index].settings;
+        let lastFrameSettings = this.props.keyframes[this.props.index + 1].settings;
 
         State.setTransitionRenderStatus(this.props.index, "rendering");
 

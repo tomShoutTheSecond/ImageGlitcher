@@ -9,7 +9,7 @@ import { saveAs } from 'file-saver';
 import { Util } from './Util';
 import ArrowExpand from './icons/arrow-expand.svg';
 import { ImageProcessorWindow } from './ImageProcessorWindow';
-import { ImageProcessorAmpMod, AmpModSettings } from './ImageProcessorAmpMod';
+import { ImageProcessorAmpMod, AmpModSettings, ImageProcessorSettings, DelaySettings } from './ImageProcessorAmpMod';
 import { IconButton } from './IconButton';
 import Jimp from 'jimp';
 
@@ -92,7 +92,8 @@ export class FrameInspector extends React.Component<FrameInspectorProps, FrameIn
 
     renderFrame()
     {
-        ImageProcessorAmpMod.instance.processKeyFrame(this.props.imageData, this.state.ampModSettings, this.props.encodingAlgorithm);
+        let settings = new ImageProcessorSettings("ampMod", this.state.ampModSettings, DelaySettings.default);
+        ImageProcessorAmpMod.instance.processKeyFrame(this.props.imageData, settings, this.props.encodingAlgorithm);
     }
 
     componentWillReceiveProps(nextProps : FrameInspectorProps)
@@ -100,9 +101,9 @@ export class FrameInspector extends React.Component<FrameInspectorProps, FrameIn
         if(!nextProps.frame) return;
 
         //update settings when a frame is loaded to the inspector
-        if(nextProps.frame.ampModSettings != this.props.frame?.ampModSettings)
+        if(nextProps.frame.settings.ampModSettings != this.props.frame?.settings.ampModSettings)
         {
-            this.setState({ ampModSettings: nextProps.frame.ampModSettings });
+            this.setState({ ampModSettings: nextProps.frame.settings.ampModSettings });
         }
     }
 
@@ -236,7 +237,7 @@ export class FrameInspector extends React.Component<FrameInspectorProps, FrameIn
             return;
         }
 
-        ImageProcessorAmpMod.instance.processFrameSequence(this.props.frameSequence, this.props.frame.ampModSettings, this.props.encodingAlgorithm);
+        ImageProcessorAmpMod.instance.processFrameSequence(this.props.frameSequence, this.props.frame.settings, this.props.encodingAlgorithm);
     }
 
     async downloadProcessedFrameSequence()

@@ -9,6 +9,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { DatabaseController } from './DatabaseController';
 import { AudioProcessorWindow } from './AudioProcessorWindow';
 import { DSPTestBenchWindow } from './DSPTestBenchWindow';
+import { ImageProcessorSettings } from './ImageProcessorAmpMod';
 
 export class State
 {
@@ -242,14 +243,14 @@ export class KeyFrame
     id : string;
     url : string;
     data : Blob;
-    ampModSettings : AmpModSettings;
+    settings : ImageProcessorSettings;
 
-    constructor(url : string, data : Blob, ampModSettings : AmpModSettings)
+    constructor(url : string, data : Blob, settings : ImageProcessorSettings)
     {
         this.id = uuidv4();
         this.url = url;
         this.data = data;
-        this.ampModSettings = ampModSettings;
+        this.settings = settings;
     }
 
     dispose()
@@ -261,12 +262,12 @@ export class KeyFrame
 export class TransitionFrame
 {
     id : string;
-    ampModSettings : AmpModSettings;
+    settings : ImageProcessorSettings;
 
-    constructor(data : Blob, ampModSettings : AmpModSettings)
+    constructor(data : Blob, settings : ImageProcessorSettings)
     {
         this.id = uuidv4();
-        this.ampModSettings = ampModSettings;
+        this.settings = settings;
 
         this.saveDataInDB(this.id, data);
     }

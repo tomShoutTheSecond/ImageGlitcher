@@ -16,14 +16,16 @@ class FrameRendererAmpMod
         let decodedBuffer = this.decodeFile(imageData, encodingAlgorithm);
         let renderedFrames = [];
 
-        let startFreq = firstFrameSettings.frequency;
-        let endFreq = lastFrameSettings.frequency;
-        let startPhase = firstFrameSettings.phase;
-        let endPhase = lastFrameSettings.phase;
-        let startAmp = firstFrameSettings.amp;
-        let endAmp = lastFrameSettings.amp;
-        let startOffset = firstFrameSettings.offset;
-        let endOffset = lastFrameSettings.offset;
+        let startFreq = firstFrameSettings.ampModSettings.frequency;
+        let endFreq = lastFrameSettings.ampModSettings.frequency;
+        let startPhase = firstFrameSettings.ampModSettings.phase;
+        let endPhase = lastFrameSettings.ampModSettings.phase;
+        let startAmp = firstFrameSettings.ampModSettings.amp;
+        let endAmp = lastFrameSettings.ampModSettings.amp;
+        let startOffset = firstFrameSettings.ampModSettings.offset;
+        let endOffset = lastFrameSettings.ampModSettings.offset;
+
+        console.log("startOffset", startOffset)
 
         for (let i = 0; i < frames; i++) 
         {
@@ -58,10 +60,12 @@ class FrameRendererAmpMod
                     break;
             }
 
-            let settings = new AmpModSettings(frameFrequency, framePhase, frameAmp, frameOffset);
+            let ampModSettings = new AmpModSettings(frameFrequency, framePhase, frameAmp, frameOffset);
+            let settings = { mode: "ampMod", ampModSettings: ampModSettings };
+            console.log("settings", settings)
             let newFrame = this.bufferProcess(decodedBuffer, settings);
             let encodedFrame = this.encodeFile(newFrame, encodingAlgorithm);
-            renderedFrames.push({ frame: encodedFrame, settings: settings });
+            renderedFrames.push({ frame: encodedFrame, settings: ampModSettings });
 
             postMessage({ id: "progress", progress: progress });
         }
@@ -72,11 +76,6 @@ class FrameRendererAmpMod
     bufferProcess(buffer, settings) //settings is AmpModSettings
     {
         let headerLength = 54; //value seems to work well for bitmap files
-
-        let frequency = settings.frequency
-        let phase = settings.phase;
-        let amp = settings.amp;
-        let offset = settings.offset;
 
         let processedBuffer = [];
         for (let i = 0; i < buffer.length; i++) 
@@ -89,14 +88,28 @@ class FrameRendererAmpMod
                 continue;
             }
 
-            let angle = phase + i * frequency;
-            let coef = offset + Math.sin(angle) * amp;
+            let processedSample = 0;
+            switch(settings.mode)
+            {
+                case "ampMod":
+                    processedSample = this.sampleProcessAmpMod(sample, i, settings.ampModSettings);
+                    break;
+                case "delay":
+                    break;
+            }
 
-            let processedSample = sample * coef;
             processedBuffer.push(processedSample);
         }
 
         return processedBuffer;
+    }
+
+    sampleProcessAmpMod(sample, sampleIndex, ampModSettings)
+    {
+        let angle = ampModSettings.phase + sampleIndex * ampModSettings.frequency;
+        let coef = ampModSettings.offset + Math.sin(angle) * ampModSettings.amp;
+
+        return sample * coef;
     }
 
     encodeFile(rawData, encodingAlgorithm)
@@ -141,13 +154,34 @@ class AmpModSettings
     }
 }
 
+class DelaySettings
+{
+    delay = 0;
+    feedback = 0;
+    mix = 0;
+
+    constructor(delay, feedback, mix)
+    {
+        this.delay = delay;
+        this.feedback = feedback;
+        this.mix = mix;
+    }
+}
+
+class ImageProcessorSettings
+{
+    mode = "ampMod";
+    ampModSettings = new AmpModSettings();
+    delaySettings = new DelaySettings();
+}
+
 frameRenderer = new FrameRendererAmpMod();
 
 onmessage = function(message) 
 {
     if(message.data.id == "renderFrame")
     {
-        let newFrame = frameRenderer.renderFrame(message.data.buffer, message.data.ampModSettings, message.data.encodingAlgorithm);
+        let newFrame = frameRenderer.renderFrame(message.data.buffer, message.data.settings, message.data.encodingAlgorithm);
         postMessage({ id: message.data.id, output: newFrame });
     }
     else if(message.data.id == "renderAnimation")
