@@ -56,9 +56,16 @@ export class FrameHolder extends React.Component<FrameHolderProps, FrameHolderSt
             height: iconSize
         };
 
-        let settingStyle : React.CSSProperties = 
+        let ampModSettingStyle : React.CSSProperties = 
         {
-            margin: 0
+            margin: 0,
+            color: "#ffaaff"
+        };
+
+        let delaySettingStyle : React.CSSProperties = 
+        {
+            margin: 0,
+            color: "#aaffff"
         };
 
         //img element has className downloadImg to make it easier to find later
@@ -75,7 +82,13 @@ export class FrameHolder extends React.Component<FrameHolderProps, FrameHolderSt
                     {Object.keys(this.props.frame.settings.ampModSettings).map((settingName, key) => {
                         let settingValue = Object.values(this.props.frame.settings.ampModSettings)[key];
                         return(
-                            <p key={key} style={settingStyle}>{settingName}: {settingValue}</p>
+                            <p key={key} style={ampModSettingStyle}>{settingName}: {settingValue}</p>
+                        );
+                    })}
+                    {Object.keys(this.props.frame.settings.delaySettings).map((settingName, key) => {
+                        let settingValue = Object.values(this.props.frame.settings.delaySettings)[key];
+                        return(
+                            <p key={key} style={delaySettingStyle}>{settingName}: {settingValue}</p>
                         );
                     })}
                 </div>

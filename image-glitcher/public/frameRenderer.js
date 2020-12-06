@@ -75,6 +75,15 @@ class FrameRendererAmpMod
 
     bufferProcess(buffer, settings) //settings is AmpModSettings
     {
+        switch(settings.mode)
+        {
+            case "ampMod":
+                break;
+            case "delay":
+                this.prepareToProcessDelay(settings.delaySettings);
+                break;
+        }
+
         let headerLength = 54; //value seems to work well for bitmap files
 
         let processedBuffer = [];
@@ -95,6 +104,7 @@ class FrameRendererAmpMod
                     processedSample = this.sampleProcessAmpMod(sample, i, settings.ampModSettings);
                     break;
                 case "delay":
+                    processedSample = this.sampleProcessDelay(sample, settings.delaySettings);
                     break;
             }
 
@@ -110,6 +120,75 @@ class FrameRendererAmpMod
         let coef = ampModSettings.offset + Math.sin(angle) * ampModSettings.amp;
 
         return sample * coef;
+    }
+
+    m_indexRead = 0;
+    m_indexWrite = 0;
+    m_delayBuffer = [];
+    
+    prepareToProcessDelay(delaySettings)
+    {
+        //set the circular buffer to fit the length of the delay exactly, fill it with zeros
+        let bufferLength = Math.ceil(delaySettings.delay);
+        this.m_delayBuffer = new Array(bufferLength).fill(0);
+    }
+
+    sampleProcessDelay(sampleToProcess, delaySettings)
+    {
+        //find theoretical read index (with decimal points)
+        this.m_indexRead = this.m_indexWrite - delaySettings.delay;
+
+        //wrap the read index to start of array if necessary
+        if (this.m_indexRead < 0)
+            this.m_indexRead += this.m_delayBuffer.length;
+
+        //find two nearest indexes
+        let m_indexRead1 = Math.floor(this.m_indexRead);
+
+        //click remover part 1
+        if (this.m_indexRead == this.m_delayBuffer.length)
+        {
+            m_indexRead1 -= 1;
+        }
+
+        let m_indexRead2 = m_indexRead1 + 1;
+        if (m_indexRead2 >= this.m_delayBuffer.length)
+            m_indexRead2 -= this.m_delayBuffer.length;
+
+        let m_distanceWeighting = 0;
+
+        //find distance weighting & click remover part 2
+        if (this.m_indexRead == this.m_delayBuffer.length)
+        {
+            m_distanceWeighting = 1.0;
+        }
+        else
+            m_distanceWeighting = this.m_indexRead % 1;
+
+        //read the input, xn, from the incoming sample
+        let xn = sampleToProcess;
+
+        //read the output, yn, from the circular buffer at the read position
+        let yn1 = this.m_delayBuffer[m_indexRead1];
+        let yn2 = this.m_delayBuffer[m_indexRead2];
+
+        let yn = yn2*m_distanceWeighting + yn1*(1 - m_distanceWeighting);
+
+        //write the current input sample, plus some feedback of the output sample to m_sampleToWrite
+        //write sample into the circular buffer at the write position
+        let m_sampleToWrite = xn + yn*delaySettings.feedback;
+        this.m_delayBuffer[this.m_indexWrite] = m_sampleToWrite;
+
+        //increment the write index, wrapping the index back to the top of 
+        //the circular buffer if necessary
+        this.m_indexWrite++;
+        if (this.m_indexWrite >= this.m_delayBuffer.length)
+            this.m_indexWrite = 0;
+
+        //set the incoming sample with the correct amounts of input and output
+        //based on the wet/dry mix
+
+        return delaySettings.mix*yn + (1.0 - delaySettings.mix)*xn;
     }
 
     encodeFile(rawData, encodingAlgorithm)

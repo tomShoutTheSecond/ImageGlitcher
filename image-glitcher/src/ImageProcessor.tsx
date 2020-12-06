@@ -20,7 +20,7 @@ export class ImageProcessorSettings
 
 export class AmpModSettings
 {
-    static default : AmpModSettings = { frequency: 0, phase: 0, amp: 0, offset: 0 };
+    static get default() { return { frequency: 0, phase: 0, amp: 0, offset: 0 } };
 
     frequency = 0;
     phase = 0;
@@ -38,7 +38,7 @@ export class AmpModSettings
 
 export class DelaySettings
 {
-    static default : DelaySettings = { delay: 0, feedback: 0, mix: 0 };
+    static get default() { return { delay: 0, feedback: 0, mix: 0 } };
 
     delay = 0;
     feedback = 0;
@@ -102,49 +102,62 @@ export class ImageProcessor
         processNextSequenceFrame(0);
     }
 
-    generateRandomFrame(imageData : Uint8Array, encodingAlgorithm : string)
+    generateRandomFrame(imageData : Uint8Array, encodingAlgorithm : string, mode : ProcessorMode)
     {
-        //randomise frequency so each order of magnitude is equally likely
-        let maxFreqMagnitude = 5;
-        let randomFreqMagnitude = Math.floor(maxFreqMagnitude * Math.random());
-        let randomFreq = 0.1 * Math.random();
-        for(let i = 0; i < randomFreqMagnitude; i++)
+        let ampModSettings = AmpModSettings.default;
+        let delaySettings = DelaySettings.default;
+
+        switch(mode)
         {
-            randomFreq *= 0.1;
+            case "ampMod":
+                //randomise frequency so each order of magnitude is equally likely
+                let maxFreqMagnitude = 5;
+                let randomFreqMagnitude = Math.floor(maxFreqMagnitude * Math.random());
+                let randomFreq = 0.1 * Math.random();
+                for(let i = 0; i < randomFreqMagnitude; i++)
+                {
+                    randomFreq *= 0.1;
+                }
+
+                let minPhase = 0;
+                let maxPhase = 20;
+
+                let randomAmp = 1 * Math.random();
+                let maxAmpMagnitude = 5;
+                let randomAmpMagnitude = Math.floor(maxAmpMagnitude * Math.random());
+                for(let i = 0; i < randomAmpMagnitude; i++)
+                {
+                    randomAmp *= 2;
+                }
+
+                if(Math.random() > 0.5) //50% chance
+                    randomAmp = 0 - randomAmp;
+                
+                if(Math.random() < 0.1) //10% chance
+                    randomAmp = 0;
+
+                let minOffset = -10;
+                let maxOffset = 10;
+                let randomOffset = Util.mixNumber(minOffset, maxOffset, Math.random());
+                if(Math.random() < 0.2 && randomAmp != 0) //20% chance, make sure amp and offset are not both zero (or it makes a blank white frame)
+                    randomOffset = 0;
+
+                ampModSettings = new AmpModSettings(randomFreq, Util.mixNumber(minPhase, maxPhase, Math.random()), randomAmp, randomOffset);
+
+                break;
+
+            case "delay":
+
+                let randomDelay = Math.random() * 100000;//44100;
+                let randomFeedback = Math.random() * 1.2;
+                let randomMix = 0.9 + Math.random() * 0.1;
+
+                delaySettings = new DelaySettings(randomDelay, randomFeedback, randomMix);
+
+                break;
         }
 
-        let minPhase = 0;
-        let maxPhase = 20;
-
-        let randomAmp = 1 * Math.random();
-        let maxAmpMagnitude = 5;
-        let randomAmpMagnitude = Math.floor(maxAmpMagnitude * Math.random());
-        for(let i = 0; i < randomAmpMagnitude; i++)
-        {
-            randomAmp *= 2;
-        }
-
-        if(Math.random() > 0.5) //50% chance
-            randomAmp = 0 - randomAmp;
-        
-        if(Math.random() < 0.1) //10% chance
-            randomAmp = 0;
-
-        let minOffset = -10;
-        let maxOffset = 10;
-        let randomOffset = Util.mixNumber(minOffset, maxOffset, Math.random());
-        if(Math.random() < 0.2 && randomAmp != 0) //20% chance, make sure amp and offset are not both zero (or it makes a blank white frame)
-            randomOffset = 0;
-
-        let ampModSettings : AmpModSettings = 
-        {
-            frequency: randomFreq,
-            phase : Util.mixNumber(minPhase, maxPhase, Math.random()),
-            amp : randomAmp,
-            offset : randomOffset
-        }
-
-        let settings = new ImageProcessorSettings("ampMod", ampModSettings, DelaySettings.default);
+        let settings = new ImageProcessorSettings(mode, ampModSettings, delaySettings);
         this.processKeyFrame(imageData, settings, encodingAlgorithm);
     }
 

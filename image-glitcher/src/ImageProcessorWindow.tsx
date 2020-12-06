@@ -4,7 +4,7 @@ import { Colors } from './Colors';
 import { Styles } from './Styles';
 import { Util } from './Util';
 import { FramebankWindow } from './FramebankWindow';
-import { ImageProcessor } from './ImageProcessor';
+import { ImageProcessor, ProcessorMode } from './ImageProcessor';
 import { IconButton } from './IconButton';
 
 interface ImageProcessorWindowProps
@@ -43,15 +43,19 @@ export class ImageProcessorWindow extends React.Component<ImageProcessorWindowPr
                 <br />
                 <h2 style={Styles.h2Style}>Amplitude Modulation</h2>
                 <div style={Styles.floatRight}>
-                    <IconButton iconName="dice-multiple" onClick={() => this.generateRandomFrame()}/>
+                    <IconButton iconName="dice-multiple" onClick={() => this.generateRandomFrame("ampMod")}/>
+                </div>
+                <h2 style={Styles.h2Style}>Delay</h2>
+                <div style={Styles.floatRight}>
+                    <IconButton iconName="dice-multiple" onClick={() => this.generateRandomFrame("delay")}/>
                 </div>
             </div>
         );
     }
 
-    generateRandomFrame()
+    generateRandomFrame(mode : ProcessorMode)
     {
-        ImageProcessor.instance.generateRandomFrame(this.props.imageData, this.props.encodingAlgorithm);
+        ImageProcessor.instance.generateRandomFrame(this.props.imageData, this.props.encodingAlgorithm, mode);
     }
 
     onChangeEncoding()

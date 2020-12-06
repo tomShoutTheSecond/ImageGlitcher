@@ -50,7 +50,8 @@ export class DSPTestBench
     delayPrepareToProcess(delaySettings : DelaySettings)
     {
         //set the circular buffer to fit the length of the delay exactly, fill it with zeros
-        this.m_delayBuffer = new Array(delaySettings.delay).fill(0);
+        let bufferLength = Math.ceil(delaySettings.delay);
+        this.m_delayBuffer = new Array(bufferLength).fill(0);
     }
 
     delayProcessSample(sampleToProcess : number, delaySettings : DelaySettings)
