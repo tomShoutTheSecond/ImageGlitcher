@@ -25,7 +25,12 @@ class FrameRendererAmpMod
         let startOffset = firstFrameSettings.ampModSettings.offset;
         let endOffset = lastFrameSettings.ampModSettings.offset;
 
-        console.log("startOffset", startOffset)
+        let startDelay = firstFrameSettings.delaySettings.delay;
+        let endDelay = lastFrameSettings.delaySettings.delay;
+        let startFeedback = firstFrameSettings.delaySettings.feedback;
+        let endFeedback = lastFrameSettings.delaySettings.feedback;
+        let startMix = firstFrameSettings.delaySettings.mix;
+        let endMix = lastFrameSettings.delaySettings.mix;
 
         for (let i = 0; i < frames; i++) 
         {
@@ -40,6 +45,10 @@ class FrameRendererAmpMod
             let framePhase = Util.mixNumber(startPhase, endPhase, progress);
             let frameAmp = Util.mixNumber(startAmp, endAmp, progress);
             let frameOffset = Util.mixNumber(startOffset, endOffset, progress);
+
+            let frameDelay = Util.mixNumber(startDelay, endDelay, progress);
+            let frameFeedback = Util.mixNumber(startFeedback, endFeedback, progress);
+            let frameMix = Util.mixNumber(startMix, endMix, progress);
 
             //apply audio link parameter shift
             switch(audioLink.parameterType)
@@ -61,8 +70,11 @@ class FrameRendererAmpMod
             }
 
             let ampModSettings = new AmpModSettings(frameFrequency, framePhase, frameAmp, frameOffset);
-            let settings = { mode: "ampMod", ampModSettings: ampModSettings };
-            console.log("settings", settings)
+            let delaySettings = new DelaySettings(frameDelay, frameFeedback, frameMix);
+            let settings = { mode: firstFrameSettings.mode, ampModSettings: ampModSettings, delaySettings: delaySettings };
+
+            console.log("settings", settings);
+            
             let newFrame = this.bufferProcess(decodedBuffer, settings);
             let encodedFrame = this.encodeFile(newFrame, encodingAlgorithm);
             renderedFrames.push({ frame: encodedFrame, settings: ampModSettings });

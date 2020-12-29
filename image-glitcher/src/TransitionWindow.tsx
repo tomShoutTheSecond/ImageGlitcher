@@ -48,7 +48,7 @@ export class TransitionWindow extends React.Component<TransitionWindowProps>
 
         let containerStyle : React.CSSProperties = 
         {
-            margin: "16px",
+            margin: "0 16px 16px 16px",
             padding: "16px",
             verticalAlign: "top",
             background: backgroundColor,
