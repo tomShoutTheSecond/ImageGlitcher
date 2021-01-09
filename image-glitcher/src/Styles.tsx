@@ -25,12 +25,17 @@ export class Styles
         return style;
     }
 
+    static get frameHolderSize() 
+    {
+        return 256;
+    }
+
     static get imageStyle() 
     { 
         let style : React.CSSProperties = 
         {
-            maxWidth: 240,
-            maxHeight: 240,
+            maxWidth: this.frameHolderSize,
+            maxHeight: this.frameHolderSize,
             display: "block"
         };
 

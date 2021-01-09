@@ -1,6 +1,6 @@
 import React from 'react';
 import { InterfaceUtilities } from './InterfaceUtilities';
-import { MathUtils } from './MathUtils';
+import { Util } from './Util';
 import { Colors } from './Colors';
 
 const minZoom = 0.2;
@@ -119,13 +119,13 @@ export class ZoomScrollSlider extends React.Component<ZoomScrollSliderProps>
         let circleRadius = 3;
 
         context.fillStyle = Colors.white;
-        context.arc(barLeft + circleMargin, circleMargin, circleRadius, 0, MathUtils.radians(360));
+        context.arc(barLeft + circleMargin, circleMargin, circleRadius, 0, Util.radians(360));
         context.closePath();
-        context.arc(barRight - circleMargin, circleMargin, circleRadius, 0, MathUtils.radians(360));
+        context.arc(barRight - circleMargin, circleMargin, circleRadius, 0, Util.radians(360));
         context.closePath();
-        context.arc(barLeft + circleMargin, canvas.height - circleMargin, circleRadius, 0, MathUtils.radians(360));
+        context.arc(barLeft + circleMargin, canvas.height - circleMargin, circleRadius, 0, Util.radians(360));
         context.closePath();
-        context.arc(barRight - circleMargin, canvas.height - circleMargin, circleRadius, 0, MathUtils.radians(360));
+        context.arc(barRight - circleMargin, canvas.height - circleMargin, circleRadius, 0, Util.radians(360));
         context.closePath();
         context.fill();
     }

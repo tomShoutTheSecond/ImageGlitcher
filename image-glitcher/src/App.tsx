@@ -10,6 +10,7 @@ import { DatabaseController } from './DatabaseController';
 import { AudioProcessorWindow } from './AudioProcessorWindow';
 import { DSPTestBenchWindow } from './DSPTestBenchWindow';
 import { ImageProcessorSettings } from './ImageProcessor';
+import { Util } from './Util';
 
 export class State
 {
@@ -130,6 +131,27 @@ export class State
         transitionFrames.splice(frameKeyframeIndex, 1);
 
         this.app.setState({ keyframes: newKeyframes, transitionFrames: transitionFrames });
+    }
+
+    static moveKeyFrame(frame : KeyFrame, direction : "left" | "right")
+    {
+        let keyframes = this.app.state.keyframes;
+        let keyframeIndex = keyframes.indexOf(frame);
+
+        //reorder keyframes in timeline
+        let newKeyframeIndex = direction === "left" ? keyframeIndex - 1 : keyframeIndex + 1;
+        Util.arrayMove(keyframes, keyframeIndex, newKeyframeIndex);
+
+        //assume all rendered transitions are no longer valid 
+        //this could be improved to save rendering transitions that are still valid
+        for(let transitionFramebank of this.app.state.transitionFrames)
+        {
+            transitionFramebank.clear();
+            transitionFramebank.status = "pending";
+            transitionFramebank.progress = 0;
+        }
+
+        this.app.setState({ keyframes: keyframes });
     }
 
     static clearKeyframes()

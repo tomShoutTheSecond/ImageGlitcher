@@ -1,7 +1,13 @@
+import { exception } from "console";
 import Jimp from "jimp";
 
 export class Util
 {
+    static radians(degrees : number) 
+    {
+        return degrees * Math.PI / 180;
+    }
+
     static copy<AmpModSettings>(object : object)
     {
         return Object.assign({ }, object) as AmpModSettings;
@@ -53,4 +59,20 @@ export class Util
             }
         });
     }
+
+    static arrayMove<T>(array : Array<T>, oldIndex : number, newIndex : number) 
+    {
+        while (oldIndex < 0) 
+            oldIndex += array.length;
+
+        while (newIndex < 0) 
+            newIndex += array.length;
+        
+        while (newIndex >= array.length) 
+            newIndex -= array.length;
+
+        //modifies the original array
+        array.splice(newIndex, 0, array.splice(oldIndex, 1)[0]);
+        return array;
+    };
 }

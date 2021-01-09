@@ -33,7 +33,7 @@ export class FrameHolder extends React.Component<FrameHolderProps, FrameHolderSt
             verticalAlign: "top",
             display: "inline-block",
             position: "relative",
-            height: 240 //from Styles
+            height: Styles.frameHolderSize //from Styles
         };
 
         let overlayContainerStyle : React.CSSProperties = 
@@ -50,13 +50,6 @@ export class FrameHolder extends React.Component<FrameHolderProps, FrameHolderSt
             boxSizing: "border-box"
         };
 
-        let iconSize = "32px";
-        let iconStyle : React.CSSProperties = 
-        {
-            width: iconSize,
-            height: iconSize
-        };
-
         let ampModSettingStyle : React.CSSProperties = 
         {
             margin: 0,
@@ -71,8 +64,6 @@ export class FrameHolder extends React.Component<FrameHolderProps, FrameHolderSt
 
         //img element has className downloadImg to make it easier to find later
 
-
-
         return (
             <div style={containerStyle} onMouseEnter={() => this.mouseEnter()} onMouseLeave={() => this.mouseLeave()}>
                 <img className="downloadImg" src={this.props.frame.url} style={Styles.imageStyle}></img>
@@ -80,8 +71,15 @@ export class FrameHolder extends React.Component<FrameHolderProps, FrameHolderSt
                     <a href={this.props.frame.url} target="_blank"><Icon iconName={'arrow-expand'}/></a>
                     <a href={this.props.frame.url} download={Util.getFrameName(this.props.frameIndex)}><Icon iconName={'download'}/></a>
                     <a onClick={() => State.inspectFrame(this.props.frame)} style={Styles.handCursor}><Icon iconName={'pencil'}/></a>
-                    {this.props.context == "framebank" ? <a onClick={() => State.addKeyFrame(this.props.frame)} style={Styles.handCursor}><Icon iconName={'key-plus'}/></a> : ""}
-                    {this.props.context == "timeline" ? <a onClick={() => State.deleteKeyFrame(this.props.frame)} style={Styles.handCursor}><Icon iconName={'key-remove'}/></a> : ""}
+                    <a onClick={() => State.addKeyFrame(this.props.frame)} style={Styles.handCursor}><Icon iconName={'key-plus'}/></a>
+                    {this.props.context == "timeline" ? 
+                        <React.Fragment>
+                            <a onClick={() => State.deleteKeyFrame(this.props.frame)} style={Styles.handCursor}><Icon iconName={'key-remove'}/></a> 
+                            <a onClick={() => State.moveKeyFrame(this.props.frame, "left")} style={Styles.handCursor}><Icon iconName={'arrow-left'}/></a> 
+                            <a onClick={() => State.moveKeyFrame(this.props.frame, "right")} style={Styles.handCursor}><Icon iconName={'arrow-right'}/></a> 
+                        </React.Fragment>
+                    : 
+                        ""}
                     {Object.keys(this.props.frame.settings.ampModSettings).map((settingName, key) => {
                         let settingValue = Object.values(this.props.frame.settings.ampModSettings)[key];
                         return(
