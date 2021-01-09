@@ -40,7 +40,7 @@ export class FramebankWindow extends React.Component<FramebankWindowProps>
         };
 
         let content = this.props.isLoading ? "Loading frames..." : this.props.frames.map((frame, key) => 
-            <FrameHolder key={key} frame={frame} frameIndex={key}/>
+            <FrameHolder key={key} frame={frame} frameIndex={key} context="framebank"/>
         );
 
         return (

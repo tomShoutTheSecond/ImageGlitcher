@@ -13,7 +13,8 @@ import { Icon } from './Icon';
 interface FrameHolderProps
 {
     frame : KeyFrame,
-    frameIndex : number
+    frameIndex : number,
+    context : "framebank" | "timeline"
 }
 
 interface FrameHolderState
@@ -59,16 +60,18 @@ export class FrameHolder extends React.Component<FrameHolderProps, FrameHolderSt
         let ampModSettingStyle : React.CSSProperties = 
         {
             margin: 0,
-            color: "#ffaaff"
+            color: "#ed1b24"
         };
 
         let delaySettingStyle : React.CSSProperties = 
         {
             margin: 0,
-            color: "#aaffff"
+            color: "#3cec97"
         };
 
         //img element has className downloadImg to make it easier to find later
+
+
 
         return (
             <div style={containerStyle} onMouseEnter={() => this.mouseEnter()} onMouseLeave={() => this.mouseLeave()}>
@@ -77,8 +80,8 @@ export class FrameHolder extends React.Component<FrameHolderProps, FrameHolderSt
                     <a href={this.props.frame.url} target="_blank"><Icon iconName={'arrow-expand'}/></a>
                     <a href={this.props.frame.url} download={Util.getFrameName(this.props.frameIndex)}><Icon iconName={'download'}/></a>
                     <a onClick={() => State.inspectFrame(this.props.frame)} style={Styles.handCursor}><Icon iconName={'pencil'}/></a>
-                    <a onClick={() => State.addKeyFrame(this.props.frame)} style={Styles.handCursor}><Icon iconName={'key-plus'}/></a>
-                    <a onClick={() => State.deleteKeyFrame(this.props.frame)} style={Styles.handCursor}><Icon iconName={'key-remove'}/></a>
+                    {this.props.context == "framebank" ? <a onClick={() => State.addKeyFrame(this.props.frame)} style={Styles.handCursor}><Icon iconName={'key-plus'}/></a> : ""}
+                    {this.props.context == "timeline" ? <a onClick={() => State.deleteKeyFrame(this.props.frame)} style={Styles.handCursor}><Icon iconName={'key-remove'}/></a> : ""}
                     {Object.keys(this.props.frame.settings.ampModSettings).map((settingName, key) => {
                         let settingValue = Object.values(this.props.frame.settings.ampModSettings)[key];
                         return(

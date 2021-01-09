@@ -127,14 +127,26 @@ export class TransitionWindow extends React.Component<TransitionWindowProps>
 
     renderFrames()
     {
+        let firstFrameSettings = this.props.keyframes[this.props.index].settings;
+        let lastFrameSettings = this.props.keyframes[this.props.index + 1].settings;
+
+        if(firstFrameSettings.mode != lastFrameSettings.mode)
+        {
+            alert("Cannot render transition for keyframes that use different process modes");
+            return;
+        }
+
         //clear previously rendered frames
         State.clearTransitionFramebank(this.props.index);
 
         let framesInput = this.framesInput.current as HTMLInputElement;
         let frames = parseInt(framesInput.value);
 
-        let firstFrameSettings = this.props.keyframes[this.props.index].settings;
-        let lastFrameSettings = this.props.keyframes[this.props.index + 1].settings;
+        if(isNaN(frames))
+        {
+            alert("Please provide number of frames");
+            return;
+        }
 
         State.setTransitionRenderStatus(this.props.index, "rendering");
 
