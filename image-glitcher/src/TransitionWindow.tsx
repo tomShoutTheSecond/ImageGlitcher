@@ -95,10 +95,10 @@ export class TransitionWindow extends React.Component<TransitionWindowProps>
 
                 <label htmlFor="audioSources">Audio source </label>
                 <select name="audioSources" id="audioSources" ref={this.audioSourceMenu}>
-                    <option value="none">none</option>
+                    <option key={0} value="none">none</option>
                     {
                         this.props.audioSources.map((audioSource, key) => 
-                        <option key={key} value={audioSource}>{audioSource}</option>)
+                        <option key={key + 1} value={audioSource}>{audioSource}</option>)
                     }
                 </select>
                 <br/>

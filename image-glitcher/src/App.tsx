@@ -199,9 +199,12 @@ export class State
     static setAudioEnvelope(index : number, buffer : number[], fileName : string)
     {
         let audioBuffers = this.app.state.audioBuffers;
+        let audioSources = this.app.state.audioSources;
         audioBuffers[index] = buffer;
+        audioSources[index] = fileName;
 
-        this.app.setState({ audioBuffers: audioBuffers, audioSources: [ fileName ] });
+
+        this.app.setState({ audioBuffers: audioBuffers, audioSources: audioSources });
     }
 
     static addAudioSource()
@@ -357,13 +360,14 @@ class App extends React.Component<AppProps, AppState>
             <div style={containerStyle}>
                 <ImageLoader />
                 <ImageProcessorWindow imageData={this.state.imageData} encodingAlgorithm={this.state.encodingAlgorithm}/>
-                <AnimationPreview url={this.state.animationUrl} isLoading={this.state.animationIsLoading} animationLength={this.state.animationLength}/>
+                
                 <div>
                     <FrameInspector frame={this.state.inspectedFrame} imageData={this.state.imageData} encodingAlgorithm={this.state.encodingAlgorithm} frameSequence={this.state.frameSequence} processedFrameSequence={this.state.processedFrameSequence}/>
                     <FramebankWindow frames={this.state.frames} isLoading={this.state.framebankIsLoading}/>
                 </div>
+
                 <Timeline imageData={this.state.imageData} keyframes={this.state.keyframes} encodingAlgorithm={this.state.encodingAlgorithm} transitionFrames={this.state.transitionFrames} omitFrame={this.state.omitFramePreference} loadingGif={this.state.animationIsLoading} audioSources={this.state.audioSources} audioBuffers={this.state.audioBuffers}/>
-            
+                <AnimationPreview url={this.state.animationUrl} isLoading={this.state.animationIsLoading} animationLength={this.state.animationLength}/>
                 <AudioProcessorWindow buffers={this.state.audioBuffers} />
                 <DSPTestBenchWindow />
             </div>

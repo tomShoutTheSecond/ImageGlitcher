@@ -53,7 +53,7 @@ export class FrameHolder extends React.Component<FrameHolderProps, FrameHolderSt
         let ampModSettingStyle : React.CSSProperties = 
         {
             margin: 0,
-            color: "#ed1b24"
+            color: "#59bfff"
         };
 
         let delaySettingStyle : React.CSSProperties = 
