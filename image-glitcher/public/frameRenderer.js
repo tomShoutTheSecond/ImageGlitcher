@@ -87,6 +87,23 @@ class FrameRendererAmpMod
 
     bufferProcess(buffer, settings) //settings is AmpModSettings
     {
+        let headerLength = 54; //value seems to work well for bitmap files
+
+        let isShuffle = true;
+        if(isShuffle)
+        {
+            let header = buffer.slice(0, headerLength - 1);
+            let unprocessedBuffer = buffer.slice(headerLength, buffer.length - headerLength);
+            let shuffledBuffer = this.bufferProcessShuffle(unprocessedBuffer);
+
+            let output = Util.joinArrays([header, shuffledBuffer]);
+
+            console.log("input", buffer);
+            console.log("output", output);
+
+            return output;
+        }
+
         switch(settings.mode)
         {
             case "ampMod":
@@ -95,8 +112,6 @@ class FrameRendererAmpMod
                 this.prepareToProcessDelay(settings.delaySettings);
                 break;
         }
-
-        let headerLength = 54; //value seems to work well for bitmap files
 
         let processedBuffer = [];
         for (let i = 0; i < buffer.length; i++) 
@@ -203,6 +218,41 @@ class FrameRendererAmpMod
         return delaySettings.mix*yn + (1.0 - delaySettings.mix)*xn;
     }
 
+    bufferProcessShuffle(buffer)
+    {
+        let segments = 8;
+
+        //choose (segments - 1) random indexes from the buffer
+        let length = buffer.length;
+        let markerPositions = [];
+        for (let i = 0; i < segments - 1; i++)
+        {
+            markerPositions[i] = Util.getRandomInt(0, length);
+        }
+
+        //chop the buffer into segments
+
+        let bufferSnippets = []; 
+
+        //sort the markers by position (earliest marker goes first)
+        markerPositions.sort((a, b) => a - b);
+
+        //add start marker
+        markerPositions.splice(0, 0, 0);
+
+        for (let i = 0; i < segments; i++)
+        {
+            let startMarkerIndex = markerPositions[i];
+            let endMarkerIndex = markerPositions[i + 1];
+
+            bufferSnippets[i] = buffer.slice(startMarkerIndex, endMarkerIndex);
+        }
+
+        return Util.joinArrays(bufferSnippets);
+
+        return buffer;
+    }
+
     encodeFile(rawData, encodingAlgorithm)
     {
         return encodingAlgorithm === "mulaw" ? alawmulaw.mulaw.encode(rawData) : alawmulaw.alaw.encode(rawData);
@@ -226,6 +276,61 @@ class Util
         if(audioLink.audioBuffer.length - 1 < frameIndex) return 0;
 
         return audioLink.amount * audioLink.audioBuffer[frameIndex];
+    }
+
+    static getRandomInt(min, max) 
+    {
+        min = Math.ceil(min);
+        max = Math.floor(max);
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    //takes an array of arrays, returns one array with all elements in order
+    static joinArrays(arrays)
+    {
+        console.log(arrays);
+
+        //calculate output array length
+        let totalLength = 0;
+        for(let i = 0; i < arrays.length; i++)
+        {
+            totalLength += arrays[i].length;
+        }
+
+        //put elements into output array
+        let outputArray = [];
+        let arrayNumber = 0;
+        let innerIndex = 0;
+        for(let i = 0; i < totalLength; i++) //for each element in the output array
+        {
+            if(arrayNumber >= arrays.length) break;
+
+            if(i < arrays[arrayNumber].length) //while index is below max index for the current array
+            {
+                outputArray[i] = arrays[arrayNumber][innerIndex];
+                innerIndex++;
+            }
+            else
+            {
+                //move to next array
+                arrayNumber++;
+                innerIndex = 0;
+            }
+        }
+
+        /*
+        let outputArray = [];
+        for(let i = 0; i < arrays.length; i++)
+        {
+            outputArray = outputArray.concat(arrays[i]);
+        }
+*/
+        //let i = 0;
+        return outputArray;//Array.prototype.concat.apply([], arrays[i]);
+        return arrays.reduce(function (flat, toFlatten) {
+            return flat.concat(Array.isArray(toFlatten) ? flatten(toFlatten) : toFlatten);
+        }, []);
+        return outputArray;//[].concat.apply([], arrays);
     }
 }
 
