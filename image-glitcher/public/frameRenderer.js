@@ -1,6 +1,6 @@
 self.importScripts('alawmulaw.js');
 
-class FrameRendererAmpMod
+class FrameRenderer
 {
     renderFrame(imageData, settings, encodingAlgorithm)
     {
@@ -89,23 +89,15 @@ class FrameRendererAmpMod
     {
         let headerLength = 54; //value seems to work well for bitmap files
 
-        let isShuffle = settings.mode == "shuffle";
-        if(isShuffle)
+        if(settings.mode == "shuffle")
         {
-            //skip the byte loop for shuffle, as it does not process one sample at a time
+            //skip the byte loop for shuffle effect; shuffle does not process one sample at a time
 
-            let header = buffer.slice(0, headerLength - 1);
-            let unprocessedBuffer = buffer.slice(headerLength, buffer.length - headerLength);
-            let shuffledBuffer = this.bufferProcessShuffle(unprocessedBuffer);
+            let header = buffer.slice(0, headerLength);
+            let unprocessedBuffer = buffer.slice(headerLength, buffer.length);
+            let shuffledBuffer = this.bufferProcessShuffle(unprocessedBuffer, settings.shuffleSettings);
 
-            console.log("Shuffled buffer length: " + shuffledBuffer.length);
-
-            let output = Util.joinArrays([header, shuffledBuffer]);
-
-            console.log("input", buffer);
-            console.log("output", output);
-
-            return output;
+            return Util.joinArrays([header, shuffledBuffer]);
         }
 
         switch(settings.mode)
@@ -222,9 +214,9 @@ class FrameRendererAmpMod
         return delaySettings.mix*yn + (1.0 - delaySettings.mix)*xn;
     }
 
-    bufferProcessShuffle(buffer)
+    bufferProcessShuffle(buffer, shuffleSettings)
     {
-        let segments = 48;
+        let segments = shuffleSettings.segments;
 
         //choose (segments - 1) random indexes from the buffer
         let length = buffer.length;
@@ -374,9 +366,10 @@ class ImageProcessorSettings
     mode = "ampMod";
     ampModSettings = new AmpModSettings();
     delaySettings = new DelaySettings();
+    shuffleSettings = new ShuffleSettings();
 }
 
-frameRenderer = new FrameRendererAmpMod();
+frameRenderer = new FrameRenderer();
 
 onmessage = function(message) 
 {

@@ -11,11 +11,12 @@ export class ImageProcessorSettings
     delaySettings = DelaySettings.default;
     shuffleSettings = ShuffleSettings.default;
 
-    constructor(mode : ProcessorMode, ampModSettings : AmpModSettings, delaySettings : DelaySettings)
+    constructor(mode : ProcessorMode, ampModSettings : AmpModSettings, delaySettings : DelaySettings, shuffleSettings : ShuffleSettings)
     {
         this.mode = mode;
         this.ampModSettings = ampModSettings;
         this.delaySettings = delaySettings;
+        this.shuffleSettings = shuffleSettings;
     }
 }
 
@@ -173,14 +174,14 @@ export class ImageProcessor
             case "shuffle":
 
                 let minSegments = 2;
-                let maxSegments = 200;
+                let maxSegments = 100;
                 let segments = Math.round(Util.mixNumber(minSegments, maxSegments, Math.random()));
                 shuffleSettings = new ShuffleSettings(segments);
 
                 break;
         }
 
-        let settings = new ImageProcessorSettings(mode, ampModSettings, delaySettings);
+        let settings = new ImageProcessorSettings(mode, ampModSettings, delaySettings, shuffleSettings);
         this.processKeyFrame(imageData, settings, encodingAlgorithm);
     }
 

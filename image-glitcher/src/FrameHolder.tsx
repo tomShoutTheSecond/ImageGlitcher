@@ -53,13 +53,19 @@ export class FrameHolder extends React.Component<FrameHolderProps, FrameHolderSt
         let ampModSettingStyle : React.CSSProperties = 
         {
             margin: 0,
-            color: "#59bfff"
+            color: "#02A275"
         };
 
         let delaySettingStyle : React.CSSProperties = 
         {
             margin: 0,
-            color: "#3cec97"
+            color: "#00757F"
+        };
+
+        let shuffleSettingStyle : React.CSSProperties = 
+        {
+            margin: 0,
+            color: "#2F4858"
         };
 
         //img element has className downloadImg to make it easier to find later
@@ -90,6 +96,12 @@ export class FrameHolder extends React.Component<FrameHolderProps, FrameHolderSt
                         let settingValue = Object.values(this.props.frame.settings.delaySettings)[key];
                         return(
                             <p key={key} style={delaySettingStyle}>{settingName}: {settingValue}</p>
+                        );
+                    })}
+                    {Object.keys(this.props.frame.settings.shuffleSettings).map((settingName, key) => {
+                        let settingValue = Object.values(this.props.frame.settings.shuffleSettings)[key];
+                        return(
+                            <p key={key} style={shuffleSettingStyle}>{settingName}: {settingValue}</p>
                         );
                     })}
                 </div>

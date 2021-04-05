@@ -9,7 +9,7 @@ import { saveAs } from 'file-saver';
 import { Util } from './Util';
 import ArrowExpand from './icons/arrow-expand.svg';
 import { ImageProcessorWindow } from './ImageProcessorWindow';
-import { ImageProcessor, AmpModSettings, ImageProcessorSettings, DelaySettings } from './ImageProcessor';
+import { ImageProcessor, AmpModSettings, ImageProcessorSettings, DelaySettings, ShuffleSettings } from './ImageProcessor';
 import { IconButton } from './IconButton';
 import Jimp from 'jimp';
 
@@ -33,7 +33,7 @@ interface FrameInspectorState
 
 export class FrameInspector extends React.Component<FrameInspectorProps, FrameInspectorState>
 {
-    state = { settings: new ImageProcessorSettings("ampMod", AmpModSettings.default, DelaySettings.default), sequenceConverting: false, sequencePreviewUrl: "", frameImportCounter: 0, totalFrames: 0 };
+    state = { settings: new ImageProcessorSettings("ampMod", AmpModSettings.default, DelaySettings.default, ShuffleSettings.default), sequenceConverting: false, sequencePreviewUrl: "", frameImportCounter: 0, totalFrames: 0 };
     
     fileInput = createRef<HTMLInputElement>();
 
@@ -72,6 +72,16 @@ export class FrameInspector extends React.Component<FrameInspectorProps, FrameIn
         {
             Object.keys(this.state.settings.delaySettings).map((settingName, key) => {
                 let settingValue = Object.values(this.state.settings.delaySettings)[key];
+                return(
+                    <div key={key}>
+                        <label htmlFor={settingName}>{settingName}</label> <input onChange={(e) => this.updateSettings(settingName, parseFloat((e.target as HTMLInputElement).value))} style={numberInputStyle} id={settingName} type="number" value={settingValue}/>
+                    </div>
+                );
+            })
+        }<br/>shuffle
+        {
+            Object.keys(this.state.settings.shuffleSettings).map((settingName, key) => {
+                let settingValue = Object.values(this.state.settings.shuffleSettings)[key];
                 return(
                     <div key={key}>
                         <label htmlFor={settingName}>{settingName}</label> <input onChange={(e) => this.updateSettings(settingName, parseFloat((e.target as HTMLInputElement).value))} style={numberInputStyle} id={settingName} type="number" value={settingValue}/>
@@ -124,6 +134,7 @@ export class FrameInspector extends React.Component<FrameInspectorProps, FrameIn
     {
         let ampModSettings = Util.copy<AmpModSettings>(this.state.settings.ampModSettings);
         let delaySettings = Util.copy<DelaySettings>(this.state.settings.delaySettings);
+        let shuffleSettings = Util.copy<ShuffleSettings>(this.state.settings.shuffleSettings);
         switch(settingName)
         {
             case "frequency":
@@ -147,9 +158,12 @@ export class FrameInspector extends React.Component<FrameInspectorProps, FrameIn
             case "mix":
                 delaySettings.mix = newValue;
                 break;
+            case "segments":
+                shuffleSettings.segments = newValue;
+                break;
         }
 
-        let settings = new ImageProcessorSettings(this.state.settings.mode, ampModSettings, delaySettings);
+        let settings = new ImageProcessorSettings(this.state.settings.mode, ampModSettings, delaySettings, shuffleSettings);
         this.setState({ settings: settings });
     }
 
