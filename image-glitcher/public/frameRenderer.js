@@ -96,6 +96,8 @@ class FrameRendererAmpMod
             let unprocessedBuffer = buffer.slice(headerLength, buffer.length - headerLength);
             let shuffledBuffer = this.bufferProcessShuffle(unprocessedBuffer);
 
+            console.log("Shuffled buffer length: " + shuffledBuffer.length);
+
             let output = Util.joinArrays([header, shuffledBuffer]);
 
             console.log("input", buffer);
@@ -220,7 +222,7 @@ class FrameRendererAmpMod
 
     bufferProcessShuffle(buffer)
     {
-        let segments = 8;
+        let segments = 16;
 
         //choose (segments - 1) random indexes from the buffer
         let length = buffer.length;
@@ -240,6 +242,10 @@ class FrameRendererAmpMod
         //add start marker
         markerPositions.splice(0, 0, 0);
 
+        //add end marker
+        markerPositions.push(buffer.length);
+
+        //chop the onions finely
         for (let i = 0; i < segments; i++)
         {
             let startMarkerIndex = markerPositions[i];
@@ -248,9 +254,12 @@ class FrameRendererAmpMod
             bufferSnippets[i] = buffer.slice(startMarkerIndex, endMarkerIndex);
         }
 
-        return Util.joinArrays(bufferSnippets);
+        //shuffle the segments
+        bufferSnippets = Util.shuffle(bufferSnippets);
 
-        return buffer;
+        let outputBuffer = Util.joinArrays(bufferSnippets);
+        console.log(`Input length: ${buffer.length} Output length: ${outputBuffer.length}`);
+        return outputBuffer;
     }
 
     encodeFile(rawData, encodingAlgorithm)
@@ -288,49 +297,33 @@ class Util
     //takes an array of arrays, returns one array with all elements in order
     static joinArrays(arrays)
     {
-        console.log(arrays);
-
-        //calculate output array length
-        let totalLength = 0;
-        for(let i = 0; i < arrays.length; i++)
-        {
-            totalLength += arrays[i].length;
-        }
-
-        //put elements into output array
-        let outputArray = [];
-        let arrayNumber = 0;
-        let innerIndex = 0;
-        for(let i = 0; i < totalLength; i++) //for each element in the output array
-        {
-            if(arrayNumber >= arrays.length) break;
-
-            if(i < arrays[arrayNumber].length) //while index is below max index for the current array
-            {
-                outputArray[i] = arrays[arrayNumber][innerIndex];
-                innerIndex++;
-            }
-            else
-            {
-                //move to next array
-                arrayNumber++;
-                innerIndex = 0;
-            }
-        }
-
-        /*
         let outputArray = [];
         for(let i = 0; i < arrays.length; i++)
         {
-            outputArray = outputArray.concat(arrays[i]);
+            outputArray = outputArray.concat(Array.from(arrays[i]));//.concat(//.concat(arrays[i]);
         }
-*/
-        //let i = 0;
-        return outputArray;//Array.prototype.concat.apply([], arrays[i]);
-        return arrays.reduce(function (flat, toFlatten) {
-            return flat.concat(Array.isArray(toFlatten) ? flatten(toFlatten) : toFlatten);
-        }, []);
-        return outputArray;//[].concat.apply([], arrays);
+
+        return outputArray;
+    }
+
+    static shuffle(array) 
+    {
+        var currentIndex = array.length, temporaryValue, randomIndex;
+      
+        // While there remain elements to shuffle...
+        while (0 !== currentIndex) 
+        {
+            // Pick a remaining element...
+            randomIndex = Math.floor(Math.random() * currentIndex);
+            currentIndex -= 1;
+        
+            // And swap it with the current element.
+            temporaryValue = array[currentIndex];
+            array[currentIndex] = array[randomIndex];
+            array[randomIndex] = temporaryValue;
+        }
+      
+        return array;
     }
 }
 
