@@ -2,13 +2,14 @@ import { Util } from "./Util";
 import { State, KeyFrame as KeyFrame, TransitionFrame } from "./App";
 import { AudioLink } from "./AudioLink";
 
-export type ProcessorMode = "ampMod" | "delay";
+export type ProcessorMode = "ampMod" | "delay" | "shuffle";
 
 export class ImageProcessorSettings
 {
     mode : ProcessorMode = "ampMod";
     ampModSettings = AmpModSettings.default;
     delaySettings = DelaySettings.default;
+    shuffleSettings = ShuffleSettings.default;
 
     constructor(mode : ProcessorMode, ampModSettings : AmpModSettings, delaySettings : DelaySettings)
     {
@@ -49,6 +50,18 @@ export class DelaySettings
         this.delay = delay;
         this.feedback = feedback;
         this.mix = mix;
+    }
+}
+
+export class ShuffleSettings
+{
+    static get default() { return { segments: 0 } };
+
+    segments = 0;
+
+    constructor(segments : number)
+    {
+        this.segments = segments;
     }
 }
 
@@ -106,6 +119,7 @@ export class ImageProcessor
     {
         let ampModSettings = AmpModSettings.default;
         let delaySettings = DelaySettings.default;
+        let shuffleSettings = ShuffleSettings.default;
 
         switch(mode)
         {
@@ -153,6 +167,15 @@ export class ImageProcessor
                 let randomMix = 0.9 + Math.random() * 0.1;
 
                 delaySettings = new DelaySettings(randomDelay, randomFeedback, randomMix);
+
+                break;
+            
+            case "shuffle":
+
+                let minSegments = 2;
+                let maxSegments = 200;
+                let segments = Math.round(Util.mixNumber(minSegments, maxSegments, Math.random()));
+                shuffleSettings = new ShuffleSettings(segments);
 
                 break;
         }

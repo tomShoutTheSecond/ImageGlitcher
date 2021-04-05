@@ -89,9 +89,11 @@ class FrameRendererAmpMod
     {
         let headerLength = 54; //value seems to work well for bitmap files
 
-        let isShuffle = true;
+        let isShuffle = settings.mode == "shuffle";
         if(isShuffle)
         {
+            //skip the byte loop for shuffle, as it does not process one sample at a time
+
             let header = buffer.slice(0, headerLength - 1);
             let unprocessedBuffer = buffer.slice(headerLength, buffer.length - headerLength);
             let shuffledBuffer = this.bufferProcessShuffle(unprocessedBuffer);
@@ -222,7 +224,7 @@ class FrameRendererAmpMod
 
     bufferProcessShuffle(buffer)
     {
-        let segments = 16;
+        let segments = 48;
 
         //choose (segments - 1) random indexes from the buffer
         let length = buffer.length;
@@ -354,6 +356,16 @@ class DelaySettings
         this.delay = delay;
         this.feedback = feedback;
         this.mix = mix;
+    }
+}
+
+class ShuffleSettings
+{
+    segments = 0;
+
+    constructor(segments)
+    {
+        this.segments = segments;
     }
 }
 
