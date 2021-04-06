@@ -49,6 +49,10 @@ export class ImageProcessorWindow extends React.Component<ImageProcessorWindowPr
                 <div style={Styles.alignRight}>
                     <IconButton iconName="dice-multiple" onClick={() => this.generateRandomFrame("delay")}/>
                 </div>
+                <h2 style={Styles.h2Style}>Shuffle</h2>
+                <div style={Styles.alignRight}>
+                    <IconButton iconName="dice-multiple" onClick={() => this.generateRandomFrame("shuffle")}/>
+                </div>
             </div>
         );
     }

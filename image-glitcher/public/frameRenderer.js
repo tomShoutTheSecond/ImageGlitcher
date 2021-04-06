@@ -1,6 +1,6 @@
 self.importScripts('alawmulaw.js');
 
-class FrameRendererAmpMod
+class FrameRenderer
 {
     renderFrame(imageData, settings, encodingAlgorithm)
     {
@@ -87,6 +87,19 @@ class FrameRendererAmpMod
 
     bufferProcess(buffer, settings) //settings is AmpModSettings
     {
+        let headerLength = 54; //value seems to work well for bitmap files
+
+        if(settings.mode == "shuffle")
+        {
+            //skip the byte loop for shuffle effect; shuffle does not process one sample at a time
+
+            let header = buffer.slice(0, headerLength);
+            let unprocessedBuffer = buffer.slice(headerLength, buffer.length);
+            let shuffledBuffer = this.bufferProcessShuffle(unprocessedBuffer, settings.shuffleSettings);
+
+            return Util.joinArrays([header, shuffledBuffer]);
+        }
+
         switch(settings.mode)
         {
             case "ampMod":
@@ -95,8 +108,6 @@ class FrameRendererAmpMod
                 this.prepareToProcessDelay(settings.delaySettings);
                 break;
         }
-
-        let headerLength = 54; //value seems to work well for bitmap files
 
         let processedBuffer = [];
         for (let i = 0; i < buffer.length; i++) 
@@ -203,6 +214,48 @@ class FrameRendererAmpMod
         return delaySettings.mix*yn + (1.0 - delaySettings.mix)*xn;
     }
 
+    bufferProcessShuffle(buffer, shuffleSettings)
+    {
+        let segments = shuffleSettings.segments;
+
+        //choose (segments - 1) random indexes from the buffer
+        let length = buffer.length;
+        let markerPositions = [];
+        for (let i = 0; i < segments - 1; i++)
+        {
+            markerPositions[i] = Util.getRandomInt(0, length);
+        }
+
+        //chop the buffer into segments
+
+        let bufferSnippets = []; 
+
+        //sort the markers by position (earliest marker goes first)
+        markerPositions.sort((a, b) => a - b);
+
+        //add start marker
+        markerPositions.splice(0, 0, 0);
+
+        //add end marker
+        markerPositions.push(buffer.length);
+
+        //chop the onions finely
+        for (let i = 0; i < segments; i++)
+        {
+            let startMarkerIndex = markerPositions[i];
+            let endMarkerIndex = markerPositions[i + 1];
+
+            bufferSnippets[i] = buffer.slice(startMarkerIndex, endMarkerIndex);
+        }
+
+        //shuffle the segments
+        bufferSnippets = Util.shuffle(bufferSnippets);
+
+        let outputBuffer = Util.joinArrays(bufferSnippets);
+        console.log(`Input length: ${buffer.length} Output length: ${outputBuffer.length}`);
+        return outputBuffer;
+    }
+
     encodeFile(rawData, encodingAlgorithm)
     {
         return encodingAlgorithm === "mulaw" ? alawmulaw.mulaw.encode(rawData) : alawmulaw.alaw.encode(rawData);
@@ -226,6 +279,45 @@ class Util
         if(audioLink.audioBuffer.length - 1 < frameIndex) return 0;
 
         return audioLink.amount * audioLink.audioBuffer[frameIndex];
+    }
+
+    static getRandomInt(min, max) 
+    {
+        min = Math.ceil(min);
+        max = Math.floor(max);
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    //takes an array of arrays, returns one array with all elements in order
+    static joinArrays(arrays)
+    {
+        let outputArray = [];
+        for(let i = 0; i < arrays.length; i++)
+        {
+            outputArray = outputArray.concat(Array.from(arrays[i]));//.concat(//.concat(arrays[i]);
+        }
+
+        return outputArray;
+    }
+
+    static shuffle(array) 
+    {
+        var currentIndex = array.length, temporaryValue, randomIndex;
+      
+        //while there remain elements to shuffle...
+        while (0 !== currentIndex) 
+        {
+            //pick a remaining element...
+            randomIndex = Math.floor(Math.random() * currentIndex);
+            currentIndex -= 1;
+        
+            //and swap it with the current element.
+            temporaryValue = array[currentIndex];
+            array[currentIndex] = array[randomIndex];
+            array[randomIndex] = temporaryValue;
+        }
+      
+        return array;
     }
 }
 
@@ -259,14 +351,25 @@ class DelaySettings
     }
 }
 
+class ShuffleSettings
+{
+    segments = 0;
+
+    constructor(segments)
+    {
+        this.segments = segments;
+    }
+}
+
 class ImageProcessorSettings
 {
     mode = "ampMod";
     ampModSettings = new AmpModSettings();
     delaySettings = new DelaySettings();
+    shuffleSettings = new ShuffleSettings();
 }
 
-frameRenderer = new FrameRendererAmpMod();
+frameRenderer = new FrameRenderer();
 
 onmessage = function(message) 
 {

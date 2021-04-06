@@ -2,19 +2,21 @@ import { Util } from "./Util";
 import { State, KeyFrame as KeyFrame, TransitionFrame } from "./App";
 import { AudioLink } from "./AudioLink";
 
-export type ProcessorMode = "ampMod" | "delay";
+export type ProcessorMode = "ampMod" | "delay" | "shuffle";
 
 export class ImageProcessorSettings
 {
     mode : ProcessorMode = "ampMod";
     ampModSettings = AmpModSettings.default;
     delaySettings = DelaySettings.default;
+    shuffleSettings = ShuffleSettings.default;
 
-    constructor(mode : ProcessorMode, ampModSettings : AmpModSettings, delaySettings : DelaySettings)
+    constructor(mode : ProcessorMode, ampModSettings : AmpModSettings, delaySettings : DelaySettings, shuffleSettings : ShuffleSettings)
     {
         this.mode = mode;
         this.ampModSettings = ampModSettings;
         this.delaySettings = delaySettings;
+        this.shuffleSettings = shuffleSettings;
     }
 }
 
@@ -49,6 +51,18 @@ export class DelaySettings
         this.delay = delay;
         this.feedback = feedback;
         this.mix = mix;
+    }
+}
+
+export class ShuffleSettings
+{
+    static get default() { return { segments: 0 } };
+
+    segments = 0;
+
+    constructor(segments : number)
+    {
+        this.segments = segments;
     }
 }
 
@@ -106,6 +120,7 @@ export class ImageProcessor
     {
         let ampModSettings = AmpModSettings.default;
         let delaySettings = DelaySettings.default;
+        let shuffleSettings = ShuffleSettings.default;
 
         switch(mode)
         {
@@ -155,9 +170,18 @@ export class ImageProcessor
                 delaySettings = new DelaySettings(randomDelay, randomFeedback, randomMix);
 
                 break;
+            
+            case "shuffle":
+
+                let minSegments = 2;
+                let maxSegments = 100;
+                let segments = Math.round(Util.mixNumber(minSegments, maxSegments, Math.random()));
+                shuffleSettings = new ShuffleSettings(segments);
+
+                break;
         }
 
-        let settings = new ImageProcessorSettings(mode, ampModSettings, delaySettings);
+        let settings = new ImageProcessorSettings(mode, ampModSettings, delaySettings, shuffleSettings);
         this.processKeyFrame(imageData, settings, encodingAlgorithm);
     }
 
