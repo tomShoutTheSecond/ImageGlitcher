@@ -72,9 +72,9 @@ export class ImageProcessor
 
     frameRenderWorker = new Worker(Util.getPublicFile("frameRenderer.js"));
 
-    processAnimation(imageData : Uint8Array, frames : number, firstFrameSettings : ImageProcessorSettings, lastFrameSettings : ImageProcessorSettings, encodingAlgorithm : string, transitionIndex : number, audioLink : AudioLink)
+    processAnimation(imageData : Uint8Array, frames : number, firstFrameSettings : ImageProcessorSettings, lastFrameSettings : ImageProcessorSettings, encodingAlgorithm : string, interpolation : number, transitionIndex : number, audioLink : AudioLink)
     {
-        this.backgroundRenderAnimation(imageData, frames, firstFrameSettings, lastFrameSettings, encodingAlgorithm, transitionIndex, audioLink).then((processedData) => 
+        this.backgroundRenderAnimation(imageData, frames, firstFrameSettings, lastFrameSettings, encodingAlgorithm, interpolation, transitionIndex, audioLink).then((processedData) => 
         { 
             //processedData is an array of { frame: buffer, settings: ImageProcessorSettings }
             processedData.forEach((renderedFrame : { frame : Uint8Array, settings : ImageProcessorSettings }) => 
@@ -198,7 +198,7 @@ export class ImageProcessor
         });
     }
 
-    async backgroundRenderAnimation(buffer : any, frames : number, firstFrameSettings : ImageProcessorSettings, lastFrameSettings : ImageProcessorSettings, encodingAlgorithm : string, transitionIndex : number, audioLink : AudioLink) : Promise<any>
+    async backgroundRenderAnimation(buffer : any, frames : number, firstFrameSettings : ImageProcessorSettings, lastFrameSettings : ImageProcessorSettings, encodingAlgorithm : string, interpolation : number, transitionIndex : number, audioLink : AudioLink) : Promise<any>
     {
         return new Promise<any>((resolve, reject) =>
         {
@@ -212,7 +212,7 @@ export class ImageProcessor
                 }
             }
 
-            this.frameRenderWorker.postMessage({ id: "renderAnimation", buffer: buffer, frames: frames, firstFrameSettings: firstFrameSettings, lastFrameSettings: lastFrameSettings, encodingAlgorithm: encodingAlgorithm, audioLink: audioLink });
+            this.frameRenderWorker.postMessage({ id: "renderAnimation", buffer: buffer, frames: frames, firstFrameSettings: firstFrameSettings, lastFrameSettings: lastFrameSettings, encodingAlgorithm: encodingAlgorithm, interpolation: interpolation, audioLink: audioLink });
         });
     }
 

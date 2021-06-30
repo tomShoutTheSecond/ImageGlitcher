@@ -11,7 +11,7 @@ class FrameRenderer
         return encodedBuffer;
     }
 
-    renderAnimation(imageData, frames, firstFrameSettings, lastFrameSettings, encodingAlgorithm, audioLink)
+    renderAnimation(imageData, frames, firstFrameSettings, lastFrameSettings, encodingAlgorithm, interpolation, audioLink)
     {
         let decodedBuffer = this.decodeFile(imageData, encodingAlgorithm);
         let renderedFrames = [];
@@ -34,7 +34,7 @@ class FrameRenderer
 
         for (let i = 0; i < frames; i++) 
         {
-            let progress = i / (frames - 1);
+            let progress = this.getAnimationProgress(i, frames, interpolation);//i / (frames - 1);
             if(frames == 1) 
             {
                 //avoid progress = NaN when only one frame is requested
@@ -79,7 +79,8 @@ class FrameRenderer
             let encodedFrame = this.encodeFile(newFrame, encodingAlgorithm);
             renderedFrames.push({ frame: encodedFrame, settings: ampModSettings });
 
-            postMessage({ id: "progress", progress: progress });
+            let renderProgress = i / (frames - 1);
+            postMessage({ id: "progress", progress: renderProgress });
         }
 
         return renderedFrames;
@@ -256,6 +257,26 @@ class FrameRenderer
         return outputBuffer;
     }
 
+    getAnimationProgress(i, frames, interpolationExponent)
+    {
+        let x = i / (frames - 1);
+        let y = Math.pow(x, interpolationExponent);
+        return y;
+    }
+
+    printInterpolation()
+    {
+        console.log("test")
+        let points = 20;
+        let power = 0.5;
+        for(let i = 0; i <= points; i++)
+        {
+            let x = i/points;
+            let y = Math.pow(x, power);
+            console.log("inter: " + y);
+        }
+    }
+
     encodeFile(rawData, encodingAlgorithm)
     {
         return encodingAlgorithm === "mulaw" ? alawmulaw.mulaw.encode(rawData) : alawmulaw.alaw.encode(rawData);
@@ -364,6 +385,7 @@ class ShuffleSettings
 class ImageProcessorSettings
 {
     mode = "ampMod";
+    interpolation = 1;
     ampModSettings = new AmpModSettings();
     delaySettings = new DelaySettings();
     shuffleSettings = new ShuffleSettings();
@@ -380,7 +402,7 @@ onmessage = function(message)
     }
     else if(message.data.id == "renderAnimation")
     {
-        let newFrames = frameRenderer.renderAnimation(message.data.buffer, message.data.frames, message.data.firstFrameSettings, message.data.lastFrameSettings, message.data.encodingAlgorithm, message.data.audioLink);
+        let newFrames = frameRenderer.renderAnimation(message.data.buffer, message.data.frames, message.data.firstFrameSettings, message.data.lastFrameSettings, message.data.encodingAlgorithm, message.data.interpolation, message.data.audioLink);
         postMessage({ id: message.data.id, output: newFrames });
     }
 }

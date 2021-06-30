@@ -25,6 +25,7 @@ export class TransitionWindow extends React.Component<TransitionWindowProps>
     audioLinkAmountInput = createRef<HTMLInputElement>();
     audioLinkStartInput = createRef<HTMLInputElement>();
     audioLinkEndInput = createRef<HTMLInputElement>();
+    interpolationInput = createRef<HTMLInputElement>();
 
     parameterList = [ "none", "frequency", "phase", "amp", "offset" ];
 
@@ -91,6 +92,8 @@ export class TransitionWindow extends React.Component<TransitionWindowProps>
                     <div style={progressBarInnerStyle}/>
                 </div>
                 <label>Frames </label><input type="number" ref={this.framesInput}></input>
+                <br/>
+                <label>Interpolation </label><input type="number" ref={this.interpolationInput} defaultValue="1"></input>
                 <br/><br/><br/>
 
                 <label htmlFor="audioSources">Audio source </label>
@@ -148,6 +151,15 @@ export class TransitionWindow extends React.Component<TransitionWindowProps>
             return;
         }
 
+        let interpolationInput = this.interpolationInput.current as HTMLInputElement;
+        let interpolation = parseFloat(interpolationInput.value);
+
+        if(isNaN(interpolation) || interpolation < 0)
+        {
+            alert("Interpolation must be a number higher than 0");
+            return;
+        }
+
         State.setTransitionRenderStatus(this.props.index, "rendering");
 
         let selectedAudioSourceIndex = this.audioSourceMenu.current?.selectedIndex;
@@ -172,7 +184,7 @@ export class TransitionWindow extends React.Component<TransitionWindowProps>
 
         setTimeout(() => 
         { 
-            ImageProcessor.instance.processAnimation(this.props.imageData, frames, firstFrameSettings, lastFrameSettings, this.props.encodingAlgorithm, this.props.index, audioLink); 
+            ImageProcessor.instance.processAnimation(this.props.imageData, frames, firstFrameSettings, lastFrameSettings, this.props.encodingAlgorithm, interpolation, this.props.index, audioLink); 
         }, 100);
     }
 
