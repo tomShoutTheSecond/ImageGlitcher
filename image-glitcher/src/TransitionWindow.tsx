@@ -17,7 +17,15 @@ interface TransitionWindowProps
     audioBuffers : number[][]
 }
 
-export class TransitionWindow extends React.Component<TransitionWindowProps>
+interface TransitionWindowState
+{
+    interpolationMode : InterpolationMode,
+    audioLinkEnabled : boolean
+}
+
+type InterpolationMode = "linear" | "speedUp" | "slowDown";
+
+export class TransitionWindow extends React.Component<TransitionWindowProps, TransitionWindowState>
 {
     framesInput = createRef<HTMLInputElement>();
     audioSourceMenu = createRef<HTMLSelectElement>();
@@ -28,6 +36,8 @@ export class TransitionWindow extends React.Component<TransitionWindowProps>
     interpolationInput = createRef<HTMLInputElement>();
 
     parameterList = [ "none", "frequency", "phase", "amp", "offset" ];
+
+    state : TransitionWindowState = { interpolationMode : "linear", audioLinkEnabled : false };
 
     render()
     {
@@ -92,36 +102,55 @@ export class TransitionWindow extends React.Component<TransitionWindowProps>
                     <div style={progressBarInnerStyle}/>
                 </div>
                 <label>Frames </label><input type="number" ref={this.framesInput}></input>
-                <br/>
-                <label>Interpolation </label><input type="number" ref={this.interpolationInput} defaultValue="1"></input>
+                <br/><br/><br/>
+                <label>Interpolation </label>
+                <select name="interpolationMode" id="interpolationMode" ref={this.audioSourceMenu} onChange={e => this.interpolationModeChange(e)}>
+                    <option value="linear">Linear</option>
+                    <option value="speedUp">Speed Up</option>
+                    <option value="slowDown">Slow Down</option>
+                </select>
+                {
+                    this.state.interpolationMode != "linear" ?
+                    <div>
+                        <br/>
+                        <label>Curve </label>
+                        <input type="number" ref={this.interpolationInput} defaultValue="1"></input>
+                    </div> : ""
+                }
                 <br/><br/><br/>
 
                 <label htmlFor="audioSources">Audio source </label>
-                <select name="audioSources" id="audioSources" ref={this.audioSourceMenu}>
+                <select name="audioSources" id="audioSources" ref={this.audioSourceMenu} onChange={e => this.audioSourceChange(e)}>
                     <option key={0} value="none">none</option>
                     {
                         this.props.audioSources.map((audioSource, key) => 
                         <option key={key + 1} value={audioSource}>{audioSource}</option>)
                     }
                 </select>
-                <br/>
+                {
+                    this.state.audioLinkEnabled ?
+                    <div>
+                        <br/>
 
-                <label>Start frame </label><input type="number" ref={this.audioLinkStartInput} defaultValue={0}></input>
-                <br/>
-
-                <label>End frame </label><input type="number" ref={this.audioLinkEndInput} defaultValue={0}></input>
-                <br/>
-
-                <label htmlFor="audioParam">Link parameter </label>
-                <select name="audioParam" id="audioParam" ref={this.audioParamMenu}>
-                    {
-                        this.parameterList.map((parameter, key) => 
-                        <option key={key} value={parameter}>{parameter}</option>)
-                    }
-                </select>
-                <br/>
-
-                <label>Link amount </label><input type="number" ref={this.audioLinkAmountInput} defaultValue={0}></input>
+                        <label>Start frame </label><input type="number" ref={this.audioLinkStartInput} defaultValue={0}></input>
+                        <br/>
+        
+                        <label>End frame </label><input type="number" ref={this.audioLinkEndInput} defaultValue={0}></input>
+                        <br/>
+        
+                        <label htmlFor="audioParam">Link parameter </label>
+                        <select name="audioParam" id="audioParam" ref={this.audioParamMenu}>
+                            {
+                                this.parameterList.map((parameter, key) => 
+                                <option key={key} value={parameter}>{parameter}</option>)
+                            }
+                        </select>
+                        <br/>
+        
+                        <label>Link amount </label><input type="number" ref={this.audioLinkAmountInput} defaultValue={0}></input>
+                    </div> : ""
+                }
+                
                 <br/>
                 <button onClick={() => this.renderFrames()} style={{ float: "right", marginTop: "16px" }} disabled={somethingIsRendering}>Render</button>
             </div>
@@ -151,14 +180,8 @@ export class TransitionWindow extends React.Component<TransitionWindowProps>
             return;
         }
 
-        let interpolationInput = this.interpolationInput.current as HTMLInputElement;
-        let interpolation = parseFloat(interpolationInput.value);
-
-        if(isNaN(interpolation) || interpolation < 0)
-        {
-            alert("Interpolation must be a number higher than 0");
-            return;
-        }
+        let interpolation = this.getInterpolationExponent();
+        if(!interpolation) return;
 
         State.setTransitionRenderStatus(this.props.index, "rendering");
 
@@ -184,7 +207,7 @@ export class TransitionWindow extends React.Component<TransitionWindowProps>
 
         setTimeout(() => 
         { 
-            ImageProcessor.instance.processAnimation(this.props.imageData, frames, firstFrameSettings, lastFrameSettings, this.props.encodingAlgorithm, interpolation, this.props.index, audioLink); 
+            ImageProcessor.instance.processAnimation(this.props.imageData, frames, firstFrameSettings, lastFrameSettings, this.props.encodingAlgorithm, interpolation as number, this.props.index, audioLink); 
         }, 100);
     }
 
@@ -193,5 +216,34 @@ export class TransitionWindow extends React.Component<TransitionWindowProps>
         if(index == undefined || index > this.parameterList.length - 1) return "none"; //error state, should never happen
 
         return this.parameterList[index] as ParameterType;
+    }
+
+    audioSourceChange(e : React.ChangeEvent<HTMLSelectElement>)
+    {
+        this.setState({ audioLinkEnabled: e.target.value != "none" });
+    }
+
+    interpolationModeChange(e : React.ChangeEvent<HTMLSelectElement>)
+    {
+        this.setState({ interpolationMode: e.target.value as InterpolationMode });
+    }
+
+    getInterpolationExponent() : number | null
+    {
+        if(this.state.interpolationMode == "linear") return 1; //linear interpolation
+
+        let interpolationInput = this.interpolationInput.current as HTMLInputElement;
+        let interpolation = parseFloat(interpolationInput.value);
+
+        if(isNaN(interpolation) || interpolation <= 0)
+        {
+            alert("Interpolation factor must be a number higher than 0");
+            return null;
+        }
+
+        if(this.state.interpolationMode == "slowDown")
+            return 1 / interpolation;
+
+        return interpolation;
     }
 }
