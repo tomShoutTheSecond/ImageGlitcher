@@ -124,7 +124,10 @@ export class FrameInspector extends React.Component<FrameInspectorProps, FrameIn
         if(!nextProps.frame) return;
 
         //update settings when a frame is loaded to the inspector
-        this.setState({ settings: nextProps.frame.settings });
+        if(nextProps.frame.settings != this.props.frame?.settings)
+        {
+            this.setState({ settings: nextProps.frame.settings });
+        }
     }
 
     updateSettings(settingName : string, newValue : number)
