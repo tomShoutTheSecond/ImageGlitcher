@@ -95,25 +95,30 @@ export class ImageProcessor
         });
     }
 
-    processFrameSequence(imageData : Uint8Array[], settings : ImageProcessorSettings, encodingAlgorithm : string)
+    async processFrameSequence(imageData : Uint8Array[], settings : ImageProcessorSettings, encodingAlgorithm : string, counterCallback: (count: number) => void) : Promise<boolean>
     {
-        let processNextSequenceFrame = (frameCounter : number) => 
-        { 
-            if(frameCounter > imageData.length - 1)
-            {
-                alert("framesequence rendered");
-                return;
-            }
-
-            this.backgroundRenderFrame(imageData[frameCounter], settings, encodingAlgorithm).then((processedData) => 
+        return new Promise((resolve, reject) => 
+        {
+            let processNextSequenceFrame = (frameCounter : number) => 
             { 
-                this.saveSequenceFrame(processedData);
-                
-                processNextSequenceFrame(frameCounter + 1);
-            });
-        };
-        
-        processNextSequenceFrame(0);
+                counterCallback(frameCounter);
+
+                if(frameCounter > imageData.length - 1)
+                {
+                    resolve(true);
+                    return;
+                }
+
+                this.backgroundRenderFrame(imageData[frameCounter], settings, encodingAlgorithm).then((processedData) => 
+                { 
+                    this.saveSequenceFrame(processedData);
+                    
+                    processNextSequenceFrame(frameCounter + 1);
+                });
+            };
+            
+            processNextSequenceFrame(0);    
+        });
     }
 
     generateRandomFrame(imageData : Uint8Array, encodingAlgorithm : string, mode : ProcessorMode)

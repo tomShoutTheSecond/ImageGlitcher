@@ -25,15 +25,17 @@ interface FrameInspectorProps
 interface FrameInspectorState
 {
     settings : ImageProcessorSettings,
-    sequenceConverting : boolean,
+    isSequenceConverting : boolean,
+    isSequenceRendering : boolean,
     sequencePreviewUrl : string,
     frameImportCounter : number,
+    frameRenderCounter : number,
     totalFrames : number
 }
 
 export class FrameInspector extends React.Component<FrameInspectorProps, FrameInspectorState>
 {
-    state = { settings: new ImageProcessorSettings("ampMod", AmpModSettings.default, DelaySettings.default, ShuffleSettings.default), sequenceConverting: false, sequencePreviewUrl: "", frameImportCounter: 0, totalFrames: 0 };
+    state = { settings: new ImageProcessorSettings("ampMod", AmpModSettings.default, DelaySettings.default, ShuffleSettings.default), isSequenceConverting: false, isSequenceRendering: false, sequencePreviewUrl: "", frameImportCounter: 0, frameRenderCounter: 0, totalFrames: 0 };
     
     fileInput = createRef<HTMLInputElement>();
 
@@ -51,13 +53,21 @@ export class FrameInspector extends React.Component<FrameInspectorProps, FrameIn
             display: "inline-block"
         };
 
+        let buttonsContainerStyle = Styles.alignRight;
+        buttonsContainerStyle.marginTop = "16px";
+
+        let processButtonContainerStyle : React.CSSProperties = 
+        {
+            display: this.state.isSequenceRendering || this.state.isSequenceConverting ? "none" : "inline-block"
+        };
+
         let numberInputStyle : React.CSSProperties = 
         {
             width: "100px"
         };
 
         let previewImage = this.props.frame == null ? <p>No image</p> : <img src={this.props.frame.url} style={Styles.imageStyle}/>;
-        let ampModSettingsForm = this.props.frame == null ? "" : 
+        let settingsForm = this.props.frame == null ? "" : 
         <div><br/>ampMod
         {
             Object.keys(this.state.settings.ampModSettings).map((settingName, key) => {
@@ -91,13 +101,14 @@ export class FrameInspector extends React.Component<FrameInspectorProps, FrameIn
         }
         </div>
 
-        let sequenceConvertingText = this.state.sequenceConverting ? <h2>Converting image {this.state.frameImportCounter}/{this.state.totalFrames}</h2> : "";
+        let sequenceConvertingText = this.state.isSequenceConverting ? <h2>Converting image {this.state.frameImportCounter}/{this.state.totalFrames}</h2> : "";
+        let sequenceRenderingText = this.state.isSequenceRendering ? <h2>Rendering image {this.state.frameRenderCounter}/{this.state.totalFrames}</h2> : "";
 
         return (
             <div style={containerStyle}>
                 <h1 style={Styles.h1Style}>Frame Inspector</h1>
                 {previewImage}
-                {ampModSettingsForm}
+                {settingsForm}
                 <div style={Styles.alignRight}>
                     <IconButton iconName="image-move" onClick={() => this.renderFrame()}/>
                 </div>
@@ -106,8 +117,11 @@ export class FrameInspector extends React.Component<FrameInspectorProps, FrameIn
                 <input ref={this.fileInput} type="file" onChange={() => this.importImageSequence()} multiple />
                 <img src={this.state.sequencePreviewUrl} style={Styles.imageStyle}/>
                 {sequenceConvertingText}
-                <div style={Styles.alignRight}>
-                    <IconButton iconName="process" onClick={() => this.processFrameSequence()}/>
+                {sequenceRenderingText}
+                <div style={buttonsContainerStyle}>
+                    <div style={processButtonContainerStyle}>
+                        <IconButton iconName="process" onClick={async () => await this.processFrameSequence()}/>
+                    </div>
                     <IconButton leftMargin iconName="download" onClick={async () => await this.downloadProcessedFrameSequence()}/>
                 </div>
             </div>
@@ -198,7 +212,7 @@ export class FrameInspector extends React.Component<FrameInspectorProps, FrameIn
 
         if(this.state.frameImportCounter > imageFiles.length - 1)
         {
-            this.setState({ sequenceConverting: false });
+            this.setState({ isSequenceConverting: false });
             return;
         } 
 
@@ -232,7 +246,7 @@ export class FrameInspector extends React.Component<FrameInspectorProps, FrameIn
 
                 if(!imageIsBitmap)
                 {
-                    this.setState({ sequenceConverting: true });
+                    this.setState({ isSequenceConverting: true });
                     Util.convertImage(originalImageUrl, (imageBlob) => this.loadConvertedImage(imageBlob));
                 }
                 else
@@ -267,7 +281,7 @@ export class FrameInspector extends React.Component<FrameInspectorProps, FrameIn
         fileReader.readAsArrayBuffer(imageBlob);
     }
 
-    processFrameSequence()
+    async processFrameSequence()
     {
         if(!this.props.frame) 
         {
@@ -275,7 +289,9 @@ export class FrameInspector extends React.Component<FrameInspectorProps, FrameIn
             return;
         }
 
-        ImageProcessor.instance.processFrameSequence(this.props.frameSequence, this.props.frame.settings, this.props.encodingAlgorithm);
+        this.setState({ isSequenceRendering: true });
+        await ImageProcessor.instance.processFrameSequence(this.props.frameSequence, this.props.frame.settings, this.props.encodingAlgorithm, count => this.setState({ frameRenderCounter: count }));
+        this.setState({ isSequenceRendering: false });
     }
 
     async downloadProcessedFrameSequence()
@@ -284,6 +300,7 @@ export class FrameInspector extends React.Component<FrameInspectorProps, FrameIn
 
         console.log('processed frame sequence', this.props.processedFrameSequence)
 
+        //each zip files contains 10 frames to avoid memory overflow
         let tenFramesCounter = 0;
         for (let i = 0; i < this.props.processedFrameSequence.length; i++) 
         {
