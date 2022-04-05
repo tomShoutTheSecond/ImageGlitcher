@@ -4,7 +4,7 @@ import { ImageProcessorWindow } from './ImageProcessorWindow';
 import { FramebankWindow } from './FramebankWindow';
 import { AnimationPreviewWindow } from './AnimationPreviewWindow';
 import { TimelineWindow } from './TimelineWindow';
-import { FrameInspector } from './FrameInspector';
+import { FrameInspectorWindow } from './FrameInspectorWindow';
 import { v4 as uuidv4 } from 'uuid';
 import { DatabaseController } from './DatabaseController';
 import { AudioProcessorWindow } from './AudioProcessorWindow';
@@ -362,7 +362,7 @@ class App extends React.Component<AppProps, AppState>
                 <ImageProcessorWindow imageData={this.state.imageData} encodingAlgorithm={this.state.encodingAlgorithm}/>
                 
                 <div>
-                    <FrameInspector frame={this.state.inspectedFrame} imageData={this.state.imageData} encodingAlgorithm={this.state.encodingAlgorithm} frameSequence={this.state.frameSequence} processedFrameSequence={this.state.processedFrameSequence}/>
+                    <FrameInspectorWindow frame={this.state.inspectedFrame} imageData={this.state.imageData} encodingAlgorithm={this.state.encodingAlgorithm} frameSequence={this.state.frameSequence} processedFrameSequence={this.state.processedFrameSequence}/>
                     <FramebankWindow frames={this.state.frames} isLoading={this.state.framebankIsLoading}/>
                 </div>
 

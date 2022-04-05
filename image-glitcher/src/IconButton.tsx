@@ -10,6 +10,7 @@ interface StyledButtonProps
     enabled : boolean,
     loading : boolean,
     borderColorIndex : number,
+    hint : string,
     onClick : () => void
 }
 
@@ -27,7 +28,7 @@ const theme = createMuiTheme(
 
 export class IconButton extends React.Component<StyledButtonProps>
 {
-    static defaultProps = { leftMargin: false, enabled: true, loading: false, onClick: () => { }, borderColorIndex: 0 };
+    static defaultProps = { leftMargin: false, enabled: true, loading: false, onClick: () => { }, borderColorIndex: 0, hint: "" };
 
     size = "48px";
 
@@ -52,14 +53,20 @@ export class IconButton extends React.Component<StyledButtonProps>
             width: "100%"
         };
 
+        let tooltip = this.props.hint ? 
+        <span className="tooltip">
+            {this.props.hint} 
+        </span> : "";
+
         return (
-            <button style={buttonStyle} disabled={!this.props.enabled} onClick={() => this.props.onClick()}>
+            <button style={buttonStyle} disabled={!this.props.enabled} onClick={() => this.props.onClick()} className="iconButton">
                 {this.props.loading ? 
                 <ThemeProvider theme={theme}>
                     <CircularProgress style={progressStyle}/>
                 </ThemeProvider> 
                 : 
                 <Icon iconName={this.props.iconName} button />}
+                {tooltip}
             </button>
         );
     }

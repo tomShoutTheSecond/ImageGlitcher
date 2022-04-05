@@ -62,7 +62,7 @@ export class DSPTestBenchWindow extends React.Component<DSPTestBenchWindowProps,
                 <h1 style={Styles.h1Style}>Audio Source</h1>
                 <input type="file" ref={this.fileInput} onChange={async () => await this.loadAudioFromFile()} />
                 <br /><br />
-                <IconButton iconName="process" onClick={() => this.process()}/>
+                <IconButton iconName="process" hint="Process" onClick={() => this.process()}/>
                 {this.state.downloadUrl == "" ? "" : <a href={this.state.downloadUrl}>Download wav file</a>}
             </div>);
     }

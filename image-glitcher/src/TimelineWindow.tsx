@@ -47,8 +47,8 @@ export class TimelineWindow extends React.Component<TimelineProps, TimelineState
                     </div>
                 )}
                 <div>
-                    <IconButton iconName="gif" loading={this.props.loadingGif} onClick={async () => await this.createGif()}/>
-                    <IconButton leftMargin iconName="download" loading={this.state.loadingDownload} onClick={async () => await this.downloadFrames()}>Download Frames</IconButton>
+                    <IconButton iconName="gif" hint="Generate GIF" loading={this.props.loadingGif} onClick={async () => await this.createGif()}/>
+                    <IconButton leftMargin iconName="download" hint="Download frames" loading={this.state.loadingDownload} onClick={async () => await this.downloadFrames()}>Download Frames</IconButton>
                     <input ref={this.omitFrameCheckbox} type="checkbox" onClick={() => this.changeOmitFramePreference()} checked={this.props.omitFrame} /><label>Omit last frame (for smooth loops)</label>
                 </div>
             </div>

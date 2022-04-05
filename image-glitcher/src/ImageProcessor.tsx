@@ -123,6 +123,12 @@ export class ImageProcessor
 
     generateRandomFrame(imageData : Uint8Array, encodingAlgorithm : string, mode : ProcessorMode)
     {
+        if(imageData.length == 0)
+        {
+            alert("No source image loaded");
+            return;
+        }
+
         let ampModSettings = AmpModSettings.default;
         let delaySettings = DelaySettings.default;
         let shuffleSettings = ShuffleSettings.default;

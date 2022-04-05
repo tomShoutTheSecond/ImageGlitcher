@@ -79,7 +79,7 @@ export class AudioProcessorWindow extends React.Component<AudioProcessorWindowPr
                         <Waveform fileName="no file" buffer={buffer} />
                     </div>
                 ), this)}
-                <IconButton iconName="plus" onClick={async () => await State.addAudioSource()}/>
+                <IconButton iconName="plus" hint="Add audio file" onClick={async () => await State.addAudioSource()}/>
             </div>);
     }
 

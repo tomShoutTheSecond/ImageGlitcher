@@ -33,7 +33,7 @@ interface FrameInspectorState
     totalFrames : number
 }
 
-export class FrameInspector extends React.Component<FrameInspectorProps, FrameInspectorState>
+export class FrameInspectorWindow extends React.Component<FrameInspectorProps, FrameInspectorState>
 {
     state = { settings: new ImageProcessorSettings("ampMod", AmpModSettings.default, DelaySettings.default, ShuffleSettings.default), isSequenceConverting: false, isSequenceRendering: false, sequencePreviewUrl: "", frameImportCounter: 0, frameRenderCounter: 0, totalFrames: 0 };
     
@@ -98,7 +98,7 @@ export class FrameInspector extends React.Component<FrameInspectorProps, FrameIn
                 {previewImage}
                 {settingsForm}
                 <div style={Styles.alignRight}>
-                    <IconButton iconName="image-move" onClick={() => this.renderFrame()}/>
+                    <IconButton iconName="image-move" hint="Render frame" onClick={() => this.renderFrame()}/>
                 </div>
                 <br/><br/><br/><br/>
                 <h2 style={Styles.h2Style}>Sequence import</h2>
@@ -108,9 +108,9 @@ export class FrameInspector extends React.Component<FrameInspectorProps, FrameIn
                 {sequenceRenderingText}
                 <div style={buttonsContainerStyle}>
                     <div style={processButtonContainerStyle}>
-                        <IconButton iconName="process" onClick={async () => await this.processFrameSequence()}/>
+                        <IconButton iconName="process" hint="Process" onClick={async () => await this.processFrameSequence()}/>
                     </div>
-                    <IconButton leftMargin iconName="download" onClick={async () => await this.downloadProcessedFrameSequence()}/>
+                    <IconButton leftMargin iconName="download" hint="Download frames" onClick={async () => await this.downloadProcessedFrameSequence()}/>
                 </div>
             </div>
         );

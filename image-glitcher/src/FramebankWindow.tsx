@@ -38,7 +38,7 @@ export class FramebankWindow extends React.Component<FramebankWindowProps>
                 <h1 style={Styles.h1Style}>Framebank</h1>
                 {content}
                 <br />
-                <IconButton iconName="download" onClick={() => this.downloadFrames()}/>
+                <IconButton iconName="download" hint="Download frames" onClick={() => this.downloadFrames()}/>
             </div>
         );
     }

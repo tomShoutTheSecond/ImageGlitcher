@@ -31,15 +31,15 @@ export class ImageProcessorWindow extends React.Component<ImageProcessorWindowPr
                 <br />
                 <h2 style={Styles.h2Style}>Amplitude Modulation</h2>
                 <div style={Styles.alignRight}>
-                    <IconButton iconName="dice-multiple" onClick={() => this.generateRandomFrame("ampMod")}/>
+                    <IconButton iconName="dice-multiple" hint="Randomise" onClick={() => this.generateRandomFrame("ampMod")} borderColorIndex={0}/>
                 </div>
                 <h2 style={Styles.h2Style}>Delay</h2>
                 <div style={Styles.alignRight}>
-                    <IconButton iconName="dice-multiple" onClick={() => this.generateRandomFrame("delay")}/>
+                    <IconButton iconName="dice-multiple" hint="Randomise" onClick={() => this.generateRandomFrame("delay")} borderColorIndex={1}/>
                 </div>
                 <h2 style={Styles.h2Style}>Shuffle</h2>
                 <div style={Styles.alignRight}>
-                    <IconButton iconName="dice-multiple" onClick={() => this.generateRandomFrame("shuffle")}/>
+                    <IconButton iconName="dice-multiple" hint="Randomise" onClick={() => this.generateRandomFrame("shuffle")} borderColorIndex={2}/>
                 </div>
             </div>
         );
