@@ -19,20 +19,8 @@ export class ImageProcessorWindow extends React.Component<ImageProcessorWindowPr
 
     render()
     {
-        let containerStyle : React.CSSProperties = 
-        {
-            margin: "16px",
-            padding: "16px",
-            verticalAlign: "top",
-            background: Colors.background,
-            borderWidth: 1,
-            borderStyle: "solid",
-            borderColor: Colors.border,
-            display: "inline-block"
-        };
-
         return (
-            <div style={containerStyle}>
+            <div style={Styles.containerStyle}>
                 <h1 style={Styles.h1Style}>Process Image</h1>
                 <label htmlFor="encoding">Encoding algorithm </label>
                 <select id="encoding" ref="encodingInput" onChange={() => this.onChangeEncoding()}>

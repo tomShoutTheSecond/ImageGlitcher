@@ -7,8 +7,11 @@ export class DSPTestBench
 
     processAudioBuffer(buffer : AudioBuffer, settings : any) //settings is AmpModSettings
     {
+        //supports mono and stereo audio files (mono tracks will be duplicated across to stereo)
         let leftSamples = buffer.getChannelData(0);
-        let rightSamples = buffer.getChannelData(1);
+        let rightSamples = leftSamples;
+        if(buffer.numberOfChannels > 1)
+            rightSamples = buffer.getChannelData(1);
 
         let leftSamplesProcessed = this.bufferProcess(leftSamples, settings);
         let rightSamplesProcessed = this.bufferProcess(rightSamples, settings);

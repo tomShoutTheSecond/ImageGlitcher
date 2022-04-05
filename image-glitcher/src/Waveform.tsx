@@ -60,7 +60,7 @@ export class Waveform extends React.Component<WaveformProps, WaveformState>
         };
 
         let canvasStyle : React.CSSProperties = {
-            backgroundColor: Colors.background,
+            backgroundColor: Colors.fill,
             position: "relative",
             top: marginTop,
             left: marginHorizontal,
@@ -188,7 +188,7 @@ export class Waveform extends React.Component<WaveformProps, WaveformState>
 
         //draw horizontal line across canvas (so silent samples don't appear blank)
         let halfCanvasHeight = canvas.height * 0.5;
-        context.strokeStyle = Colors.white;
+        context.strokeStyle = Colors.background;
         context.beginPath();
         context.moveTo(0, halfCanvasHeight);
         context.lineTo(canvas.width, halfCanvasHeight);
@@ -238,7 +238,7 @@ export class Waveform extends React.Component<WaveformProps, WaveformState>
 
         context.clearRect(0, 0, canvas.width, canvas.height);
 
-        context.strokeStyle = Colors.white;
+        context.strokeStyle = Colors.background;
 
         let xValue = Math.round(canvas.width * this.props.lastGrainCenter! / this.state.zoomLevel);
         

@@ -41,18 +41,6 @@ export class FrameInspector extends React.Component<FrameInspectorProps, FrameIn
 
     render()
     {
-        let containerStyle : React.CSSProperties = 
-        {
-            margin: "16px",
-            padding: "16px",
-            verticalAlign: "top",
-            background: Colors.background,
-            borderWidth: 1,
-            borderStyle: "solid",
-            borderColor: Colors.border,
-            display: "inline-block"
-        };
-
         let buttonsContainerStyle = Styles.alignRight;
         buttonsContainerStyle.marginTop = "16px";
 
@@ -105,7 +93,7 @@ export class FrameInspector extends React.Component<FrameInspectorProps, FrameIn
         let sequenceRenderingText = this.state.isSequenceRendering ? <h2>Rendering image {this.state.frameRenderCounter}/{this.state.totalFrames}</h2> : "";
 
         return (
-            <div style={containerStyle}>
+            <div style={Styles.containerStyle}>
                 <h1 style={Styles.h1Style}>Frame Inspector</h1>
                 {previewImage}
                 {settingsForm}
@@ -113,7 +101,7 @@ export class FrameInspector extends React.Component<FrameInspectorProps, FrameIn
                     <IconButton iconName="image-move" onClick={() => this.renderFrame()}/>
                 </div>
                 <br/><br/><br/><br/>
-                <h2>Sequence import</h2>
+                <h2 style={Styles.h2Style}>Sequence import</h2>
                 <input ref={this.fileInput} type="file" onChange={() => this.importImageSequence()} multiple />
                 <img src={this.state.sequencePreviewUrl} style={Styles.imageStyle}/>
                 {sequenceConvertingText}

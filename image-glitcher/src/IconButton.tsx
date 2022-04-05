@@ -9,6 +9,7 @@ interface StyledButtonProps
     leftMargin : boolean,
     enabled : boolean,
     loading : boolean,
+    borderColorIndex : number,
     onClick : () => void
 }
 
@@ -16,7 +17,7 @@ const theme = createMuiTheme(
 {
     palette: {
         primary: {
-            main: Colors.white,
+            main: Colors.background,
         },
         secondary: {
             main: Colors.border,
@@ -26,7 +27,7 @@ const theme = createMuiTheme(
 
 export class IconButton extends React.Component<StyledButtonProps>
 {
-    static defaultProps = { leftMargin: false, enabled: true, loading: false, onClick: () => { } };
+    static defaultProps = { leftMargin: false, enabled: true, loading: false, onClick: () => { }, borderColorIndex: 0 };
 
     size = "48px";
 
@@ -34,11 +35,11 @@ export class IconButton extends React.Component<StyledButtonProps>
     {
         let buttonStyle : React.CSSProperties = 
         {
-            background: Colors.fill,
+            background: Colors.background,
             height: this.size,
             width: this.size,
             padding: "8px",
-            border: "1px solid " + Colors.border,
+            border: "1px solid " + Colors.sunset[this.props.borderColorIndex],
             borderRadius: "4px",
             boxSizing: "border-box",
             cursor: "pointer",

@@ -1,9 +1,9 @@
 import React, { CSSProperties, createRef, Fragment } from 'react';
-import { ImageLoader } from './ImageLoader';
+import { ImageLoaderWindow } from './ImageLoaderWindow';
 import { ImageProcessorWindow } from './ImageProcessorWindow';
 import { FramebankWindow } from './FramebankWindow';
-import { AnimationPreview } from './AnimationPreview';
-import { Timeline } from './Timeline';
+import { AnimationPreviewWindow } from './AnimationPreviewWindow';
+import { TimelineWindow } from './TimelineWindow';
 import { FrameInspector } from './FrameInspector';
 import { v4 as uuidv4 } from 'uuid';
 import { DatabaseController } from './DatabaseController';
@@ -358,7 +358,7 @@ class App extends React.Component<AppProps, AppState>
 
         return (
             <div style={containerStyle}>
-                <ImageLoader />
+                <ImageLoaderWindow />
                 <ImageProcessorWindow imageData={this.state.imageData} encodingAlgorithm={this.state.encodingAlgorithm}/>
                 
                 <div>
@@ -366,8 +366,8 @@ class App extends React.Component<AppProps, AppState>
                     <FramebankWindow frames={this.state.frames} isLoading={this.state.framebankIsLoading}/>
                 </div>
 
-                <Timeline imageData={this.state.imageData} keyframes={this.state.keyframes} encodingAlgorithm={this.state.encodingAlgorithm} transitionFrames={this.state.transitionFrames} omitFrame={this.state.omitFramePreference} loadingGif={this.state.animationIsLoading} audioSources={this.state.audioSources} audioBuffers={this.state.audioBuffers}/>
-                <AnimationPreview url={this.state.animationUrl} isLoading={this.state.animationIsLoading} animationLength={this.state.animationLength}/>
+                <TimelineWindow imageData={this.state.imageData} keyframes={this.state.keyframes} encodingAlgorithm={this.state.encodingAlgorithm} transitionFrames={this.state.transitionFrames} omitFrame={this.state.omitFramePreference} loadingGif={this.state.animationIsLoading} audioSources={this.state.audioSources} audioBuffers={this.state.audioBuffers}/>
+                <AnimationPreviewWindow url={this.state.animationUrl} isLoading={this.state.animationIsLoading} animationLength={this.state.animationLength}/>
                 <AudioProcessorWindow buffers={this.state.audioBuffers} />
                 <DSPTestBenchWindow />
             </div>

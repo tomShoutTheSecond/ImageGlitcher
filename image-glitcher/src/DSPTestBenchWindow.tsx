@@ -30,6 +30,7 @@ export class DSPTestBenchWindow extends React.Component<DSPTestBenchWindowProps,
 
     render()
     {
+        /*
         let containerStyle : React.CSSProperties = 
         {
             margin: "16px",
@@ -43,6 +44,10 @@ export class DSPTestBenchWindow extends React.Component<DSPTestBenchWindowProps,
             width: "70%",
             userSelect: "none"
         };
+        */
+
+        let containerStyle = Styles.containerStyle;
+        containerStyle.width = "70%";
 
         return (
             <div style={containerStyle}>
@@ -54,7 +59,7 @@ export class DSPTestBenchWindow extends React.Component<DSPTestBenchWindowProps,
                         <br /><br />
                     </div>
                 ), this)}
-                <h1 style={Styles.h1Style}>Source</h1>
+                <h1 style={Styles.h1Style}>Audio Source</h1>
                 <input type="file" ref={this.fileInput} onChange={async () => await this.loadAudioFromFile()} />
                 <br /><br />
                 <IconButton iconName="process" onClick={() => this.process()}/>

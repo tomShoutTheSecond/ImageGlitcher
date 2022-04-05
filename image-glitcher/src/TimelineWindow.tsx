@@ -27,23 +27,15 @@ interface TimelineState
     loadingDownload : boolean
 }
 
-export class Timeline extends React.Component<TimelineProps, TimelineState>
+export class TimelineWindow extends React.Component<TimelineProps, TimelineState>
 {
     omitFrameCheckbox = createRef<HTMLInputElement>();
     state = { loadingDownload: false }
 
     render()
     {
-        let containerStyle : React.CSSProperties = 
-        {
-            margin: "16px",
-            padding: "16px",
-            verticalAlign: "top",
-            background: Colors.background,
-            borderWidth: 1,
-            borderStyle: "solid",
-            borderColor: Colors.border,
-        };
+        let containerStyle = Styles.containerStyle;
+        containerStyle.display = "block";
 
         return (
             <div style={containerStyle}>

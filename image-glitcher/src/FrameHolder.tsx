@@ -38,7 +38,7 @@ export class FrameHolder extends React.Component<FrameHolderProps, FrameHolderSt
 
         let overlayContainerStyle : React.CSSProperties = 
         {
-            color: Colors.white,
+            color: Colors.background,
             background: Colors.transBlack,
             display: this.state.hover ? "block" : "none",
             position: "absolute",

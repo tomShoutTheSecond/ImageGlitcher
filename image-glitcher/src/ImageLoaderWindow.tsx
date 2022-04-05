@@ -5,24 +5,12 @@ import { Styles } from './Styles';
 import Jimp from 'jimp';
 import { Util } from './Util';
 
-export class ImageLoader extends React.Component
+export class ImageLoaderWindow extends React.Component
 {
     state = { previewUrl: "", isConverting: false };
 
     render()
     {
-        let containerStyle : React.CSSProperties = 
-        {
-            margin: "16px",
-            padding: "16px",
-            verticalAlign: "top",
-            background: Colors.background,
-            borderWidth: 1,
-            borderStyle: "solid",
-            borderColor: Colors.border,
-            display: "inline-block"
-        };
-
         let innerContainerStyle : React.CSSProperties = 
         {
             paddingBottom: "16px"
@@ -31,7 +19,7 @@ export class ImageLoader extends React.Component
         let previewImage = this.state.isConverting ? <h2>Converting image...</h2> : <img src={this.state.previewUrl} style={Styles.imageStyle}/>;
 
         return (
-            <div style={containerStyle}>
+            <div style={Styles.containerStyle}>
                 <h1 style={Styles.h1Style}>Load Image</h1>
                 <p>Files will be converted to .bmp</p>
                 <div style={innerContainerStyle}>

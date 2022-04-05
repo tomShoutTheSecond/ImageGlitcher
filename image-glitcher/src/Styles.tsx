@@ -2,12 +2,33 @@ import { Colors } from "./Colors";
 
 export class Styles
 {
+    static get containerStyle()
+    {
+        let style : React.CSSProperties = 
+        {
+            margin: "16px",
+            padding: "12px 16px 16px 16px",
+            verticalAlign: "top",
+            background: Colors.fill,
+            borderWidth: 1,
+            borderStyle: "solid",
+            borderColor: Colors.border,
+            display: "inline-block",
+            borderRadius: "4px",
+            color: Colors.lightGrey
+        };
+
+        return style;
+    }
+
     static get h1Style()
     {
         let style : React.CSSProperties = 
         {
             padding: 0,
-            margin: "0 0 16px 0"
+            margin: "0 0 16px 0",
+            fontFamily: this.headingFont,
+            color: Colors.white
         };
 
         return style;
@@ -19,7 +40,8 @@ export class Styles
         {
             fontSize: "20px",
             padding: 0,
-            margin: "0 0 16px 0"
+            margin: "0 0 16px 0",
+            fontFamily: this.headingFont
         };
 
         return style;
@@ -54,21 +76,6 @@ export class Styles
         return style;
     }
 
-    static get bigButtonStyle()
-    {
-        let style : React.CSSProperties = 
-        {
-            color: Colors.white,
-            background: Colors.fill,
-            border: "none",
-            fontSize: "16px",
-            padding: "16px",
-            float: "right"
-        };
-
-        return style;
-    }
-
     static get handCursor()
     {
         let style : React.CSSProperties =
@@ -98,4 +105,14 @@ export class Styles
 
         return style;
     }
+
+    static get headingFont()
+    {
+        return "Montserrat, Verdana, sans-serif"
+    };
+
+    static get textFont()
+    {
+        return "Roboto, sans-serif"
+    };
 }

@@ -26,18 +26,8 @@ export class FramebankWindow extends React.Component<FramebankWindowProps>
 
     render()
     {
-        let containerStyle : React.CSSProperties = 
-        {
-            margin: "16px",
-            padding: "16px",
-            verticalAlign: "top",
-            background: Colors.background,
-            borderWidth: 1,
-            borderStyle: "solid",
-            borderColor: Colors.border,
-            display: "inline-block",
-            width: "70%"
-        };
+        let containerStyle = Styles.containerStyle;
+        containerStyle.width = "70%";
 
         let content = this.props.isLoading ? "Loading frames..." : this.props.frames.map((frame, key) => 
             <FrameHolder key={key} frame={frame} frameIndex={key} context="framebank"/>

@@ -77,7 +77,7 @@ export class ZoomScrollSlider extends React.Component<ZoomScrollSliderProps>
         };
     
         let canvasStyle : React.CSSProperties = {
-            backgroundColor: Colors.background,
+            backgroundColor: Colors.fill,
             position: "relative",
             left: (containerWidth - sliderWidth) * 0.5,
             top: (containerHeight - sliderHeight) * 0.5,
@@ -118,7 +118,7 @@ export class ZoomScrollSlider extends React.Component<ZoomScrollSliderProps>
         let circleMargin = 10;
         let circleRadius = 3;
 
-        context.fillStyle = Colors.white;
+        context.fillStyle = Colors.background;
         context.arc(barLeft + circleMargin, circleMargin, circleRadius, 0, Util.radians(360));
         context.closePath();
         context.arc(barRight - circleMargin, circleMargin, circleRadius, 0, Util.radians(360));

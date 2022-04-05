@@ -31,6 +31,7 @@ export class AudioProcessorWindow extends React.Component<AudioProcessorWindowPr
 
     render()
     {
+        /*
         let containerStyle : React.CSSProperties = 
         {
             margin: "16px",
@@ -44,13 +45,14 @@ export class AudioProcessorWindow extends React.Component<AudioProcessorWindowPr
             width: "70%",
             userSelect: "none"
         };
+        */
 
         let itemContainerStyle : React.CSSProperties = 
         {
             margin: "16px",
             padding: "16px",
             verticalAlign: "top",
-            background: Colors.background,
+            background: Colors.fill,
             borderWidth: 1,
             borderStyle: "solid",
             borderColor: Colors.border,
@@ -58,7 +60,7 @@ export class AudioProcessorWindow extends React.Component<AudioProcessorWindowPr
         };
 
         return (
-            <div style={containerStyle}>
+            <div style={Styles.containerStyle}>
                 <h1 style={Styles.h1Style}>Audio Processor</h1>
                 {this.props.buffers.map((buffer, key) => (
                     <div style={itemContainerStyle} key={key}>
