@@ -74,7 +74,7 @@ export class TransitionWindow extends React.Component<TransitionWindowProps, Tra
         let progressBarStyle : React.CSSProperties = 
         {
             background: thisTransition.status == "pending" ? Colors.pending : Colors.fill,
-            outline: "1px solid black",
+            outline: "1px solid " + Colors.border,
             width: progressWidth,
             height: "24px",
             marginBottom: "16px",

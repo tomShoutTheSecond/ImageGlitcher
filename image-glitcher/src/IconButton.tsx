@@ -18,10 +18,10 @@ const theme = createMuiTheme(
 {
     palette: {
         primary: {
-            main: Colors.background,
+            main: Colors.white,
         },
         secondary: {
-            main: Colors.border,
+            main: Colors.white,
         },
     },
 });

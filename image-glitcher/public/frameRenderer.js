@@ -406,3 +406,5 @@ onmessage = function(message)
         postMessage({ id: message.data.id, output: newFrames });
     }
 }
+
+//TODO: make a simple database client for frameRenderer so it can read image data direct from the local db
