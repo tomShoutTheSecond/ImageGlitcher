@@ -10,27 +10,27 @@ import { FrameHolder } from './FrameHolder';
 import { TransitionWindow } from './TransitionWindow';
 import { IconButton } from './IconButton';
 
-interface TimelineProps
+interface TimelineWindowProps
 {
     keyframes : KeyFrame[],
     transitionFrames : TransitionFramebank[],
     omitFrame : boolean,
     imageData : Uint8Array,
     encodingAlgorithm : EncodingAlgorithm,
-    loadingGif : boolean,
+    isLoadingGif : boolean,
     audioSources : string[],
     audioBuffers : number[][]
 }
 
-interface TimelineState
+interface TimelineWindowState
 {
-    loadingDownload : boolean
+    isLoadingDownload : boolean
 }
 
-export class TimelineWindow extends React.Component<TimelineProps, TimelineState>
+export class TimelineWindow extends React.Component<TimelineWindowProps, TimelineWindowState>
 {
     omitFrameCheckbox = createRef<HTMLInputElement>();
-    state = { loadingDownload: false }
+    state = { isLoadingDownload: false }
 
     render()
     {
@@ -47,8 +47,8 @@ export class TimelineWindow extends React.Component<TimelineProps, TimelineState
                     </div>
                 )}
                 <div>
-                    <IconButton iconName="gif" hint="Generate GIF" loading={this.props.loadingGif} onClick={async () => await this.createGif()}/>
-                    <IconButton leftMargin iconName="download" hint="Download frames" loading={this.state.loadingDownload} onClick={async () => await this.downloadFrames()}>Download Frames</IconButton>
+                    <IconButton iconName="gif" hint="Generate GIF" loading={this.props.isLoadingGif} onClick={async () => await this.createGif()}/>
+                    <IconButton leftMargin iconName="download" hint="Download frames" loading={this.state.isLoadingDownload} onClick={async () => await this.downloadFrames()}>Download Frames</IconButton>
                     <input ref={this.omitFrameCheckbox} type="checkbox" onClick={() => this.changeOmitFramePreference()} checked={this.props.omitFrame} /><label>Omit last frame (for smooth loops)</label>
                 </div>
             </div>
@@ -171,7 +171,7 @@ export class TimelineWindow extends React.Component<TimelineProps, TimelineState
             return;
         }
 
-        this.setState({ loadingDownload: true });
+        this.setState({ isLoadingDownload: true });
 
         let zip = new JSZip();
 
@@ -211,7 +211,7 @@ export class TimelineWindow extends React.Component<TimelineProps, TimelineState
             //see FileSaver.js
             saveAs(content, "TimelineFrames.zip");
 
-            this.setState({ loadingDownload: false });
+            this.setState({ isLoadingDownload: false });
         });
     }
 

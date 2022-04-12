@@ -43,17 +43,17 @@ export class TransitionWindow extends React.Component<TransitionWindowProps, Tra
     {
         let thisTransition = this.props.transitionFrames[this.props.index];
 
-        let backgroundColor = Colors.fill;
+        let progressColor = Colors.fill;
         switch(thisTransition.status)
         {
             case "pending":
-                backgroundColor = Colors.fill;
+                progressColor = Colors.fill;
                 break;
             case "rendering":
-                backgroundColor = Colors.rendering;
+                progressColor = Colors.rendering;
                 break;
             case "complete":
-                backgroundColor = Colors.complete;
+                progressColor = Colors.complete;
                 break;
         }
 
@@ -62,29 +62,35 @@ export class TransitionWindow extends React.Component<TransitionWindowProps, Tra
             margin: "0 16px 16px 16px",
             padding: "16px",
             verticalAlign: "top",
-            background: backgroundColor,
+            background: Colors.background,
             borderWidth: 1,
             borderStyle: "solid",
             borderColor: Colors.border,
-            display: "inline-block"
+            display: "inline-block",
+            borderRadius: "8px"
         };
 
         let progressWidth = 192;
         let progressBarStyle : React.CSSProperties = 
         {
+            background: thisTransition.status == "pending" ? Colors.pending : Colors.fill,
             outline: "1px solid black",
             width: progressWidth,
-            height: "16px",
-            marginBottom: "16px"
+            height: "24px",
+            marginBottom: "16px",
+            borderRadius: "8px",
+            position: "relative",
+            overflow: "hidden"
         };
 
         let progressBarInnerStyle : React.CSSProperties = 
         {
             visibility: thisTransition.progress === 0 ? "hidden" : "visible",
-            background: Colors.background,
-            outline: "1px solid black",
+            background: progressColor,
+            //outline: "1px solid black",
             width: progressWidth * thisTransition.progress,
-            height: "16px"
+            height: "24px",
+            borderRadius: "8px"
         };
 
         let somethingIsRendering = false;
@@ -94,12 +100,24 @@ export class TransitionWindow extends React.Component<TransitionWindowProps, Tra
                 somethingIsRendering = true;
         });
 
+        let statusLabelStyle : React.CSSProperties = 
+        {
+            position: "absolute",
+            top: 0,
+            right: 0,
+            width: "100%",
+            height: "24px",
+            textAlign: "center",
+            verticalAlign: "center",
+            color: Colors.white
+        }
+
         return (
             <div style={containerStyle}>
                 <h1 style={Styles.h1Style}>Transition</h1>
-                <p>{thisTransition.status}</p>
                 <div style={progressBarStyle}>
                     <div style={progressBarInnerStyle}/>
+                    <div style={statusLabelStyle}>{thisTransition.status}</div>
                 </div>
                 <label>Frames </label><input type="number" ref={this.framesInput}></input>
                 <br/><br/><br/>

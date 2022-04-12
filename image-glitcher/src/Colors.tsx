@@ -13,6 +13,7 @@ export class Colors
     static readonly black = "#000000";
     static readonly transBlack = "rgba(0,0,0,0.5)";
 
-    static readonly complete = "#AACFEE"; //light blue
-    static readonly rendering = "#B04B49" //red
+    static readonly complete = "#02A275"; //green
+    static readonly rendering = Colors.sunset[1]; //amber
+    static readonly pending = Colors.sunset[2]; //red
 }
