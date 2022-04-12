@@ -1,5 +1,6 @@
-import { exception } from "console";
+import { saveAs } from 'file-saver';
 import Jimp from "jimp";
+import JSZip from "jszip";
 
 export class Util
 {
@@ -41,22 +42,31 @@ export class Util
         return new Blob([ buffer ], { type: contentType });
     }
 
-    static convertImage(imageUrl : string, loadConvertedImage : (blob : Blob) => void)
+    static async convertImage(imageUrl : string)
     {
-        Jimp.read(imageUrl, (err, image) =>
+        return new Promise<Blob>((resolve, reject) => 
         {
-            if(err) 
+            Jimp.read(imageUrl, (err, image) =>
             {
-                console.log(err);
-            } 
-            else 
-            {
+                if(err) 
+                {
+                    console.log(err);
+                    reject(err);
+                    return;
+                } 
+
                 image.getBuffer(Jimp.MIME_BMP, (error, data) => 
                 {
+                    if(error)
+                    {
+                        reject(error);
+                        return;
+                    }
+
                     let convertedImageBlob = Util.bufferToBlob(data, "image/bmp");
-                    loadConvertedImage(convertedImageBlob)
+                    resolve(convertedImageBlob);
                 });
-            }
+            });
         });
     }
 
@@ -75,4 +85,41 @@ export class Util
         array.splice(newIndex, 0, array.splice(oldIndex, 1)[0]);
         return array;
     };
+
+    static async downloadFrameSequence(frameSequence : Uint8Array[])
+    {
+        let zip = new JSZip();
+
+        console.log('Original frame sequence', frameSequence)
+
+        //each zip files contains 10 frames to avoid memory overflow
+        let tenFramesCounter = 0;
+        for (let i = 0; i < frameSequence.length; i++) 
+        {
+            const frame = frameSequence[i];
+            zip.file(Util.getFrameName(i), frame);
+
+            tenFramesCounter++;
+            if(tenFramesCounter > 9)
+            {
+                tenFramesCounter = 0;
+
+                //split to a new zip file every 10 frames
+                let content = await zip.generateAsync({ type:"blob" });
+
+                //see FileSaver.js
+                saveAs(content, "FrameSequence.zip");
+
+                zip = new JSZip();
+            }
+        }
+
+        if(zip.length > 0)
+        {
+            let content = await zip.generateAsync({ type:"blob" });
+
+            //see FileSaver.js
+            saveAs(content, "FrameSequence.zip");
+        }
+    }
 }

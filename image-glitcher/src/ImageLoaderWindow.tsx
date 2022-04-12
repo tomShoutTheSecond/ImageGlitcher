@@ -68,14 +68,15 @@ export class ImageLoaderWindow extends React.Component
             //put preview in component
             fileReader.readAsDataURL(imageFile);
 
-            fileReader.onloadend = () =>
+            fileReader.onloadend = async () =>
             {
                 let originalImageUrl = fileReader.result as string;
 
                 if(!imageIsBitmap)
                 {
                     this.setState({ isConverting: true });
-                    Util.convertImage(originalImageUrl, imageBlob => this.loadConvertedImage(imageBlob));
+                    let convertedImage = await Util.convertImage(originalImageUrl);
+                    this.loadConvertedImage(convertedImage);
                 }
                 else
                 {

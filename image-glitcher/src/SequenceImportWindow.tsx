@@ -3,9 +3,8 @@ import { State, KeyFrame } from './App';
 import { Colors } from './Colors';
 import { Styles } from './Styles';
 import ReactDOM, { findDOMNode } from 'react-dom';
-import { Button } from '@material-ui/core';
+import { Button, responsiveFontSizes } from '@material-ui/core';
 import JSZip from 'jszip';
-import { saveAs } from 'file-saver';
 import { Util } from './Util';
 import ArrowExpand from './icons/arrow-expand.svg';
 import { ImageProcessorWindow } from './ImageProcessorWindow';
@@ -21,8 +20,8 @@ interface SequenceImportProps
 
 interface SequenceImportState
 {
-    isSequenceConverting : boolean,
     isSequenceLoading : boolean,
+    isImageConverting : boolean,
     sequencePreviewUrl : string,
     frameImportCounter : number,
     totalFrames : number
@@ -30,7 +29,7 @@ interface SequenceImportState
 
 export class SequenceImportWindow extends React.Component<SequenceImportProps, SequenceImportState>
 {
-    state = { isSequenceConverting: false, isSequenceLoading: false, sequencePreviewUrl: "", frameImportCounter: 0, totalFrames: 0 };
+    state = { isSequenceLoading: false, isImageConverting: false, sequencePreviewUrl: "", frameImportCounter: 0, totalFrames: 0 };
     
     fileInput = createRef<HTMLInputElement>();
 
@@ -41,13 +40,11 @@ export class SequenceImportWindow extends React.Component<SequenceImportProps, S
 
         let processButtonContainerStyle : React.CSSProperties = 
         {
-            display: this.state.isSequenceLoading || this.state.isSequenceConverting ? "none" : "inline-block"
+            display: this.state.isSequenceLoading ? "none" : "inline-block"
         };
 
         let sequenceLoadingText = this.state.isSequenceLoading ? <h2 style={Styles.h2Style}>Loading image {this.state.frameImportCounter}/{this.state.totalFrames}</h2> : "";
-        let sequenceConvertingText = this.state.isSequenceConverting ? "Converting to .bmp" : "";
-
-        console.log("sequenceLoadingText: " + sequenceLoadingText);
+        let sequenceConvertingText = this.state.isImageConverting ? <h2 style={Styles.h2Style}>Converting images to .bmp</h2> : "";
 
         return (
             <div style={Styles.containerStyle}>
@@ -56,19 +53,21 @@ export class SequenceImportWindow extends React.Component<SequenceImportProps, S
                 <img src={this.state.sequencePreviewUrl} style={Styles.imageStyle}/>
                 {sequenceLoadingText}
                 {sequenceConvertingText}
-                {/*
+                
                 <div style={buttonsContainerStyle}>
+                    {/* 
                     <div style={processButtonContainerStyle}>
                         <IconButton iconName="process" hint="Process" onClick={async () => await this.processFrameSequence()}/>
                     </div>
-                    <IconButton leftMargin iconName="download" hint="Download frames" onClick={async () => await this.downloadProcessedFrameSequence()}/>
+                    */}
+                    <IconButton leftMargin iconName="download" hint="Download frames" onClick={async () => await Util.downloadFrameSequence(this.props.frameSequence)}/>
                 </div>
-                */}
+                
             </div>
         );
     }
 
-    importImageSequence()
+    async importImageSequence()
     {
         if (!this.fileInput.current) return;
         let imageFiles = this.fileInput.current.files;
@@ -83,96 +82,81 @@ export class SequenceImportWindow extends React.Component<SequenceImportProps, S
         State.clearProcessedFrameSequence();
         this.setState({ frameImportCounter: 0, totalFrames: imageFiles.length });
 
-        this.loadImageFromFile(imageFiles[0]);
+        await this.loadImagesFromFile(imageFiles);
     }
 
-    convertNextFrame()
+    async loadImagesFromFile(fileList : FileList)
     {
-        let imageFiles = this.fileInput.current!.files;
-        if (!imageFiles)
+        this.setState({ isSequenceLoading: true });
+
+        let imageFiles = Array.from(fileList);
+        for(let file of imageFiles)
         {
-            alert("Image file not found");
-            return;
+            let imageData = await this.loadImageFileAsBitmap(file);
+            State.addFrameToSequence(imageData);
+
+            //show image in preview
+            URL.revokeObjectURL(this.state.sequencePreviewUrl);
+            let previewImageUrl = window.URL.createObjectURL(new Blob([imageData]));
+            this.setState({ sequencePreviewUrl: previewImageUrl, frameImportCounter: this.state.frameImportCounter + 1 });
         }
 
-        this.setState({ frameImportCounter: this.state.frameImportCounter + 1 });
-
-        console.log(imageFiles.length.toString() + " files in total");
-        console.log("Importing frame " + this.state.frameImportCounter);
-
-        if(this.state.frameImportCounter > imageFiles.length - 1)
-        {
-            //TODO: find out why this isn't working for bmp files
-            console.log("Hiding counter label");
-            this.setState({ isSequenceConverting: false, isSequenceLoading: false });
-            console.log("isSequenceLoading: " + this.state.isSequenceLoading);
-            return;
-        } 
-
-        this.loadImageFromFile(imageFiles[this.state.frameImportCounter]);
+        this.setState({ isSequenceLoading: false, isImageConverting: false });
     }
 
-    loadImageFromFile(imageFile : File)
+    async loadImageFileAsBitmap(imageFile : File)
     {
-        let imageIsBitmap = imageFile.name.endsWith(".bmp");
-        
-        let fileReader = new FileReader();
-        fileReader.readAsArrayBuffer(imageFile);
-        fileReader.onloadend = () =>
+        return new Promise<Uint8Array>((resolve, reject) => 
         {
-            //get data from file (if bitmap was supplied)
-            if(imageIsBitmap)
-            {
-                let result = fileReader.result as ArrayBuffer;
-                let rawData = new Uint8Array(result);
-                State.addFrameToSequence(rawData);
-
-                this.convertNextFrame();
-            }
-
-            //put preview in component
-            fileReader.readAsDataURL(imageFile);
-
+            let imageIsBitmap = imageFile.name.endsWith(".bmp");
+            
+            let fileReader = new FileReader();
+            fileReader.readAsArrayBuffer(imageFile);
             fileReader.onloadend = () =>
             {
-                let originalImageUrl = fileReader.result as string;
-
-                this.setState({ isSequenceLoading: true });
-
-                if(!imageIsBitmap)
+                //get data from file (if bitmap was supplied)
+                if(imageIsBitmap)
                 {
-                    this.setState({ isSequenceConverting: true });
-                    Util.convertImage(originalImageUrl, imageBlob => this.loadConvertedImage(imageBlob));
+                    let result = fileReader.result as ArrayBuffer;
+                    let rawData = new Uint8Array(result);
+                    resolve(rawData);
+                    return;
                 }
-                else
+
+                //convert non-bitmap images and return them as bitmap
+                this.setState({ isImageConverting: true });
+
+                fileReader.onloadend = async () =>
                 {
-                    this.setState({ sequencePreviewUrl: originalImageUrl });
+                    let originalImageUrl = fileReader.result as string;
+                    let convertedImage = await Util.convertImage(originalImageUrl);
+                    let image = await this.loadImageFromBlob(convertedImage);
+                    resolve(image);
+                    return;
                 }
+                fileReader.readAsDataURL(imageFile);
             }
-        }
+            fileReader.onerror = e => reject(e);
+        });
     }
 
-    loadConvertedImage(imageBlob : Blob)
+    async loadImageFromBlob(imageBlob : Blob)
     {
-        let fileReader = new FileReader();
-
-        //set image data
-        fileReader.onloadend = () =>
+        return new Promise<Uint8Array>((resolve, reject) => 
         {
-            let result = fileReader.result as ArrayBuffer;
-            let convertedImageData = new Uint8Array(result);
-            State.addFrameToSequence(convertedImageData);
+            let fileReader = new FileReader();
 
-            this.convertNextFrame();
-
-            //show converted image in preview
-            URL.revokeObjectURL(this.state.sequencePreviewUrl);
-            let convertedImageUrl = window.URL.createObjectURL(imageBlob);
-            this.setState({ sequencePreviewUrl: convertedImageUrl });
-
-            console.log("Converted image was loaded");
-        }
-        fileReader.readAsArrayBuffer(imageBlob);
+            //set image data
+            fileReader.onloadend = () =>
+            {
+                let result = fileReader.result as ArrayBuffer;
+                let convertedImageData = new Uint8Array(result);
+                resolve(convertedImageData);
+                return;
+            }
+            fileReader.onerror = e => reject(e);
+            fileReader.readAsArrayBuffer(imageBlob);
+        });
     }
 /*
     async processFrameSequence()
