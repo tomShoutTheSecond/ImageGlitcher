@@ -14,7 +14,7 @@ export class Styles
             borderStyle: "solid",
             borderColor: Colors.border,
             display: "inline-block",
-            borderRadius: "4px",
+            borderRadius: "8px",
             color: Colors.lightGrey
         };
 

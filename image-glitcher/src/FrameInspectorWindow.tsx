@@ -18,37 +18,21 @@ interface FrameInspectorProps
     frame : KeyFrame | null,
     imageData : Uint8Array,
     encodingAlgorithm : string,
-    frameSequence : Uint8Array[],
-    processedFrameSequence : Blob[]
 }
 
 interface FrameInspectorState
 {
     settings : ImageProcessorSettings,
-    isSequenceConverting : boolean,
-    isSequenceRendering : boolean,
-    sequencePreviewUrl : string,
-    frameImportCounter : number,
-    frameRenderCounter : number,
-    totalFrames : number
 }
 
 export class FrameInspectorWindow extends React.Component<FrameInspectorProps, FrameInspectorState>
 {
-    state = { settings: new ImageProcessorSettings("ampMod", AmpModSettings.default, DelaySettings.default, ShuffleSettings.default), isSequenceConverting: false, isSequenceRendering: false, sequencePreviewUrl: "", frameImportCounter: 0, frameRenderCounter: 0, totalFrames: 0 };
+    state = { settings: new ImageProcessorSettings("ampMod", AmpModSettings.default, DelaySettings.default, ShuffleSettings.default) };
     
     fileInput = createRef<HTMLInputElement>();
 
     render()
     {
-        let buttonsContainerStyle = Styles.alignRight;
-        buttonsContainerStyle.marginTop = "16px";
-
-        let processButtonContainerStyle : React.CSSProperties = 
-        {
-            display: this.state.isSequenceRendering || this.state.isSequenceConverting ? "none" : "inline-block"
-        };
-
         let numberInputStyle : React.CSSProperties = 
         {
             width: "100px"
@@ -89,9 +73,6 @@ export class FrameInspectorWindow extends React.Component<FrameInspectorProps, F
         }
         </div>
 
-        let sequenceConvertingText = this.state.isSequenceConverting ? <h2>Converting image {this.state.frameImportCounter}/{this.state.totalFrames}</h2> : "";
-        let sequenceRenderingText = this.state.isSequenceRendering ? <h2>Rendering image {this.state.frameRenderCounter}/{this.state.totalFrames}</h2> : "";
-
         return (
             <div style={Styles.containerStyle}>
                 <h1 style={Styles.h1Style}>Frame Inspector</h1>
@@ -101,17 +82,6 @@ export class FrameInspectorWindow extends React.Component<FrameInspectorProps, F
                     <IconButton iconName="image-move" hint="Render frame" onClick={() => this.renderFrame()}/>
                 </div>
                 <br/><br/><br/><br/>
-                <h2 style={Styles.h2Style}>Sequence import</h2>
-                <input ref={this.fileInput} type="file" onChange={() => this.importImageSequence()} multiple />
-                <img src={this.state.sequencePreviewUrl} style={Styles.imageStyle}/>
-                {sequenceConvertingText}
-                {sequenceRenderingText}
-                <div style={buttonsContainerStyle}>
-                    <div style={processButtonContainerStyle}>
-                        <IconButton iconName="process" hint="Process" onClick={async () => await this.processFrameSequence()}/>
-                    </div>
-                    <IconButton leftMargin iconName="download" hint="Download frames" onClick={async () => await this.downloadProcessedFrameSequence()}/>
-                </div>
             </div>
         );
     }
@@ -167,155 +137,5 @@ export class FrameInspectorWindow extends React.Component<FrameInspectorProps, F
 
         let settings = new ImageProcessorSettings(this.state.settings.mode, ampModSettings, delaySettings, shuffleSettings);
         this.setState({ settings: settings });
-    }
-
-    importImageSequence()
-    {
-        if (!this.fileInput.current) return;
-        let imageFiles = this.fileInput.current.files;
-
-        if (!imageFiles || imageFiles.length == 0)
-        {
-            alert("Image file not found");
-            return;
-        }
-
-        State.clearFrameSequence();
-        State.clearProcessedFrameSequence();
-        this.setState({ frameImportCounter: 0, totalFrames: imageFiles.length });
-
-        this.loadImageFromFile(imageFiles[0]);
-    }
-
-    convertNextFrame()
-    {
-        let imageFiles = this.fileInput.current!.files;
-        if (!imageFiles)
-        {
-            alert("Image file not found");
-            return;
-        }
-
-        this.setState({ frameImportCounter: this.state.frameImportCounter +1 });
-
-        if(this.state.frameImportCounter > imageFiles.length - 1)
-        {
-            this.setState({ isSequenceConverting: false });
-            return;
-        } 
-
-        this.loadImageFromFile(imageFiles[this.state.frameImportCounter]);
-    }
-
-    loadImageFromFile(imageFile : File)
-    {
-        let imageIsBitmap = imageFile.name.endsWith(".bmp");
-        
-        let fileReader = new FileReader();
-        fileReader.readAsArrayBuffer(imageFile);
-        fileReader.onloadend = () =>
-        {
-            //get data from file (if bitmap was supplied)
-            if(imageIsBitmap)
-            {
-                let result = fileReader.result as ArrayBuffer;
-                let rawData = new Uint8Array(result);
-                State.addFrameToSequence(rawData);
-
-                this.convertNextFrame();
-            }
-
-            //put preview in component
-            fileReader.readAsDataURL(imageFile);
-
-            fileReader.onloadend = () =>
-            {
-                let originalImageUrl = fileReader.result as string;
-
-                if(!imageIsBitmap)
-                {
-                    this.setState({ isSequenceConverting: true });
-                    Util.convertImage(originalImageUrl, (imageBlob) => this.loadConvertedImage(imageBlob));
-                }
-                else
-                {
-                    this.setState({ sequencePreviewUrl: originalImageUrl });
-                    console.log("Original image was loaded");
-                }
-            }
-        }
-    }
-
-    loadConvertedImage(imageBlob : Blob)
-    {
-        let fileReader = new FileReader();
-
-        //set image data
-        fileReader.onloadend = () =>
-        {
-            let result = fileReader.result as ArrayBuffer;
-            let convertedImageData = new Uint8Array(result);
-            State.addFrameToSequence(convertedImageData);
-
-            this.convertNextFrame();
-
-            //show converted image in preview
-            URL.revokeObjectURL(this.state.sequencePreviewUrl);
-            let convertedImageUrl = window.URL.createObjectURL(imageBlob);
-            this.setState({ sequencePreviewUrl: convertedImageUrl });
-
-            console.log("Converted image was loaded");
-        }
-        fileReader.readAsArrayBuffer(imageBlob);
-    }
-
-    async processFrameSequence()
-    {
-        if(!this.props.frame) 
-        {
-            alert("No frame loaded in the inspector!");
-            return;
-        }
-
-        this.setState({ isSequenceRendering: true });
-        await ImageProcessor.instance.processFrameSequence(this.props.frameSequence, this.props.frame.settings, this.props.encodingAlgorithm, count => this.setState({ frameRenderCounter: count }));
-        this.setState({ isSequenceRendering: false });
-    }
-
-    async downloadProcessedFrameSequence()
-    {
-        let zip = new JSZip();
-
-        console.log('processed frame sequence', this.props.processedFrameSequence)
-
-        //each zip files contains 10 frames to avoid memory overflow
-        let tenFramesCounter = 0;
-        for (let i = 0; i < this.props.processedFrameSequence.length; i++) 
-        {
-            const frame = this.props.processedFrameSequence[i];
-            zip.file(Util.getFrameName(i), frame);
-
-            tenFramesCounter++;
-            if(tenFramesCounter > 9)
-            {
-                tenFramesCounter = 0;
-
-                //split to a new zip file every 10 frames
-                let content = await zip.generateAsync({ type:"blob" });
-
-                //see FileSaver.js
-                saveAs(content, "FrameSequence.zip");
-
-                zip = new JSZip();
-            }
-        }
-
-        if(zip.length > 0)
-        {
-            let content = await zip.generateAsync({ type:"blob" });
-
-            //see FileSaver.js
-            saveAs(content, "FrameSequence.zip");
-        }
     }
 }
