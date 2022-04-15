@@ -18,6 +18,8 @@ class FrameRenderer
 
         //TODO: move this interpolation logic to Core layer and send an array with settings for each frame to the frameRenderer.
         //this will allow us to use this interpolation logic for requesting single frames from a sequence (may reduce memory usage?)
+        //BETTER ALTERNATIVE: pass a frame index value down to renderFrame, along with firstFrameSettings and lastFrameSettings and 
+        //allow interpolation to occur in frameRenderer
         let startFreq = firstFrameSettings.ampModSettings.frequency;
         let endFreq = lastFrameSettings.ampModSettings.frequency;
         let startPhase = firstFrameSettings.ampModSettings.phase;
