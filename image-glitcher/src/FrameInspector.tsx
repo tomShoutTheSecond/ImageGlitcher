@@ -33,6 +33,9 @@ interface FrameInspectorState
     totalFrames : number
 }
 
+///
+///TODO: THIS IS THE OLD FRAMEINSPECTOR WINDOW CLASS -- it contains some code for sequence rendering...
+///THIS CAN BE DELETED WHEN THAT CODE IS EXTRACTED
 export class FrameInspector extends React.Component<FrameInspectorProps, FrameInspectorState>
 {
     state = { settings: new ImageProcessorSettings("ampMod", AmpModSettings.default, DelaySettings.default, ShuffleSettings.default), isSequenceConverting: false, isSequenceRendering: false, sequencePreviewUrl: "", frameImportCounter: 0, frameRenderCounter: 0, totalFrames: 0 };
@@ -279,7 +282,7 @@ export class FrameInspector extends React.Component<FrameInspectorProps, FrameIn
         }
 
         this.setState({ isSequenceRendering: true });
-        await ImageProcessor.instance.processFrameSequence(this.props.frameSequence, this.props.frame.settings, this.props.encodingAlgorithm, count => this.setState({ frameRenderCounter: count }));
+        await ImageProcessor.instance.processFrameSequence(this.props.frameSequence, [this.props.frame.settings], this.props.encodingAlgorithm, count => this.setState({ frameRenderCounter: count }));
         this.setState({ isSequenceRendering: false });
     }
 

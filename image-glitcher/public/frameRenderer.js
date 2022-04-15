@@ -16,6 +16,8 @@ class FrameRenderer
         let decodedBuffer = this.decodeFile(imageData, encodingAlgorithm);
         let renderedFrames = [];
 
+        //TODO: move this interpolation logic to Core layer and send an array with settings for each frame to the frameRenderer.
+        //this will allow us to use this interpolation logic for requesting single frames from a sequence (may reduce memory usage?)
         let startFreq = firstFrameSettings.ampModSettings.frequency;
         let endFreq = lastFrameSettings.ampModSettings.frequency;
         let startPhase = firstFrameSettings.ampModSettings.phase;
@@ -34,7 +36,7 @@ class FrameRenderer
 
         for (let i = 0; i < frames; i++) 
         {
-            let progress = this.getAnimationProgress(i, frames, interpolation);//i / (frames - 1);
+            let progress = this.getAnimationProgress(i, frames, interpolation);
             if(frames == 1) 
             {
                 //avoid progress = NaN when only one frame is requested

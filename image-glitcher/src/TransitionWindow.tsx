@@ -9,12 +9,14 @@ import { AudioLink, ParameterType } from './AudioLink';
 interface TransitionWindowProps 
 { 
     imageData : Uint8Array,
+    frameSequence : Uint8Array[]
+
     keyframes : KeyFrame[],
     transitionFrames : TransitionFramebank[],
     encodingAlgorithm : EncodingAlgorithm,
     index : number,
     audioSources : string[],
-    audioBuffers : number[][]
+    audioBuffers : number[][],
 }
 
 interface TransitionWindowState
@@ -229,9 +231,22 @@ export class TransitionWindow extends React.Component<TransitionWindowProps, Tra
         }, 100);
     }
 
+    async renderSequenceFrames()
+    {
+        //TODO: make a list of settings for the processFrameSequence(), one for each frame, do the interpolation and everything :O
+        //I think it may be easier to run it in the frameRenderer as the code is already there!!
+
+        this.setState({ isSequenceRendering: true });
+
+
+        await ImageProcessor.instance.processFrameSequence(this.props.frameSequence, [this.props.s.settings], this.props.encodingAlgorithm, count => this.setState({ frameRenderCounter: count }));
+        this.setState({ isSequenceRendering: false });
+    }
+
     getAudioLinkParameterType(index : number | undefined) : ParameterType
     {
-        if(index == undefined || index > this.parameterList.length - 1) return "none"; //error state, should never happen
+        if(index == undefined || index > this.parameterList.length - 1) 
+            return "none"; //error state, should never happen
 
         return this.parameterList[index] as ParameterType;
     }

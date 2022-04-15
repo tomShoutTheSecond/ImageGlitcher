@@ -95,7 +95,7 @@ export class ImageProcessor
         });
     }
 
-    async processFrameSequence(imageData : Uint8Array[], settings : ImageProcessorSettings, encodingAlgorithm : string, counterCallback: (count: number) => void) : Promise<boolean>
+    async processFrameSequence(imageData : Uint8Array[], settings : ImageProcessorSettings[], encodingAlgorithm : string, counterCallback: (count: number) => void) : Promise<boolean>
     {
         return new Promise((resolve, reject) => 
         {
@@ -109,7 +109,8 @@ export class ImageProcessor
                     return;
                 }
 
-                this.backgroundRenderFrame(imageData[frameCounter], settings, encodingAlgorithm).then((processedData) => 
+                let setting = settings.length == 1 ? settings[0] : settings[frameCounter];
+                this.backgroundRenderFrame(imageData[frameCounter], setting, encodingAlgorithm).then((processedData) => 
                 { 
                     this.saveSequenceFrame(processedData);
                     

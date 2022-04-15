@@ -12,10 +12,12 @@ import { IconButton } from './IconButton';
 
 interface TimelineWindowProps
 {
+    imageData : Uint8Array,
+    frameSequence : Uint8Array[],
+
     keyframes : KeyFrame[],
     transitionFrames : TransitionFramebank[],
     omitFrame : boolean,
-    imageData : Uint8Array,
     encodingAlgorithm : EncodingAlgorithm,
     isLoadingGif : boolean,
     audioSources : string[],
@@ -43,7 +45,7 @@ export class TimelineWindow extends React.Component<TimelineWindowProps, Timelin
                 {this.props.keyframes.map((keyframe, key) => 
                     <div key={key} style={Styles.inlineBlock}>
                         <FrameHolder frame={keyframe} frameIndex={key} context="timeline"/>
-                        {key === this.props.keyframes.length - 1 ? "" : <TransitionWindow index={key} imageData={this.props.imageData} encodingAlgorithm={this.props.encodingAlgorithm} keyframes={this.props.keyframes} transitionFrames={this.props.transitionFrames} audioSources={this.props.audioSources} audioBuffers={this.props.audioBuffers}/>}
+                        {key === this.props.keyframes.length - 1 ? "" : <TransitionWindow index={key} imageData={this.props.imageData} frameSequence={this.props.frameSequence} encodingAlgorithm={this.props.encodingAlgorithm} keyframes={this.props.keyframes} transitionFrames={this.props.transitionFrames} audioSources={this.props.audioSources} audioBuffers={this.props.audioBuffers}/>}
                     </div>
                 )}
                 <div>
