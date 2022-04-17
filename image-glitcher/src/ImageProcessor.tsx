@@ -95,7 +95,7 @@ export class ImageProcessor
         });
     }
 
-    async processFrameSequence(imageData : Uint8Array[], settings : ImageProcessorSettings[], encodingAlgorithm : string, counterCallback: (count: number) => void) : Promise<boolean>
+    async processFrameSequence(imageData : Uint8Array[], firstFrameSettings : ImageProcessorSettings, lastFrameSettings : ImageProcessorSettings, encodingAlgorithm : string, counterCallback: (count: number) => void) : Promise<boolean>
     {
         return new Promise((resolve, reject) => 
         {
@@ -109,8 +109,7 @@ export class ImageProcessor
                     return;
                 }
 
-                let setting = settings.length == 1 ? settings[0] : settings[frameCounter];
-                this.backgroundRenderFrame(imageData[frameCounter], setting, encodingAlgorithm).then((processedData) => 
+                this.backgroundRenderTransitionFrame(imageData[frameCounter], frameCounter, imageData.length, firstFrameSettings, lastFrameSettings, encodingAlgorithm).then((processedData) => 
                 { 
                     this.saveSequenceFrame(processedData);
                     
@@ -207,6 +206,20 @@ export class ImageProcessor
             }
 
             this.frameRenderWorker.postMessage({ id: "renderFrame", buffer: buffer, settings: settings, encodingAlgorithm: encodingAlgorithm });
+        });
+    }
+
+    //render one frame of a transition (used for rendering frame sequence transitions)
+    async backgroundRenderTransitionFrame(buffer : any, frameIndex : number, totalFrames : number, firstFrameSettings : ImageProcessorSettings, lastFrameSettings : ImageProcessorSettings, encodingAlgorithm : string) : Promise<any>
+    {
+        return new Promise<any>((resolve, reject) =>
+        {
+            this.frameRenderWorker.onmessage = (message) => 
+            {
+                resolve(message.data.output);
+            }
+
+            this.frameRenderWorker.postMessage({ id: "renderOneTransitionFrame", buffer: buffer, frameIndex: frameIndex, totalFrames: totalFrames, firstFrameSettings: firstFrameSettings, lastFrameSettings: lastFrameSettings, encodingAlgorithm: encodingAlgorithm });
         });
     }
 

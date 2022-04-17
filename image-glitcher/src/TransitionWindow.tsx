@@ -233,14 +233,17 @@ export class TransitionWindow extends React.Component<TransitionWindowProps, Tra
 
     async renderSequenceFrames()
     {
-        //TODO: make a list of settings for the processFrameSequence(), one for each frame, do the interpolation and everything :O
-        //I think it may be easier to run it in the frameRenderer as the code is already there!!
+        //TODO: utilise the renderSingleTransitionFrame() method of frameRenderer.js
+        let firstFrameSettings = this.props.keyframes[this.props.index].settings;
+        let lastFrameSettings = this.props.keyframes[this.props.index + 1].settings;
 
-        this.setState({ isSequenceRendering: true });
+        State.setTransitionRenderStatus(this.props.index, "rendering");
 
+        let totalFrames = this.props.frameSequence.length;
+        let counterCallback = (count : number) => State.setTransitionRenderProgress(count, count / totalFrames);
 
-        await ImageProcessor.instance.processFrameSequence(this.props.frameSequence, [this.props.s.settings], this.props.encodingAlgorithm, count => this.setState({ frameRenderCounter: count }));
-        this.setState({ isSequenceRendering: false });
+        await ImageProcessor.instance.processFrameSequence(this.props.frameSequence, firstFrameSettings, lastFrameSettings, this.props.encodingAlgorithm, counterCallback);
+        State.setTransitionRenderStatus(this.props.index, "complete");
     }
 
     getAudioLinkParameterType(index : number | undefined) : ParameterType

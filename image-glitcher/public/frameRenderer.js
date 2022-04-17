@@ -2,16 +2,123 @@ self.importScripts('alawmulaw.js');
 
 class FrameRenderer
 {
+    //render a single static frame with given settings
     renderFrame(imageData, settings, encodingAlgorithm)
     {
         let decodedBuffer = this.decodeFile(imageData, encodingAlgorithm);
         let processedFrame = this.bufferProcess(decodedBuffer, settings);
         let encodedBuffer = this.encodeFile(processedFrame, encodingAlgorithm);
-
         return encodedBuffer;
     }
 
-    renderAnimation(imageData, frames, firstFrameSettings, lastFrameSettings, encodingAlgorithm, interpolation, audioLink)
+    //this is a separate method from renderFrameOfTransition
+    //because when rendering an animation from a single frame, we can just decode the imageData once 
+    //but for rendering an animation from a frame sequence, we have to decode each frame individually
+    renderSingleTransitionFrame(imageData, frameIndex, totalFrames, firstFrameSettings, lastFrameSettings, encodingAlgorithm, interpolation, audioLink)
+    {
+        let decodedBuffer = this.decodeFile(imageData, encodingAlgorithm);
+        return renderFrameOfTransition(decodedBuffer, frameIndex, totalFrames, firstFrameSettings, lastFrameSettings, encodingAlgorithm, interpolation, audioLink);
+    }
+
+    //render one frame of a transition 
+    renderFrameOfTransition(decodedBuffer, frameIndex, totalFrames, firstFrameSettings, lastFrameSettings, encodingAlgorithm, interpolation, audioLink)
+    {
+        let settings = this.getInterpolatedSettings(frameIndex, totalFrames, firstFrameSettings, lastFrameSettings, interpolation, audioLink);
+        let newFrame = this.bufferProcess(decodedBuffer, settings);
+        let encodedFrame = this.encodeFile(newFrame, encodingAlgorithm);
+        return { frame: encodedFrame, settings: settings };
+    }
+
+    //gets the settings for a single transition frame
+    getInterpolatedSettings(frameIndex, totalFrames, firstFrameSettings, lastFrameSettings, interpolation, audioLink)
+    {
+        //ampMod
+        let startFreq = firstFrameSettings.ampModSettings.frequency;
+        let endFreq = lastFrameSettings.ampModSettings.frequency;
+        let startPhase = firstFrameSettings.ampModSettings.phase;
+        let endPhase = lastFrameSettings.ampModSettings.phase;
+        let startAmp = firstFrameSettings.ampModSettings.amp;
+        let endAmp = lastFrameSettings.ampModSettings.amp;
+        let startOffset = firstFrameSettings.ampModSettings.offset;
+        let endOffset = lastFrameSettings.ampModSettings.offset;
+
+        //delay
+        let startDelay = firstFrameSettings.delaySettings.delay;
+        let endDelay = lastFrameSettings.delaySettings.delay;
+        let startFeedback = firstFrameSettings.delaySettings.feedback;
+        let endFeedback = lastFrameSettings.delaySettings.feedback;
+        let startMix = firstFrameSettings.delaySettings.mix;
+        let endMix = lastFrameSettings.delaySettings.mix;
+
+        //shuffle
+        let startSegments = firstFrameSettings.shuffleSettings.segments;
+        let endSegments = lastFrameSettings.shuffleSettings.segments;
+
+        let progress = this.getAnimationProgress(frameIndex, totalFrames, interpolation);
+        if(totalFrames == 1) 
+        {
+            //avoid progress = NaN when only one frame is requested
+            progress = 1;
+        }
+
+        let frameFrequency = Util.mixNumber(startFreq, endFreq, progress);
+        let framePhase = Util.mixNumber(startPhase, endPhase, progress);
+        let frameAmp = Util.mixNumber(startAmp, endAmp, progress);
+        let frameOffset = Util.mixNumber(startOffset, endOffset, progress);
+
+        let frameDelay = Util.mixNumber(startDelay, endDelay, progress);
+        let frameFeedback = Util.mixNumber(startFeedback, endFeedback, progress);
+        let frameMix = Util.mixNumber(startMix, endMix, progress);
+
+        let frameSegments = Util.mixNumber(startSegments, endSegments, progress);
+
+        //TODO: test audio link for delay and shuffle
+        //apply audio link parameter shift
+        switch(audioLink.parameterType)
+        {
+            case "none":
+                break;
+
+            //ampMod
+            case "frequency":
+                frameFrequency += Util.getValueFromAudioLink(audioLink, i);
+                break;
+            case "phase":
+                framePhase += Util.getValueFromAudioLink(audioLink, i);
+                break;
+            case "amp":
+                frameAmp += Util.getValueFromAudioLink(audioLink, i);
+                break;
+            case "offset":
+                frameOffset += Util.getValueFromAudioLink(audioLink, i);
+                break;
+            
+            //delay
+            case "delay":
+                frameDelay += Util.getValueFromAudioLink(audioLink, i);
+                break;
+            case "feedback":
+                frameFeedback += Util.getValueFromAudioLink(audioLink, i);
+                break;
+            case "mix":
+                frameMix += Util.getValueFromAudioLink(audioLink, i);
+                break;
+
+            //shuffle
+            case "segments":
+                frameSegments += Util.getValueFromAudioLink(audioLink, i);
+                break;
+        }
+
+        let ampModSettings = new AmpModSettings(frameFrequency, framePhase, frameAmp, frameOffset);
+        let delaySettings = new DelaySettings(frameDelay, frameFeedback, frameMix);
+        let shuffleSettings = new ShuffleSettings(frameSegments);
+        let settings = { mode: firstFrameSettings.mode, ampModSettings: ampModSettings, delaySettings: delaySettings, shuffleSettings: shuffleSettings };
+
+        return settings;
+    }
+
+    renderAnimation(imageData, totalFrames, firstFrameSettings, lastFrameSettings, encodingAlgorithm, interpolation, audioLink)
     {
         let decodedBuffer = this.decodeFile(imageData, encodingAlgorithm);
         let renderedFrames = [];
@@ -20,6 +127,7 @@ class FrameRenderer
         //this will allow us to use this interpolation logic for requesting single frames from a sequence (may reduce memory usage?)
         //BETTER ALTERNATIVE: pass a frame index value down to renderFrame, along with firstFrameSettings and lastFrameSettings and 
         //allow interpolation to occur in frameRenderer
+        /*
         let startFreq = firstFrameSettings.ampModSettings.frequency;
         let endFreq = lastFrameSettings.ampModSettings.frequency;
         let startPhase = firstFrameSettings.ampModSettings.phase;
@@ -35,9 +143,11 @@ class FrameRenderer
         let endFeedback = lastFrameSettings.delaySettings.feedback;
         let startMix = firstFrameSettings.delaySettings.mix;
         let endMix = lastFrameSettings.delaySettings.mix;
-
-        for (let i = 0; i < frames; i++) 
+        */
+        
+        for (let i = 0; i < totalFrames; i++) 
         {
+            /*
             let progress = this.getAnimationProgress(i, frames, interpolation);
             if(frames == 1) 
             {
@@ -76,14 +186,21 @@ class FrameRenderer
             let ampModSettings = new AmpModSettings(frameFrequency, framePhase, frameAmp, frameOffset);
             let delaySettings = new DelaySettings(frameDelay, frameFeedback, frameMix);
             let settings = { mode: firstFrameSettings.mode, ampModSettings: ampModSettings, delaySettings: delaySettings };
+            */
 
+            /*
+
+            let settings = this.getInterpolatedSettings(i, totalFrames, firstFrameSettings, lastFrameSettings, interpolation, audioLink);
             console.log("settings", settings);
             
             let newFrame = this.bufferProcess(decodedBuffer, settings);
             let encodedFrame = this.encodeFile(newFrame, encodingAlgorithm);
-            renderedFrames.push({ frame: encodedFrame, settings: ampModSettings });
+            */
 
-            let renderProgress = i / (frames - 1);
+            let transitionFrame = this.renderFrameOfTransition(decodedBuffer, i, totalFrames, firstFrameSettings, lastFrameSettings, encodingAlgorithm, interpolation, audioLink)
+            renderedFrames.push(transitionFrame);
+
+            let renderProgress = i / (totalFrames - 1);
             postMessage({ id: "progress", progress: renderProgress });
         }
 

@@ -273,6 +273,7 @@ export class FrameInspector extends React.Component<FrameInspectorProps, FrameIn
         fileReader.readAsArrayBuffer(imageBlob);
     }
 
+    //TODO: remove function
     async processFrameSequence()
     {
         if(!this.props.frame) 
@@ -281,9 +282,11 @@ export class FrameInspector extends React.Component<FrameInspectorProps, FrameIn
             return;
         }
 
+        /*
         this.setState({ isSequenceRendering: true });
         await ImageProcessor.instance.processFrameSequence(this.props.frameSequence, [this.props.frame.settings], this.props.encodingAlgorithm, count => this.setState({ frameRenderCounter: count }));
         this.setState({ isSequenceRendering: false });
+        */
     }
 
     async downloadProcessedFrameSequence()
