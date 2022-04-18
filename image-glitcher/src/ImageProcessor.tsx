@@ -96,7 +96,7 @@ export class ImageProcessor
         });
     }
 
-    async processFrameSequence(imageData : Uint8Array[], firstFrameSettings : ImageProcessorSettings, lastFrameSettings : ImageProcessorSettings, encodingAlgorithm : string, transitionIndex : number, audioLink : AudioLink, counterCallback: (count: number) => void) : Promise<boolean>
+    async processFrameSequence(imageData : Uint8Array[], firstFrameSettings : ImageProcessorSettings, lastFrameSettings : ImageProcessorSettings, encodingAlgorithm : string, interpolation : number, transitionIndex : number, audioLink : AudioLink, counterCallback: (count: number) => void) : Promise<boolean>
     {
         return new Promise((resolve, reject) => 
         {
@@ -110,7 +110,7 @@ export class ImageProcessor
                     return;
                 }
 
-                this.backgroundRenderTransitionFrame(imageData[frameCounter], frameCounter, imageData.length, firstFrameSettings, lastFrameSettings, encodingAlgorithm, audioLink)
+                this.backgroundRenderTransitionFrame(imageData[frameCounter], frameCounter, imageData.length, firstFrameSettings, lastFrameSettings, encodingAlgorithm, interpolation, audioLink)
                     .then((processedData : { frame : Uint8Array, settings : ImageProcessorSettings }) => 
                 { 
                     //this.saveSequenceFrame(processedData);
@@ -214,7 +214,7 @@ export class ImageProcessor
     }
 
     //render one frame of a transition (used for rendering frame sequence transitions)
-    async backgroundRenderTransitionFrame(buffer : any, frameIndex : number, totalFrames : number, firstFrameSettings : ImageProcessorSettings, lastFrameSettings : ImageProcessorSettings, encodingAlgorithm : string, audioLink : AudioLink) : Promise<any>
+    async backgroundRenderTransitionFrame(buffer : any, frameIndex : number, totalFrames : number, firstFrameSettings : ImageProcessorSettings, lastFrameSettings : ImageProcessorSettings, encodingAlgorithm : string, interpolation: number, audioLink : AudioLink) : Promise<any>
     {
         return new Promise<any>((resolve, reject) =>
         {
@@ -224,7 +224,7 @@ export class ImageProcessor
                 resolve(message.data.output);
             }
 
-            this.frameRenderWorker.postMessage({ id: "renderOneTransitionFrame", buffer: buffer, frameIndex: frameIndex, totalFrames: totalFrames, firstFrameSettings: firstFrameSettings, lastFrameSettings: lastFrameSettings, encodingAlgorithm: encodingAlgorithm, audioLink: audioLink });
+            this.frameRenderWorker.postMessage({ id: "renderOneTransitionFrame", buffer: buffer, frameIndex: frameIndex, totalFrames: totalFrames, firstFrameSettings: firstFrameSettings, lastFrameSettings: lastFrameSettings, encodingAlgorithm: encodingAlgorithm, interpolation: interpolation, audioLink: audioLink });
         });
     }
 
@@ -260,10 +260,6 @@ export class ImageProcessor
     {
         let blob = new Blob([data], { type: "image/bmp" });
         let frame = new TransitionFrame(blob, settings);
-
-        //TODO: remove!
-        let frameUrl = URL.createObjectURL(blob); 
-        console.log("saveTransitionFrame: " + frameUrl);
 
         State.addFrameToTransitionFrames(frame, transitionIndex);
     }

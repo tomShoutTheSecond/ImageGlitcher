@@ -76,14 +76,12 @@ export class TimelineWindow extends React.Component<TimelineWindowProps, Timelin
             return;
         }
 
-        console.log("Creating GIF: " + imgElements.length);
+        console.log(`Creating GIF with ${imgElements.length} frames`);
 
         //first find the actual image size of the first frame
         var newImg = new Image();
         newImg.onload = () =>
         {
-            console.log("newImg.onload");
-
             //pause prevents black frames in the GIF
             let pause = 100;
             setTimeout(() => 
@@ -106,8 +104,6 @@ export class TimelineWindow extends React.Component<TimelineWindowProps, Timelin
                     gif.addFrame(img, { delay: 10 });
                 });
 
-                console.log("GIF frames: " + imgElements.length);
-
                 gif.on('finished', function(blob : Blob) 
                 {
                     console.log("GIF finished");
@@ -128,11 +124,10 @@ export class TimelineWindow extends React.Component<TimelineWindowProps, Timelin
                 gif.render();
             }, pause);
         }
-        newImg.onerror = e => console.log(e.toString());
+        newImg.onerror = e => console.log("Error while loading GIF");
 
         let firstImage = imgElements[0] as HTMLImageElement;
         newImg.src = firstImage.src;
-        
     }
 
     //puts each frame in an image element 
@@ -161,8 +156,6 @@ export class TimelineWindow extends React.Component<TimelineWindowProps, Timelin
         {
             const transitionFrame = allTransitionFrames[i];
             let frameData = await transitionFrame.getDataAsync();
-            console.log("frameData: " + frameData.size);
-
             let frameUrl = URL.createObjectURL(frameData); 
 
             let imageElement = new Image();
@@ -171,7 +164,6 @@ export class TimelineWindow extends React.Component<TimelineWindowProps, Timelin
             imageElement.height = 20;
 
             imageElements.push(imageElement);
-            
         }
 
         return imageElements;

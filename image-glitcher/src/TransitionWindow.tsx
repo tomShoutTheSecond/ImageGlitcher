@@ -234,10 +234,14 @@ export class TransitionWindow extends React.Component<TransitionWindowProps, Tra
 
         //TODO: calculate firstFrameIndex by adding up the lengths of the previous transitions
         let firstFrameIndex = 0;
-        let lastFrameIndex = firstFrameIndex + totalFrames;
+        let lastFrameIndex = firstFrameIndex + totalFrames - 1;
 
         if(firstFrameIndex > this.props.frameSequence.length - 1 || lastFrameIndex > this.props.frameSequence.length - 1)
         {
+            console.log("firstFrameIndex: ", firstFrameIndex);
+            console.log("lastFrameIndex: ", lastFrameIndex);
+            console.log("this.props.frameSequence.length: ", this.props.frameSequence.length);
+
             alert("Frame sequence not long enough!");
             return;
         }
@@ -245,8 +249,7 @@ export class TransitionWindow extends React.Component<TransitionWindowProps, Tra
         let shortFrameSequence = this.props.frameSequence.slice(firstFrameIndex, lastFrameIndex);
 
         State.setTransitionRenderStatus(this.props.index, "rendering");
-
-        await ImageProcessor.instance.processFrameSequence(shortFrameSequence, renderParams.firstFrameSettings!, renderParams.lastFrameSettings!, this.props.encodingAlgorithm, this.props.index, renderParams.audioLink!, counterCallback);
+        await ImageProcessor.instance.processFrameSequence(shortFrameSequence, renderParams.firstFrameSettings!, renderParams.lastFrameSettings!, this.props.encodingAlgorithm, renderParams.interpolation!, this.props.index, renderParams.audioLink!, counterCallback);
         State.setTransitionRenderStatus(this.props.index, "complete");
     }
 

@@ -24,6 +24,8 @@ class FrameRenderer
     renderFrameOfTransition(decodedBuffer, frameIndex, totalFrames, firstFrameSettings, lastFrameSettings, encodingAlgorithm, interpolation, audioLink)
     {
         let settings = this.getInterpolatedSettings(frameIndex, totalFrames, firstFrameSettings, lastFrameSettings, interpolation, audioLink);
+        console.log("Frame settings: ", settings);
+
         let newFrame = this.bufferProcess(decodedBuffer, settings);
         let encodedFrame = this.encodeFile(newFrame, encodingAlgorithm);
         return { frame: encodedFrame, settings: settings };
@@ -54,12 +56,18 @@ class FrameRenderer
         let startSegments = firstFrameSettings.shuffleSettings.segments;
         let endSegments = lastFrameSettings.shuffleSettings.segments;
 
+        console.log("frameIndex: ", frameIndex);
+        console.log("totalFrames: ", totalFrames);
+        console.log("interpolation: ", interpolation);
+
         let progress = this.getAnimationProgress(frameIndex, totalFrames, interpolation);
         if(totalFrames == 1) 
         {
             //avoid progress = NaN when only one frame is requested
             progress = 1;
         }
+
+        console.log("Progress: ", progress);
 
         let frameFrequency = Util.mixNumber(startFreq, endFreq, progress);
         let framePhase = Util.mixNumber(startPhase, endPhase, progress);
