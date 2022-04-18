@@ -68,18 +68,7 @@ export class State
 
         this.app.setState({ transitionFrames: transitionFrames });
     }
-/*
-    static addFrameToTransitionFrames(frame : KeyFrame, transitionIndex : number)
-    {
-        let transitionFrames = this.app.state.transitionFrames;
-        let transitionBank = transitionFrames[transitionIndex];
-        transitionBank.frames.push(frame);
 
-        transitionFrames[transitionIndex] = transitionBank;
-
-        this.app.setState({ transitionFrames: transitionFrames });
-    }
-*/
     static addFrameToTransitionFrames(frame : TransitionFrame, transitionIndex : number)
     {
         let transitionFrames = this.app.state.transitionFrames;
@@ -203,7 +192,6 @@ export class State
         let audioSources = this.app.state.audioSources;
         audioBuffers[index] = buffer;
         audioSources[index] = fileName;
-
 
         this.app.setState({ audioBuffers: audioBuffers, audioSources: audioSources });
     }

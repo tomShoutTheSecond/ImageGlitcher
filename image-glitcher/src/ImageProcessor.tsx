@@ -1,6 +1,7 @@
 import { Util } from "./Util";
 import { State, KeyFrame as KeyFrame, TransitionFrame } from "./App";
 import { AudioLink } from "./AudioLink";
+//import { URL } from "url";
 
 export type ProcessorMode = "ampMod" | "delay" | "shuffle";
 
@@ -95,7 +96,7 @@ export class ImageProcessor
         });
     }
 
-    async processFrameSequence(imageData : Uint8Array[], firstFrameSettings : ImageProcessorSettings, lastFrameSettings : ImageProcessorSettings, encodingAlgorithm : string, counterCallback: (count: number) => void) : Promise<boolean>
+    async processFrameSequence(imageData : Uint8Array[], firstFrameSettings : ImageProcessorSettings, lastFrameSettings : ImageProcessorSettings, encodingAlgorithm : string, transitionIndex : number, audioLink : AudioLink, counterCallback: (count: number) => void) : Promise<boolean>
     {
         return new Promise((resolve, reject) => 
         {
@@ -109,9 +110,12 @@ export class ImageProcessor
                     return;
                 }
 
-                this.backgroundRenderTransitionFrame(imageData[frameCounter], frameCounter, imageData.length, firstFrameSettings, lastFrameSettings, encodingAlgorithm).then((processedData) => 
+                this.backgroundRenderTransitionFrame(imageData[frameCounter], frameCounter, imageData.length, firstFrameSettings, lastFrameSettings, encodingAlgorithm, audioLink)
+                    .then((processedData : { frame : Uint8Array, settings : ImageProcessorSettings }) => 
                 { 
-                    this.saveSequenceFrame(processedData);
+                    //this.saveSequenceFrame(processedData);
+
+                    this.saveTransitionFrame(processedData.frame, processedData.settings, transitionIndex);
                     
                     processNextSequenceFrame(frameCounter + 1);
                 });
@@ -210,16 +214,17 @@ export class ImageProcessor
     }
 
     //render one frame of a transition (used for rendering frame sequence transitions)
-    async backgroundRenderTransitionFrame(buffer : any, frameIndex : number, totalFrames : number, firstFrameSettings : ImageProcessorSettings, lastFrameSettings : ImageProcessorSettings, encodingAlgorithm : string) : Promise<any>
+    async backgroundRenderTransitionFrame(buffer : any, frameIndex : number, totalFrames : number, firstFrameSettings : ImageProcessorSettings, lastFrameSettings : ImageProcessorSettings, encodingAlgorithm : string, audioLink : AudioLink) : Promise<any>
     {
         return new Promise<any>((resolve, reject) =>
         {
             this.frameRenderWorker.onmessage = (message) => 
             {
+                //returns an object like this: { frame: encodedFrame, settings: settings }
                 resolve(message.data.output);
             }
 
-            this.frameRenderWorker.postMessage({ id: "renderOneTransitionFrame", buffer: buffer, frameIndex: frameIndex, totalFrames: totalFrames, firstFrameSettings: firstFrameSettings, lastFrameSettings: lastFrameSettings, encodingAlgorithm: encodingAlgorithm });
+            this.frameRenderWorker.postMessage({ id: "renderOneTransitionFrame", buffer: buffer, frameIndex: frameIndex, totalFrames: totalFrames, firstFrameSettings: firstFrameSettings, lastFrameSettings: lastFrameSettings, encodingAlgorithm: encodingAlgorithm, audioLink: audioLink });
         });
     }
 
@@ -256,9 +261,13 @@ export class ImageProcessor
         let blob = new Blob([data], { type: "image/bmp" });
         let frame = new TransitionFrame(blob, settings);
 
+        //TODO: remove!
+        let frameUrl = URL.createObjectURL(blob); 
+        console.log("saveTransitionFrame: " + frameUrl);
+
         State.addFrameToTransitionFrames(frame, transitionIndex);
     }
-
+/*
     saveSequenceFrame(data : any)
     {
         let blob = new Blob([data], { type: "image/bmp" });
@@ -268,4 +277,5 @@ export class ImageProcessor
 
         State.addProcessedSequenceFrame(blob);
     }
+    */
 }

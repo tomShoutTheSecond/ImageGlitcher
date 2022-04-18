@@ -5,6 +5,7 @@ import { KeyFrame, TransitionFramebank, State, EncodingAlgorithm } from './App';
 import { ImageProcessor } from './ImageProcessor';
 import { settings } from 'cluster';
 import { AudioLink, ParameterType } from './AudioLink';
+import { FrameInspectorWindow } from './FrameInspectorWindow';
 
 interface TransitionWindowProps 
 { 
@@ -173,11 +174,12 @@ export class TransitionWindow extends React.Component<TransitionWindowProps, Tra
                 
                 <br/>
                 <button onClick={() => this.renderFrames()} style={{ float: "right", marginTop: "16px" }} disabled={somethingIsRendering}>Render</button>
+                <button onClick={async () => await this.renderSequenceFrames()} style={{ float: "right", marginTop: "16px" }} disabled={somethingIsRendering}>Render sequence</button>
             </div>
         );
     }
 
-    renderFrames()
+    prepareToRender()
     {
         let firstFrameSettings = this.props.keyframes[this.props.index].settings;
         let lastFrameSettings = this.props.keyframes[this.props.index + 1].settings;
@@ -185,26 +187,71 @@ export class TransitionWindow extends React.Component<TransitionWindowProps, Tra
         if(firstFrameSettings.mode != lastFrameSettings.mode)
         {
             alert("Cannot render transition for keyframes that use different process modes");
-            return;
+            return  { success: false };
+        }
+
+        let totalFrames = this.getNumberOfFrames();
+        if(isNaN(totalFrames))
+        {
+            alert("Please provide number of frames");
+            return  { success: false };
         }
 
         //clear previously rendered frames
         State.clearTransitionFramebank(this.props.index);
 
-        let framesInput = this.framesInput.current as HTMLInputElement;
-        let frames = parseInt(framesInput.value);
-
-        if(isNaN(frames))
-        {
-            alert("Please provide number of frames");
-            return;
-        }
-
         let interpolation = this.getInterpolationExponent();
-        if(!interpolation) return;
+        if(!interpolation) 
+            return { success: false };
+
+        let audioLink = this.getAudioLink();
+
+        return { success: true, totalFrames: totalFrames, firstFrameSettings: firstFrameSettings, lastFrameSettings: lastFrameSettings, interpolation: interpolation, audioLink: audioLink };
+    }
+
+    renderFrames()
+    {
+        let renderParams = this.prepareToRender();
+        if(!renderParams.success)
+            return;
 
         State.setTransitionRenderStatus(this.props.index, "rendering");
 
+        setTimeout(() => 
+        { 
+            ImageProcessor.instance.processAnimation(this.props.imageData, renderParams.totalFrames!, renderParams.firstFrameSettings!, renderParams.lastFrameSettings!, this.props.encodingAlgorithm, renderParams.interpolation!, this.props.index, renderParams.audioLink!); 
+        }, 100);
+    }
+
+    async renderSequenceFrames()
+    {
+        let renderParams = this.prepareToRender();
+        if(!renderParams.success)
+            return;
+
+        let totalFrames = renderParams.totalFrames!;
+        let counterCallback = (count : number) => State.setTransitionRenderProgress(this.props.index, count / totalFrames);
+
+        //TODO: calculate firstFrameIndex by adding up the lengths of the previous transitions
+        let firstFrameIndex = 0;
+        let lastFrameIndex = firstFrameIndex + totalFrames;
+
+        if(firstFrameIndex > this.props.frameSequence.length - 1 || lastFrameIndex > this.props.frameSequence.length - 1)
+        {
+            alert("Frame sequence not long enough!");
+            return;
+        }
+
+        let shortFrameSequence = this.props.frameSequence.slice(firstFrameIndex, lastFrameIndex);
+
+        State.setTransitionRenderStatus(this.props.index, "rendering");
+
+        await ImageProcessor.instance.processFrameSequence(shortFrameSequence, renderParams.firstFrameSettings!, renderParams.lastFrameSettings!, this.props.encodingAlgorithm, this.props.index, renderParams.audioLink!, counterCallback);
+        State.setTransitionRenderStatus(this.props.index, "complete");
+    }
+
+    getAudioLink()
+    {
         let selectedAudioSourceIndex = this.audioSourceMenu.current?.selectedIndex;
         let audioLink : AudioLink = { audioBuffer: [], parameterType: "none", amount: 0 };
 
@@ -225,25 +272,7 @@ export class TransitionWindow extends React.Component<TransitionWindowProps, Tra
             audioLink.amount = linkInput.valueAsNumber;
         }
 
-        setTimeout(() => 
-        { 
-            ImageProcessor.instance.processAnimation(this.props.imageData, frames, firstFrameSettings, lastFrameSettings, this.props.encodingAlgorithm, interpolation as number, this.props.index, audioLink); 
-        }, 100);
-    }
-
-    async renderSequenceFrames()
-    {
-        //TODO: utilise the renderSingleTransitionFrame() method of frameRenderer.js
-        let firstFrameSettings = this.props.keyframes[this.props.index].settings;
-        let lastFrameSettings = this.props.keyframes[this.props.index + 1].settings;
-
-        State.setTransitionRenderStatus(this.props.index, "rendering");
-
-        let totalFrames = this.props.frameSequence.length;
-        let counterCallback = (count : number) => State.setTransitionRenderProgress(count, count / totalFrames);
-
-        await ImageProcessor.instance.processFrameSequence(this.props.frameSequence, firstFrameSettings, lastFrameSettings, this.props.encodingAlgorithm, counterCallback);
-        State.setTransitionRenderStatus(this.props.index, "complete");
+        return audioLink;
     }
 
     getAudioLinkParameterType(index : number | undefined) : ParameterType
@@ -281,5 +310,13 @@ export class TransitionWindow extends React.Component<TransitionWindowProps, Tra
             return 1 / interpolation;
 
         return interpolation;
+    }
+
+    getNumberOfFrames()
+    {
+        let framesInput = this.framesInput.current as HTMLInputElement;
+        let frames = parseInt(framesInput.value);
+
+        return frames;
     }
 }

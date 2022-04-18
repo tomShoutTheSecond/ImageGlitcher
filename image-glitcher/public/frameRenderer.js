@@ -17,7 +17,7 @@ class FrameRenderer
     renderSingleTransitionFrame(imageData, frameIndex, totalFrames, firstFrameSettings, lastFrameSettings, encodingAlgorithm, interpolation, audioLink)
     {
         let decodedBuffer = this.decodeFile(imageData, encodingAlgorithm);
-        return renderFrameOfTransition(decodedBuffer, frameIndex, totalFrames, firstFrameSettings, lastFrameSettings, encodingAlgorithm, interpolation, audioLink);
+        return this.renderFrameOfTransition(decodedBuffer, frameIndex, totalFrames, firstFrameSettings, lastFrameSettings, encodingAlgorithm, interpolation, audioLink);
     }
 
     //render one frame of a transition 
@@ -453,6 +453,12 @@ onmessage = function(message)
     {
         let newFrames = frameRenderer.renderAnimation(message.data.buffer, message.data.frames, message.data.firstFrameSettings, message.data.lastFrameSettings, message.data.encodingAlgorithm, message.data.interpolation, message.data.audioLink);
         postMessage({ id: message.data.id, output: newFrames });
+    }
+    else if(message.data.id == "renderOneTransitionFrame")
+    {
+        //{ id: "renderOneTransitionFrame", buffer: buffer, frameIndex: frameIndex, totalFrames: totalFrames, firstFrameSettings: firstFrameSettings, lastFrameSettings: lastFrameSettings, encodingAlgorithm: encodingAlgorithm }
+        let newFrame = frameRenderer.renderSingleTransitionFrame(message.data.buffer, message.data.frameIndex, message.data.totalFrames, message.data.firstFrameSettings, message.data.lastFrameSettings, message.data.encodingAlgorithm, message.data.interpolation, message.data.audioLink);
+        postMessage({ id: message.data.id, output: newFrame });
     }
 }
 

@@ -8,4 +8,4 @@ export interface AudioLink
     amount : number
 }
 
-export type ParameterType = "none" | "frequency" | "phase" | "amp" | "offset";
+export type ParameterType = "none" | "frequency" | "phase" | "amp" | "offset" | "delay" | "feedback" | "mix" | "segments";
