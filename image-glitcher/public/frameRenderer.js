@@ -122,81 +122,9 @@ class FrameRenderer
     {
         let decodedBuffer = this.decodeFile(imageData, encodingAlgorithm);
         let renderedFrames = [];
-
-        //TODO: move this interpolation logic to Core layer and send an array with settings for each frame to the frameRenderer.
-        //this will allow us to use this interpolation logic for requesting single frames from a sequence (may reduce memory usage?)
-        //BETTER ALTERNATIVE: pass a frame index value down to renderFrame, along with firstFrameSettings and lastFrameSettings and 
-        //allow interpolation to occur in frameRenderer
-        /*
-        let startFreq = firstFrameSettings.ampModSettings.frequency;
-        let endFreq = lastFrameSettings.ampModSettings.frequency;
-        let startPhase = firstFrameSettings.ampModSettings.phase;
-        let endPhase = lastFrameSettings.ampModSettings.phase;
-        let startAmp = firstFrameSettings.ampModSettings.amp;
-        let endAmp = lastFrameSettings.ampModSettings.amp;
-        let startOffset = firstFrameSettings.ampModSettings.offset;
-        let endOffset = lastFrameSettings.ampModSettings.offset;
-
-        let startDelay = firstFrameSettings.delaySettings.delay;
-        let endDelay = lastFrameSettings.delaySettings.delay;
-        let startFeedback = firstFrameSettings.delaySettings.feedback;
-        let endFeedback = lastFrameSettings.delaySettings.feedback;
-        let startMix = firstFrameSettings.delaySettings.mix;
-        let endMix = lastFrameSettings.delaySettings.mix;
-        */
         
         for (let i = 0; i < totalFrames; i++) 
         {
-            /*
-            let progress = this.getAnimationProgress(i, frames, interpolation);
-            if(frames == 1) 
-            {
-                //avoid progress = NaN when only one frame is requested
-                progress = 1;
-            }
-                
-            let frameFrequency = Util.mixNumber(startFreq, endFreq, progress);
-            let framePhase = Util.mixNumber(startPhase, endPhase, progress);
-            let frameAmp = Util.mixNumber(startAmp, endAmp, progress);
-            let frameOffset = Util.mixNumber(startOffset, endOffset, progress);
-
-            let frameDelay = Util.mixNumber(startDelay, endDelay, progress);
-            let frameFeedback = Util.mixNumber(startFeedback, endFeedback, progress);
-            let frameMix = Util.mixNumber(startMix, endMix, progress);
-
-            //apply audio link parameter shift
-            switch(audioLink.parameterType)
-            {
-                case "none":
-                    break;
-                case "frequency":
-                    frameFrequency += Util.getValueFromAudioLink(audioLink, i);
-                    break;
-                case "phase":
-                    framePhase += Util.getValueFromAudioLink(audioLink, i);
-                    break;
-                case "amp":
-                    frameAmp += Util.getValueFromAudioLink(audioLink, i);
-                    break;
-                case "offset":
-                    frameOffset += Util.getValueFromAudioLink(audioLink, i);
-                    break;
-            }
-
-            let ampModSettings = new AmpModSettings(frameFrequency, framePhase, frameAmp, frameOffset);
-            let delaySettings = new DelaySettings(frameDelay, frameFeedback, frameMix);
-            let settings = { mode: firstFrameSettings.mode, ampModSettings: ampModSettings, delaySettings: delaySettings };
-            */
-
-            /*
-
-            let settings = this.getInterpolatedSettings(i, totalFrames, firstFrameSettings, lastFrameSettings, interpolation, audioLink);
-            console.log("settings", settings);
-            
-            let newFrame = this.bufferProcess(decodedBuffer, settings);
-            let encodedFrame = this.encodeFile(newFrame, encodingAlgorithm);
-            */
-
             let transitionFrame = this.renderFrameOfTransition(decodedBuffer, i, totalFrames, firstFrameSettings, lastFrameSettings, encodingAlgorithm, interpolation, audioLink)
             renderedFrames.push(transitionFrame);
 
