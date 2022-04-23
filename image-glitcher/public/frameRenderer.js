@@ -60,12 +60,10 @@ class FrameRenderer
         console.log("totalFrames: ", totalFrames);
         console.log("interpolation: ", interpolation);
 
+        //here we use totalFrames + 1, to ensure that the lastFrameSettings are not quite reached
+        //the first frame of the following transition will have lastFrameSettings, so to avoid duplciate frames
+        //we ensure the last frame of this transition has different values so it smoothly flows into the next transition
         let progress = this.getAnimationProgress(frameIndex, totalFrames + 1, interpolation);
-        if(totalFrames == 1) 
-        {
-            //avoid progress = NaN when only one frame is requested
-            progress = 1;
-        }
 
         console.log("Progress: ", progress);
 
