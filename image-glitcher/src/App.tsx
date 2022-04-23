@@ -150,11 +150,6 @@ export class State
         this.app.state.keyframes.length = 0;
     }
 
-    static setOmitFramePreference(value : boolean)
-    {
-        this.app.setState({ omitFramePreference: value });
-    }
-
     static inspectFrame(frame : KeyFrame)
     {
         this.app.setState({ inspectedFrame: frame });
@@ -240,7 +235,6 @@ interface AppState
     frames : KeyFrame[],
     keyframes : KeyFrame[],
     transitionFrames : TransitionFramebank[],
-    omitFramePreference : boolean,
     inspectedFrame : KeyFrame | null,
     animationUrl : string,
     animationLength : number,
@@ -331,7 +325,7 @@ export class TransitionFramebank
 //
 class App extends React.Component<AppProps, AppState>
 {
-    state : AppState = { imageData: new Uint8Array(), frames: [], keyframes: [], transitionFrames: [], omitFramePreference: true, inspectedFrame: null, animationUrl: "", animationLength: 0, framebankIsLoading: false, animationIsLoading: false, encodingAlgorithm: "mulaw", audioBuffers: [], audioSources: [], frameSequence: [], processedFrameSequence: [] };
+    state : AppState = { imageData: new Uint8Array(), frames: [], keyframes: [], transitionFrames: [], inspectedFrame: null, animationUrl: "", animationLength: 0, framebankIsLoading: false, animationIsLoading: false, encodingAlgorithm: "mulaw", audioBuffers: [], audioSources: [], frameSequence: [], processedFrameSequence: [] };
 
     componentDidMount()
     {
@@ -365,7 +359,7 @@ class App extends React.Component<AppProps, AppState>
                     <FramebankWindow frames={this.state.frames} isLoading={this.state.framebankIsLoading}/>
                 </div>
 
-                <TimelineWindow imageData={this.state.imageData} frameSequence={this.state.frameSequence} keyframes={this.state.keyframes} encodingAlgorithm={this.state.encodingAlgorithm} transitionFrames={this.state.transitionFrames} omitFrame={this.state.omitFramePreference} isLoadingGif={this.state.animationIsLoading} audioSources={this.state.audioSources} audioBuffers={this.state.audioBuffers}/>
+                <TimelineWindow imageData={this.state.imageData} frameSequence={this.state.frameSequence} keyframes={this.state.keyframes} encodingAlgorithm={this.state.encodingAlgorithm} transitionFrames={this.state.transitionFrames} isLoadingGif={this.state.animationIsLoading} audioSources={this.state.audioSources} audioBuffers={this.state.audioBuffers}/>
                 <AnimationPreviewWindow url={this.state.animationUrl} isLoading={this.state.animationIsLoading} animationLength={this.state.animationLength}/>
                 <AudioProcessorWindow buffers={this.state.audioBuffers}/>
                 <DSPTestBenchWindow />

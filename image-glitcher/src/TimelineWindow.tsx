@@ -17,7 +17,6 @@ interface TimelineWindowProps
 
     keyframes : KeyFrame[],
     transitionFrames : TransitionFramebank[],
-    omitFrame : boolean,
     encodingAlgorithm : EncodingAlgorithm,
     isLoadingGif : boolean,
     audioSources : string[],
@@ -51,7 +50,6 @@ export class TimelineWindow extends React.Component<TimelineWindowProps, Timelin
                 <div>
                     <IconButton iconName="gif" hint="Generate GIF" loading={this.props.isLoadingGif} onClick={async () => await this.createGif()}/>
                     <IconButton leftMargin iconName="download" hint="Download frames" loading={this.state.isLoadingDownload} onClick={async () => await this.downloadFrames()}>Download Frames</IconButton>
-                    {/*<input ref={this.omitFrameCheckbox} type="checkbox" onClick={() => this.changeOmitFramePreference()} checked={this.props.omitFrame} /><label>Omit last frame (for smooth loops)</label>*/}
                 </div>
             </div>
         );
@@ -159,18 +157,8 @@ export class TimelineWindow extends React.Component<TimelineWindowProps, Timelin
         let allTransitionFrames : TransitionFrame[] = [];
 
         //loop through transitions
-        for (let i = 0; i < this.props.transitionFrames.length; i++) 
+        for (let transitionBank of this.props.transitionFrames) 
         {
-            const transitionBank = this.props.transitionFrames[i];
-
-            /*
-            //cut off the last frame of each transition to avoid duplicates
-            let framesToRemove = 1;
-            if(i === this.props.transitionFrames.length - 1 && !this.props.omitFrame) //last transition, omit frame disabled
-                framesToRemove = 0; //don't remove the frame
-            let croppedTransitionFrames = transitionBank.frames.slice(0, transitionBank.frames.length - framesToRemove);
-            */
-
             //add to total frames
             allTransitionFrames = allTransitionFrames.concat(transitionBank.frames);
         }
@@ -203,13 +191,4 @@ export class TimelineWindow extends React.Component<TimelineWindowProps, Timelin
 
         this.setState({ isLoadingDownload: false });
     }
-/*
-    changeOmitFramePreference()
-    {
-        let checkbox = this.omitFrameCheckbox.current;
-        if(!checkbox) return;
-
-        State.setOmitFramePreference(checkbox.checked);
-    }
-*/
 }
