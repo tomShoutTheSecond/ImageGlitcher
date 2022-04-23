@@ -51,7 +51,7 @@ export class TimelineWindow extends React.Component<TimelineWindowProps, Timelin
                 <div>
                     <IconButton iconName="gif" hint="Generate GIF" loading={this.props.isLoadingGif} onClick={async () => await this.createGif()}/>
                     <IconButton leftMargin iconName="download" hint="Download frames" loading={this.state.isLoadingDownload} onClick={async () => await this.downloadFrames()}>Download Frames</IconButton>
-                    <input ref={this.omitFrameCheckbox} type="checkbox" onClick={() => this.changeOmitFramePreference()} checked={this.props.omitFrame} /><label>Omit last frame (for smooth loops)</label>
+                    {/*<input ref={this.omitFrameCheckbox} type="checkbox" onClick={() => this.changeOmitFramePreference()} checked={this.props.omitFrame} /><label>Omit last frame (for smooth loops)</label>*/}
                 </div>
             </div>
         );
@@ -133,22 +133,7 @@ export class TimelineWindow extends React.Component<TimelineWindowProps, Timelin
     //puts each frame in an image element 
     async getImageElements()
     {
-        let allTransitionFrames : TransitionFrame[] = [];
-        
-        for (let i = 0; i < this.props.transitionFrames.length; i++) 
-        {
-            const transitionBank = this.props.transitionFrames[i];
-
-            //cut off the last frame of each transition to avoid duplicates
-            let framesToRemove = 1;
-            if(i === this.props.transitionFrames.length - 1 && !this.props.omitFrame) //last transition, omit frame disabled
-                framesToRemove = 0; //don't remove the frame
-            let croppedTransitionFrames = transitionBank.frames.slice(0, transitionBank.frames.length - framesToRemove);
-
-            //add to total frames
-            allTransitionFrames = allTransitionFrames.concat(croppedTransitionFrames);
-        }
-
+        let allTransitionFrames = await this.getAllTimelineFrames();
         State.setAnimationLength(allTransitionFrames.length);
 
         let imageElements : HTMLImageElement[] = [];
@@ -169,6 +154,30 @@ export class TimelineWindow extends React.Component<TimelineWindowProps, Timelin
         return imageElements;
     }
 
+    async getAllTimelineFrames()
+    {
+        let allTransitionFrames : TransitionFrame[] = [];
+
+        //loop through transitions
+        for (let i = 0; i < this.props.transitionFrames.length; i++) 
+        {
+            const transitionBank = this.props.transitionFrames[i];
+
+            /*
+            //cut off the last frame of each transition to avoid duplicates
+            let framesToRemove = 1;
+            if(i === this.props.transitionFrames.length - 1 && !this.props.omitFrame) //last transition, omit frame disabled
+                framesToRemove = 0; //don't remove the frame
+            let croppedTransitionFrames = transitionBank.frames.slice(0, transitionBank.frames.length - framesToRemove);
+            */
+
+            //add to total frames
+            allTransitionFrames = allTransitionFrames.concat(transitionBank.frames);
+        }
+
+        return allTransitionFrames;
+    }
+
     async downloadFrames()
     {
         //check if any transition frames are rendering, and cancel operation if so
@@ -180,48 +189,21 @@ export class TimelineWindow extends React.Component<TimelineWindowProps, Timelin
 
         this.setState({ isLoadingDownload: true });
 
-        let zip = new JSZip();
-
         //add transition frames
-        let fileNumber = 0;
-        for (let transitionIndex = 0; transitionIndex < this.props.transitionFrames.length; transitionIndex++) 
+        let allTransitionFrames = await this.getAllTimelineFrames();
+        let blobs : Blob[] = [];
+
+        for(let frame of allTransitionFrames)
         {
-            let transitionBank = this.props.transitionFrames[transitionIndex];
-            
-            for (let frameIndex = 0; frameIndex < transitionBank.frames.length; frameIndex++) 
-            {
-                //cut off the last frame of each transition to avoid duplicates
-
-                let isLastFrameOfTransition = frameIndex === transitionBank.frames.length - 1;
-                let isLastTransition = transitionIndex === this.props.transitionFrames.length - 1;
-                let skipFrame = (isLastFrameOfTransition && !isLastTransition); //skip last frames of transitions (except the last transition)
-
-                //omit last frame if requested
-                if(isLastFrameOfTransition && isLastTransition && this.props.omitFrame)
-                    skipFrame = true;
-
-                if(skipFrame) continue;
-
-                const frame = transitionBank.frames[frameIndex];
-
-                let leadingZeros = 4;
-                let fileName = Util.getFrameName(String(fileNumber).padStart(leadingZeros, "0"));
-                let frameData = await frame.getDataAsync();
-                zip.file(fileName, frameData);
-
-                fileNumber++;
-            }
+            let frameData = await frame.getDataAsync();
+            blobs.push(frameData);
         }
 
-        zip.generateAsync({ type: "blob" }).then(content =>
-        {
-            //see FileSaver.js
-            saveAs(content, "TimelineFrames.zip");
+        await Util.downloadFrameSequence(blobs);
 
-            this.setState({ isLoadingDownload: false });
-        });
+        this.setState({ isLoadingDownload: false });
     }
-
+/*
     changeOmitFramePreference()
     {
         let checkbox = this.omitFrameCheckbox.current;
@@ -229,12 +211,5 @@ export class TimelineWindow extends React.Component<TimelineWindowProps, Timelin
 
         State.setOmitFramePreference(checkbox.checked);
     }
-
-    isLastFrame(transitionIndex : number, frameIndex : number)
-    {
-        let lastTransition = transitionIndex === this.props.transitionFrames.length - 1;
-        let lastFrame = frameIndex === this.props.transitionFrames[transitionIndex].frames.length - 1;
-
-        return lastTransition && lastFrame;
-    }
+*/
 }

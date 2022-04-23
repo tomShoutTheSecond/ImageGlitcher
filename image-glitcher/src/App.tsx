@@ -327,6 +327,7 @@ export class TransitionFramebank
 // - calculate correct firstFrameIndex in TransitionWindow to enable rendering sequences of transitions in the timeline
 // - add a dispose GIF animation button to free up some memory
 // - add a memory watcher window with rolling stats
+// - experiment with pixel sorting algorithms
 //
 class App extends React.Component<AppProps, AppState>
 {

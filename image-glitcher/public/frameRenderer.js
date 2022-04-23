@@ -60,7 +60,7 @@ class FrameRenderer
         console.log("totalFrames: ", totalFrames);
         console.log("interpolation: ", interpolation);
 
-        let progress = this.getAnimationProgress(frameIndex, totalFrames, interpolation);
+        let progress = this.getAnimationProgress(frameIndex, totalFrames + 1, interpolation);
         if(totalFrames == 1) 
         {
             //avoid progress = NaN when only one frame is requested

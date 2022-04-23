@@ -86,11 +86,11 @@ export class Util
         return array;
     };
 
-    static async downloadFrameSequence(frameSequence : Uint8Array[])
+    static async downloadFrameSequence(frameSequence : Uint8Array[] | Blob[])
     {
         let zip = new JSZip();
 
-        console.log('Original frame sequence', frameSequence)
+        console.log('Downloading frame sequence', frameSequence);
 
         //each zip files contains 10 frames to avoid memory overflow
         let tenFramesCounter = 0;

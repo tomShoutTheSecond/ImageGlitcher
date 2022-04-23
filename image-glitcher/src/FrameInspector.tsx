@@ -113,7 +113,7 @@ export class FrameInspector extends React.Component<FrameInspectorProps, FrameIn
                     <div style={processButtonContainerStyle}>
                         <IconButton iconName="process" onClick={async () => await this.processFrameSequence()}/>
                     </div>
-                    <IconButton leftMargin iconName="download" onClick={async () => await this.downloadProcessedFrameSequence()}/>
+                    <IconButton leftMargin iconName="download" onClick={async () => await Util.downloadFrameSequence(this.props.processedFrameSequence)}/>
                 </div>
             </div>
         );
@@ -289,40 +289,5 @@ export class FrameInspector extends React.Component<FrameInspectorProps, FrameIn
         */
     }
 
-    async downloadProcessedFrameSequence()
-    {
-        let zip = new JSZip();
-
-        console.log('processed frame sequence', this.props.processedFrameSequence)
-
-        //each zip files contains 10 frames to avoid memory overflow
-        let tenFramesCounter = 0;
-        for (let i = 0; i < this.props.processedFrameSequence.length; i++) 
-        {
-            const frame = this.props.processedFrameSequence[i];
-            zip.file(Util.getFrameName(i), frame);
-
-            tenFramesCounter++;
-            if(tenFramesCounter > 9)
-            {
-                tenFramesCounter = 0;
-
-                //split to a new zip file every 10 frames
-                let content = await zip.generateAsync({ type:"blob" });
-
-                //see FileSaver.js
-                saveAs(content, "FrameSequence.zip");
-
-                zip = new JSZip();
-            }
-        }
-
-        if(zip.length > 0)
-        {
-            let content = await zip.generateAsync({ type:"blob" });
-
-            //see FileSaver.js
-            saveAs(content, "FrameSequence.zip");
-        }
-    }
+    
 }
