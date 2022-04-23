@@ -87,32 +87,32 @@ class FrameRenderer
 
             //ampMod
             case "frequency":
-                frameFrequency += Util.getValueFromAudioLink(audioLink, i);
+                frameFrequency += Util.getValueFromAudioLink(audioLink, frameIndex);
                 break;
             case "phase":
-                framePhase += Util.getValueFromAudioLink(audioLink, i);
+                framePhase += Util.getValueFromAudioLink(audioLink, frameIndex);
                 break;
             case "amp":
-                frameAmp += Util.getValueFromAudioLink(audioLink, i);
+                frameAmp += Util.getValueFromAudioLink(audioLink, frameIndex);
                 break;
             case "offset":
-                frameOffset += Util.getValueFromAudioLink(audioLink, i);
+                frameOffset += Util.getValueFromAudioLink(audioLink, frameIndex);
                 break;
             
             //delay
             case "delay":
-                frameDelay += Util.getValueFromAudioLink(audioLink, i);
+                frameDelay += Util.getValueFromAudioLink(audioLink, frameIndex);
                 break;
             case "feedback":
-                frameFeedback += Util.getValueFromAudioLink(audioLink, i);
+                frameFeedback += Util.getValueFromAudioLink(audioLink, frameIndex);
                 break;
             case "mix":
-                frameMix += Util.getValueFromAudioLink(audioLink, i);
+                frameMix += Util.getValueFromAudioLink(audioLink, frameIndex);
                 break;
 
             //shuffle
             case "segments":
-                frameSegments += Util.getValueFromAudioLink(audioLink, i);
+                frameSegments += Util.getValueFromAudioLink(audioLink, frameIndex);
                 break;
         }
 

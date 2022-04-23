@@ -31,18 +31,10 @@ export class DSPTestBenchWindow extends React.Component<DSPTestBenchWindowProps,
 
     render()
     {
-        let containerStyle = Styles.containerStyle;
-        containerStyle.width = "70%";
-
-        let leftMarginStyle : React.CSSProperties = 
-        {
-            marginLeft: "16px"
-        };
-
         return (
-            <Card style={containerStyle}>
+            <Card style={Styles.containerStyle}>
                 <h1 style={Styles.h1Style}>DSP Test Bench</h1>
-                <div style={leftMarginStyle}>
+                <div style={Styles.leftMargin}>
                     {this.parameters.map((parameterName, key) => (
                         <div key={key}>
                             <label>{parameterName}: </label>
@@ -54,7 +46,7 @@ export class DSPTestBenchWindow extends React.Component<DSPTestBenchWindowProps,
                 <h1 style={Styles.h1Style}>Audio Source</h1>
                 <input type="file" ref={this.fileInput} onChange={async () => await this.loadAudioFromFile()} />
                 <br /><br />
-                <div style={Styles.alignRight}>
+                <div style={Styles.bottomLeftMargin}>
                     <IconButton iconName="process" hint="Process" onClick={() => this.process()}/>
                 </div>
                 {this.state.downloadUrl == "" ? "" : <a href={this.state.downloadUrl}>Download wav file</a>}
