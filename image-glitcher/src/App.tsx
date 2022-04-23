@@ -318,7 +318,7 @@ export class TransitionFramebank
 //TODO: do some things
 // x reuse split zip function from the old FrameInspector frame sequence download, to avoid memory overload when downloading timeline frames
 // x figure out which frames should be omitted and share the logic between GIF maker and timeline download
-// - calculate correct firstFrameIndex in TransitionWindow to enable rendering sequences of transitions in the timeline
+// x calculate correct firstFrameIndex in TransitionWindow to enable rendering sequences of transitions in the timeline
 // - add a dispose GIF animation button to free up some memory
 // - add a memory watcher window with rolling stats
 // - experiment with pixel sorting algorithms

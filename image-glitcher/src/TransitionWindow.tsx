@@ -232,8 +232,8 @@ export class TransitionWindow extends React.Component<TransitionWindowProps, Tra
         let totalFrames = renderParams.totalFrames!;
         let counterCallback = (count : number) => State.setTransitionRenderProgress(this.props.index, count / totalFrames);
 
-        //TODO: calculate firstFrameIndex by adding up the lengths of the previous transitions
-        let firstFrameIndex = 0;
+        //calculate firstFrameIndex by adding up the lengths of the previous transitions
+        let firstFrameIndex = this.getFirstFrameIndex();
         let lastFrameIndex = firstFrameIndex + totalFrames - 1;
 
         if(firstFrameIndex > this.props.frameSequence.length - 1 || lastFrameIndex > this.props.frameSequence.length - 1)
@@ -251,6 +251,15 @@ export class TransitionWindow extends React.Component<TransitionWindowProps, Tra
         State.setTransitionRenderStatus(this.props.index, "rendering");
         await ImageProcessor.instance.processFrameSequence(shortFrameSequence, renderParams.firstFrameSettings!, renderParams.lastFrameSettings!, this.props.encodingAlgorithm, renderParams.interpolation!, this.props.index, renderParams.audioLink!, counterCallback);
         State.setTransitionRenderStatus(this.props.index, "complete");
+    }
+
+    getFirstFrameIndex()
+    {
+        let firstFrameIndex = 0;
+        for(let frameBank of this.props.transitionFrames)
+            firstFrameIndex += frameBank.frames.length;
+
+        return firstFrameIndex;
     }
 
     getAudioLink()
