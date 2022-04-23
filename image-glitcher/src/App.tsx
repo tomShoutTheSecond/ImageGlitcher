@@ -320,7 +320,9 @@ export class TransitionFramebank
 // x reuse split zip function from the old FrameInspector frame sequence download, to avoid memory overload when downloading timeline frames
 // x figure out which frames should be omitted and share the logic between GIF maker and timeline download
 // x calculate correct firstFrameIndex in TransitionWindow to enable rendering sequences of transitions in the timeline
-// - make generate keyframe variant button
+// - a "create variant" button on the keyframe which generates a new keyframe with similar glitch settings
+//      - you can specify which parameters should be changed, and by what percentage, maybe the value is randomised with the percentage used as a maximum delta
+// - easier way to copy and paste glitch settings to frame inspector
 // - add a dispose GIF animation button to free up some memory
 // - add a memory watcher window with rolling stats
 // - experiment with pixel sorting algorithms
