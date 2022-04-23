@@ -12,6 +12,7 @@ import { DSPTestBenchWindow } from './DSPTestBenchWindow';
 import { ImageProcessorSettings } from './ImageProcessor';
 import { Util } from './Util';
 import { SequenceImportWindow } from './SequenceImportWindow';
+import { MuiThemeProvider } from 'material-ui/styles';
 
 export class State
 {
@@ -349,21 +350,23 @@ class App extends React.Component<AppProps, AppState>
         }
 
         return (
-            <div style={containerStyle}>
-                <ImageLoaderWindow />
-                <SequenceImportWindow frameSequence={this.state.frameSequence} processedFrameSequence={this.state.processedFrameSequence}/>
-                <ImageProcessorWindow imageData={this.state.imageData} encodingAlgorithm={this.state.encodingAlgorithm}/>
-                
-                <div>
-                    <FrameInspectorWindow frame={this.state.inspectedFrame} imageData={this.state.imageData} encodingAlgorithm={this.state.encodingAlgorithm}/>
-                    <FramebankWindow frames={this.state.frames} isLoading={this.state.framebankIsLoading}/>
-                </div>
+            <MuiThemeProvider>
+                <div style={containerStyle}>
+                    <ImageLoaderWindow />
+                    <SequenceImportWindow frameSequence={this.state.frameSequence} processedFrameSequence={this.state.processedFrameSequence}/>
+                    <ImageProcessorWindow imageData={this.state.imageData} encodingAlgorithm={this.state.encodingAlgorithm}/>
+                    
+                    <div>
+                        <FrameInspectorWindow frame={this.state.inspectedFrame} imageData={this.state.imageData} encodingAlgorithm={this.state.encodingAlgorithm}/>
+                        <FramebankWindow frames={this.state.frames} isLoading={this.state.framebankIsLoading}/>
+                    </div>
 
-                <TimelineWindow imageData={this.state.imageData} frameSequence={this.state.frameSequence} keyframes={this.state.keyframes} encodingAlgorithm={this.state.encodingAlgorithm} transitionFrames={this.state.transitionFrames} isLoadingGif={this.state.animationIsLoading} audioSources={this.state.audioSources} audioBuffers={this.state.audioBuffers}/>
-                <AnimationPreviewWindow url={this.state.animationUrl} isLoading={this.state.animationIsLoading} animationLength={this.state.animationLength}/>
-                <AudioProcessorWindow buffers={this.state.audioBuffers}/>
-                <DSPTestBenchWindow />
-            </div>
+                    <TimelineWindow imageData={this.state.imageData} frameSequence={this.state.frameSequence} keyframes={this.state.keyframes} encodingAlgorithm={this.state.encodingAlgorithm} transitionFrames={this.state.transitionFrames} isLoadingGif={this.state.animationIsLoading} audioSources={this.state.audioSources} audioBuffers={this.state.audioBuffers}/>
+                    <AnimationPreviewWindow url={this.state.animationUrl} isLoading={this.state.animationIsLoading} animationLength={this.state.animationLength}/>
+                    <AudioProcessorWindow buffers={this.state.audioBuffers}/>
+                    <DSPTestBenchWindow />
+                </div>
+            </MuiThemeProvider>
         );
     }
 }

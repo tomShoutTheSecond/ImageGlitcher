@@ -4,6 +4,7 @@ import { Colors } from './Colors';
 import { Styles } from './Styles';
 import Jimp from 'jimp';
 import { Util } from './Util';
+import { Card } from 'material-ui';
 
 export class ImageLoaderWindow extends React.Component
 {
@@ -16,17 +17,25 @@ export class ImageLoaderWindow extends React.Component
             paddingBottom: "16px"
         };
 
-        let previewImage = this.state.isConverting ? <h2>Converting image...</h2> : <img src={this.state.previewUrl} style={Styles.imageStyle}/>;
+        let subTitleStyle : React.CSSProperties = 
+        {
+            margin: "0 16px 0 16px"
+        };
+
+        let convertingImageLabelStyle = Styles.h2Style; 
+        convertingImageLabelStyle.margin = "0 16px 16px 16px";
+
+        let previewImage = this.state.isConverting ? <h2 style={convertingImageLabelStyle}>Converting image...</h2> : <img src={this.state.previewUrl} style={Styles.imageStyle}/>;
 
         return (
-            <div style={Styles.containerStyle}>
+            <Card style={Styles.containerStyle}>
                 <h1 style={Styles.h1Style}>Load Image</h1>
-                <p>Files will be converted to .bmp</p>
+                <p style={subTitleStyle}>Files will be converted to .bmp</p>
                 <div style={innerContainerStyle}>
                     <input ref="fileInput" type="file" id="files" name="file" onChange={() => this.loadImageFromFile()}/>
                 </div>
                 {previewImage}
-            </div>
+            </Card>
         );
     }
 

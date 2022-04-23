@@ -6,6 +6,7 @@ import { IconButton } from './IconButton';
 import { AudioProcessor } from './AudioProcessor';
 import { Waveform } from './Waveform';
 import { DSPTestBench } from './DSPTestBench';
+import { Card } from '@material-ui/core';
 
 interface DSPTestBenchWindowProps
 {
@@ -30,41 +31,34 @@ export class DSPTestBenchWindow extends React.Component<DSPTestBenchWindowProps,
 
     render()
     {
-        /*
-        let containerStyle : React.CSSProperties = 
-        {
-            margin: "16px",
-            padding: "16px",
-            verticalAlign: "top",
-            background: Colors.background,
-            borderWidth: 1,
-            borderStyle: "solid",
-            borderColor: Colors.border,
-            display: "inline-block",
-            width: "70%",
-            userSelect: "none"
-        };
-        */
-
         let containerStyle = Styles.containerStyle;
         containerStyle.width = "70%";
 
+        let leftMarginStyle : React.CSSProperties = 
+        {
+            marginLeft: "16px"
+        };
+
         return (
-            <div style={containerStyle}>
+            <Card style={containerStyle}>
                 <h1 style={Styles.h1Style}>DSP Test Bench</h1>
-                {this.parameters.map((parameterName, key) => (
-                    <div key={key}>
-                        <label>{parameterName}: </label>
-                        <input name={parameterName} type="number" ref={paramInput => this.paramInputs[key] = paramInput} defaultValue={0} />
-                        <br /><br />
-                    </div>
-                ), this)}
+                <div style={leftMarginStyle}>
+                    {this.parameters.map((parameterName, key) => (
+                        <div key={key}>
+                            <label>{parameterName}: </label>
+                            <input name={parameterName} type="number" ref={paramInput => this.paramInputs[key] = paramInput} defaultValue={0} />
+                            <br /><br />
+                        </div>
+                    ), this)}
+                </div>
                 <h1 style={Styles.h1Style}>Audio Source</h1>
                 <input type="file" ref={this.fileInput} onChange={async () => await this.loadAudioFromFile()} />
                 <br /><br />
-                <IconButton iconName="process" hint="Process" onClick={() => this.process()}/>
+                <div style={Styles.alignRight}>
+                    <IconButton iconName="process" hint="Process" onClick={() => this.process()}/>
+                </div>
                 {this.state.downloadUrl == "" ? "" : <a href={this.state.downloadUrl}>Download wav file</a>}
-            </div>);
+            </Card>);
     }
 
     async process()

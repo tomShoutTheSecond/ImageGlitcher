@@ -3,7 +3,7 @@ import { State, KeyFrame } from './App';
 import { Colors } from './Colors';
 import { Styles } from './Styles';
 import ReactDOM, { findDOMNode } from 'react-dom';
-import { Button } from '@material-ui/core';
+import { Button, Card } from '@material-ui/core';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 import { Util } from './Util';
@@ -38,7 +38,7 @@ export class FrameInspectorWindow extends React.Component<FrameInspectorProps, F
             width: "100px"
         };
 
-        let previewImage = this.props.frame == null ? <p>No image</p> : <img src={this.props.frame.url} style={Styles.imageStyle}/>;
+        let previewImage = this.props.frame == null ? <p style={Styles.leftMargin}>No image</p> : <img src={this.props.frame.url} style={Styles.imageStyle}/>;
         let settingsForm = this.props.frame == null ? "" : 
         <div><br/>ampMod
         {
@@ -74,15 +74,14 @@ export class FrameInspectorWindow extends React.Component<FrameInspectorProps, F
         </div>
 
         return (
-            <div style={Styles.containerStyle}>
+            <Card style={Styles.containerStyle}>
                 <h1 style={Styles.h1Style}>Frame Inspector</h1>
                 {previewImage}
                 {settingsForm}
                 <div style={Styles.alignRight}>
                     <IconButton iconName="image-move" hint="Render frame" onClick={() => this.renderFrame()}/>
                 </div>
-                <br/><br/><br/><br/>
-            </div>
+            </Card>
         );
     }
 

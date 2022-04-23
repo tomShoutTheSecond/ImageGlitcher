@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { CSSProperties } from 'react';
 import { State, KeyFrame, EncodingAlgorithm } from './App';
 import { Colors } from './Colors';
 import { Styles } from './Styles';
@@ -6,6 +6,7 @@ import { Util } from './Util';
 import { FramebankWindow } from './FramebankWindow';
 import { ImageProcessor, ProcessorMode } from './ImageProcessor';
 import { IconButton } from './IconButton';
+import { Card } from 'material-ui';
 
 interface ImageProcessorWindowProps
 {
@@ -20,10 +21,10 @@ export class ImageProcessorWindow extends React.Component<ImageProcessorWindowPr
     render()
     {
         return (
-            <div style={Styles.containerStyle}>
+            <Card style={Styles.containerStyle}>
                 <h1 style={Styles.h1Style}>Process Image</h1>
-                <label htmlFor="encoding">Encoding algorithm </label>
-                <select id="encoding" ref="encodingInput" onChange={() => this.onChangeEncoding()}>
+                <label htmlFor="encoding" style={Styles.leftMargin}>Encoding algorithm </label>
+                <select id="encoding" ref="encodingInput" style={Styles.leftMargin} onChange={() => this.onChangeEncoding()}>
                     <option value="mulaw">μ-law</option>
                     <option value="alaw">a-law</option>
                 </select>
@@ -41,7 +42,7 @@ export class ImageProcessorWindow extends React.Component<ImageProcessorWindowPr
                 <div style={Styles.alignRight}>
                     <IconButton iconName="dice-multiple" hint="Randomise" onClick={() => this.generateRandomFrame("shuffle")} borderColorIndex={2}/>
                 </div>
-            </div>
+            </Card>
         );
     }
 

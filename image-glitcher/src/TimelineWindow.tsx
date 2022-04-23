@@ -9,6 +9,7 @@ import { Util } from './Util';
 import { FrameHolder } from './FrameHolder';
 import { TransitionWindow } from './TransitionWindow';
 import { IconButton } from './IconButton';
+import Card from 'material-ui/Card/Card';
 
 interface TimelineWindowProps
 {
@@ -39,7 +40,7 @@ export class TimelineWindow extends React.Component<TimelineWindowProps, Timelin
         containerStyle.display = "block";
 
         return (
-            <div style={containerStyle}>
+            <Card style={containerStyle}>
                 <h1 style={Styles.h1Style}>Timeline</h1>
                 {this.props.keyframes.map((keyframe, key) => 
                     <div key={key} style={Styles.inlineBlock}>
@@ -47,11 +48,11 @@ export class TimelineWindow extends React.Component<TimelineWindowProps, Timelin
                         {key === this.props.keyframes.length - 1 ? "" : <TransitionWindow index={key} imageData={this.props.imageData} frameSequence={this.props.frameSequence} encodingAlgorithm={this.props.encodingAlgorithm} keyframes={this.props.keyframes} transitionFrames={this.props.transitionFrames} audioSources={this.props.audioSources} audioBuffers={this.props.audioBuffers}/>}
                     </div>
                 )}
-                <div>
+                <div style={Styles.bottomLeftMargin}>
                     <IconButton iconName="gif" hint="Generate GIF" loading={this.props.isLoadingGif} onClick={async () => await this.createGif()}/>
                     <IconButton leftMargin iconName="download" hint="Download frames" loading={this.state.isLoadingDownload} onClick={async () => await this.downloadFrames()}>Download Frames</IconButton>
                 </div>
-            </div>
+            </Card>
         );
     }
 

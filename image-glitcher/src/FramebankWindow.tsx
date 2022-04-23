@@ -8,6 +8,7 @@ import { saveAs } from 'file-saver';
 import { Util } from './Util';
 import { FrameHolder } from './FrameHolder';
 import { IconButton } from './IconButton';
+import { Card } from 'material-ui';
 
 interface FramebankWindowProps
 {
@@ -34,12 +35,14 @@ export class FramebankWindow extends React.Component<FramebankWindowProps>
         );
 
         return (
-            <div style={containerStyle}>
+            <Card style={containerStyle}>
                 <h1 style={Styles.h1Style}>Framebank</h1>
                 {content}
                 <br />
-                <IconButton iconName="download" hint="Download frames" onClick={() => this.downloadFrames()}/>
-            </div>
+                <div style={Styles.alignRight}>
+                    <IconButton iconName="download" hint="Download frames" onClick={() => this.downloadFrames()}/>
+                </div>
+            </Card>
         );
     }
 

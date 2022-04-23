@@ -10,7 +10,7 @@
     "@testing-library/user-event": "^7.2.1",
     "@types/file-saver": "^2.0.1",
     "@types/jest": "^24.9.1",
-    "@types/material-ui": "^0.21.8",
+    "@types/material-ui": "^0.21.12",
     "@types/node": "^12.12.34",
     "@types/react": "^16.9.31",
     "@types/react-dom": "^16.9.6",

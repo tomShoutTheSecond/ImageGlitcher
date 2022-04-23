@@ -1,3 +1,4 @@
+import { Card } from 'material-ui';
 import React from 'react';
 import { Colors } from './Colors';
 import { Styles } from './Styles';
@@ -17,12 +18,12 @@ export class AnimationPreviewWindow extends React.Component<AnimationPreviewProp
         let imagePreview = this.props.isLoading ? "Loading animation..." : <img style={Styles.bigImageStyle} src={this.props.url}/>;
 
         return (
-            <div style={Styles.containerStyle}>
+            <Card style={Styles.containerStyle}>
                 <h1 style={Styles.h1Style}>Animation</h1>
-                <p>Frames: {this.props.animationLength}</p>
+                <p style={Styles.leftMargin}>Frames: {this.props.animationLength}</p>
                 {imagePreview}
                 {downloadButton}
-            </div>
+            </Card>
         );
     }
 }

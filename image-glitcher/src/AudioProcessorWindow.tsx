@@ -5,6 +5,7 @@ import { Styles } from './Styles';
 import { IconButton } from './IconButton';
 import { AudioProcessor } from './AudioProcessor';
 import { Waveform } from './Waveform';
+import { Card } from '@material-ui/core';
 
 interface AudioProcessorWindowProps
 {
@@ -31,22 +32,6 @@ export class AudioProcessorWindow extends React.Component<AudioProcessorWindowPr
 
     render()
     {
-        /*
-        let containerStyle : React.CSSProperties = 
-        {
-            margin: "16px",
-            padding: "16px",
-            verticalAlign: "top",
-            background: Colors.background,
-            borderWidth: 1,
-            borderStyle: "solid",
-            borderColor: Colors.border,
-            display: "inline-block",
-            width: "70%",
-            userSelect: "none"
-        };
-        */
-
         let itemContainerStyle : React.CSSProperties = 
         {
             margin: "16px",
@@ -60,7 +45,7 @@ export class AudioProcessorWindow extends React.Component<AudioProcessorWindowPr
         };
 
         return (
-            <div style={Styles.containerStyle}>
+            <Card style={Styles.containerStyle}>
                 <h1 style={Styles.h1Style}>Audio Processor</h1>
                 {this.props.buffers.map((buffer, key) => (
                     <div style={itemContainerStyle} key={key}>
@@ -79,8 +64,10 @@ export class AudioProcessorWindow extends React.Component<AudioProcessorWindowPr
                         <Waveform fileName="no file" buffer={buffer} />
                     </div>
                 ), this)}
-                <IconButton iconName="plus" hint="Add audio file" onClick={async () => await State.addAudioSource()}/>
-            </div>);
+                <div style={Styles.alignRight}>
+                    <IconButton iconName="plus" hint="Add audio file" onClick={async () => await State.addAudioSource()}/>
+                </div>
+            </Card>);
     }
 
     async analyse(sourceIndex : number)

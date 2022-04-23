@@ -7,15 +7,16 @@ export class Styles
         let style : React.CSSProperties = 
         {
             margin: "16px",
-            padding: "12px 16px 16px 16px",
+            padding: "12px 0 0 0",
             verticalAlign: "top",
             background: Colors.fill,
-            borderWidth: 1,
-            borderStyle: "solid",
-            borderColor: Colors.border,
+            //borderWidth: 1,
+            //borderStyle: "solid",
+            //borderColor: Colors.border,
             display: "inline-block",
             borderRadius: "8px",
-            color: Colors.lightGrey
+            color: Colors.lightGrey,
+            overflow: "hidden"
         };
 
         return style;
@@ -26,7 +27,7 @@ export class Styles
         let style : React.CSSProperties = 
         {
             padding: 0,
-            margin: "0 0 16px 0",
+            margin: "0 16px 16px 16px",
             fontFamily: this.headingFont,
             color: Colors.white
         };
@@ -40,7 +41,7 @@ export class Styles
         {
             fontSize: "20px",
             padding: 0,
-            margin: "0 0 16px 0",
+            margin: "0 16px 16px 16px",
             fontFamily: this.headingFont
         };
 
@@ -100,7 +101,28 @@ export class Styles
     {
         let style : React.CSSProperties =
         {
-            textAlign: "right"
+            textAlign: "right",
+            margin: "0 16px 16px 0"
+        };
+
+        return style;
+    }
+
+    static get leftMargin()
+    {
+        let style : React.CSSProperties =
+        {
+            marginLeft: "16px"
+        };
+
+        return style;
+    }
+
+    static get bottomLeftMargin()
+    {
+        let style : React.CSSProperties =
+        {
+            margin: "0 0 16px 16px"
         };
 
         return style;

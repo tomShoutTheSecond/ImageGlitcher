@@ -6,6 +6,7 @@ import { ImageProcessor } from './ImageProcessor';
 import { settings } from 'cluster';
 import { AudioLink, ParameterType } from './AudioLink';
 import { FrameInspectorWindow } from './FrameInspectorWindow';
+import { Card } from 'material-ui';
 
 interface TransitionWindowProps 
 { 
@@ -116,7 +117,7 @@ export class TransitionWindow extends React.Component<TransitionWindowProps, Tra
         }
 
         return (
-            <div style={containerStyle}>
+            <Card style={containerStyle}>
                 <h1 style={Styles.h1Style}>Transition</h1>
                 <div style={progressBarStyle}>
                     <div style={progressBarInnerStyle}/>
@@ -175,7 +176,7 @@ export class TransitionWindow extends React.Component<TransitionWindowProps, Tra
                 <br/>
                 <button onClick={() => this.renderFrames()} style={{ float: "right", marginTop: "16px" }} disabled={somethingIsRendering}>Render</button>
                 <button onClick={async () => await this.renderSequenceFrames()} style={{ float: "right", marginTop: "16px" }} disabled={somethingIsRendering}>Render sequence</button>
-            </div>
+            </Card>
         );
     }
 
