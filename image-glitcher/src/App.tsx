@@ -323,6 +323,8 @@ export class TransitionFramebank
 // - a "create variant" button on the keyframe which generates a new keyframe with similar glitch settings
 //      - you can specify which parameters should be changed, and by what percentage, maybe the value is randomised with the percentage used as a maximum delta
 // - easier way to copy and paste glitch settings to frame inspector
+// - save animation frames to database as soon as they come available, to avoid out of memory when rendering long single frame transitions
+// - make generate keyframe variant button
 // - add a dispose GIF animation button to free up some memory
 // - add a memory watcher window with rolling stats
 // - experiment with pixel sorting algorithms
