@@ -127,18 +127,17 @@ class FrameRenderer
     renderAnimation(imageData, totalFrames, firstFrameSettings, lastFrameSettings, encodingAlgorithm, interpolation, audioLink)
     {
         let decodedBuffer = this.decodeFile(imageData, encodingAlgorithm);
-        let renderedFrames = [];
         
         for (let i = 0; i < totalFrames; i++) 
         {
             let transitionFrame = this.renderFrameOfTransition(decodedBuffer, i, totalFrames, firstFrameSettings, lastFrameSettings, encodingAlgorithm, interpolation, audioLink)
-            renderedFrames.push(transitionFrame);
 
             let renderProgress = i / (totalFrames - 1);
-            postMessage({ id: "progress", progress: renderProgress });
-        }
 
-        return renderedFrames;
+            //send latest rendered frame back to main app
+            //sending one frame at a time avoids out of memory error
+            postMessage({ id: "progress", progress: renderProgress, renderedFrameBuffer: transitionFrame.frame, renderedFrameSettings: transitionFrame.settings });
+        }
     }
 
     bufferProcess(buffer, settings) //settings is AmpModSettings
@@ -457,8 +456,8 @@ onmessage = function(message)
     }
     else if(message.data.id == "renderAnimation")
     {
-        let newFrames = frameRenderer.renderAnimation(message.data.buffer, message.data.frames, message.data.firstFrameSettings, message.data.lastFrameSettings, message.data.encodingAlgorithm, message.data.interpolation, message.data.audioLink);
-        postMessage({ id: message.data.id, output: newFrames });
+        frameRenderer.renderAnimation(message.data.buffer, message.data.frames, message.data.firstFrameSettings, message.data.lastFrameSettings, message.data.encodingAlgorithm, message.data.interpolation, message.data.audioLink);
+        postMessage({ id: message.data.id });
     }
     else if(message.data.id == "renderOneTransitionFrame")
     {

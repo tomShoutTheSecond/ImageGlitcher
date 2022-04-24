@@ -77,12 +77,6 @@ export class ImageProcessor
     {
         this.backgroundRenderAnimation(imageData, frames, firstFrameSettings, lastFrameSettings, encodingAlgorithm, interpolation, transitionIndex, audioLink).then((processedData) => 
         { 
-            //processedData is an array of { frame: buffer, settings: ImageProcessorSettings }
-            processedData.forEach((renderedFrame : { frame : Uint8Array, settings : ImageProcessorSettings }) => 
-            {
-                this.saveTransitionFrame(renderedFrame.frame, renderedFrame.settings, transitionIndex);
-            });
-
             //tell transition window that operation is complete
             State.setTransitionRenderStatus(transitionIndex, "complete");
         });
@@ -238,6 +232,8 @@ export class ImageProcessor
                     resolve(message.data.output);
                 else if(message.data.id == "progress")
                 {
+                    this.saveTransitionFrame(message.data.renderedFrameBuffer, message.data.renderedFrameSettings, transitionIndex);
+
                     State.setTransitionRenderProgress(transitionIndex, message.data.progress);
                 }
             }
