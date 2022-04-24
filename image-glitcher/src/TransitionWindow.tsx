@@ -61,18 +61,12 @@ export class TransitionWindow extends React.Component<TransitionWindowProps, Tra
                 break;
         }
 
-        let containerStyle : React.CSSProperties = 
-        {
-            margin: "0 16px 16px 16px",
-            padding: "16px",
-            verticalAlign: "top",
-            background: Colors.background,
-            borderWidth: 1,
-            borderStyle: "solid",
-            borderColor: Colors.border,
-            display: "inline-block",
-            borderRadius: "8px"
-        };
+        let containerStyle = Styles.containerStyle;
+        containerStyle.verticalAlign = "top";
+        containerStyle.background = Colors.background;
+        containerStyle.display = "inline-block";
+        containerStyle.color = Colors.lightGrey;
+        containerStyle.margin = "0 16px 16px 16px";
 
         let progressWidth = 192;
         let progressBarStyle : React.CSSProperties = 
@@ -81,7 +75,7 @@ export class TransitionWindow extends React.Component<TransitionWindowProps, Tra
             outline: "1px solid " + Colors.border,
             width: progressWidth,
             height: "24px",
-            marginBottom: "16px",
+            margin: "0 0 16px 16px",
             borderRadius: "8px",
             position: "relative",
             overflow: "hidden"
@@ -116,6 +110,11 @@ export class TransitionWindow extends React.Component<TransitionWindowProps, Tra
             color: Colors.white
         }
 
+        let settingsContainerStyle : React.CSSProperties = 
+        {
+            marginLeft: "16px"
+        }
+
         return (
             <Card style={containerStyle}>
                 <h1 style={Styles.h1Style}>Transition</h1>
@@ -123,59 +122,63 @@ export class TransitionWindow extends React.Component<TransitionWindowProps, Tra
                     <div style={progressBarInnerStyle}/>
                     <div style={statusLabelStyle}>{thisTransition.status}</div>
                 </div>
-                <label>Frames </label><input type="number" ref={this.framesInput}></input>
-                <br/><br/><br/>
-                <label>Interpolation </label>
-                <select name="interpolationMode" id="interpolationMode" ref={this.audioSourceMenu} onChange={e => this.interpolationModeChange(e)}>
-                    <option value="linear">Linear</option>
-                    <option value="speedUp">Speed Up</option>
-                    <option value="slowDown">Slow Down</option>
-                </select>
-                {
-                    this.state.interpolationMode != "linear" ?
-                    <div>
-                        <br/>
-                        <label>Curve </label>
-                        <input type="number" ref={this.interpolationInput} defaultValue="1"></input>
-                    </div> : ""
-                }
-                <br/><br/><br/>
-
-                <label htmlFor="audioSources">Audio source </label>
-                <select name="audioSources" id="audioSources" ref={this.audioSourceMenu} onChange={e => this.audioSourceChange(e)}>
-                    <option key={0} value="none">none</option>
+                <div style={settingsContainerStyle}>
+                    <label>Frames </label><input type="number" ref={this.framesInput}></input>
+                    <br/><br/><br/>
+                    <label>Interpolation </label>
+                    <select name="interpolationMode" id="interpolationMode" ref={this.audioSourceMenu} onChange={e => this.interpolationModeChange(e)}>
+                        <option value="linear">Linear</option>
+                        <option value="speedUp">Speed Up</option>
+                        <option value="slowDown">Slow Down</option>
+                    </select>
                     {
-                        this.props.audioSources.map((audioSource, key) => 
-                        <option key={key + 1} value={audioSource}>{audioSource}</option>)
+                        this.state.interpolationMode != "linear" ?
+                        <div>
+                            <br/>
+                            <label>Curve </label>
+                            <input type="number" ref={this.interpolationInput} defaultValue="1"></input>
+                        </div> : ""
                     }
-                </select>
-                {
-                    this.state.audioLinkEnabled ?
-                    <div>
-                        <br/>
+                    <br/><br/><br/>
 
-                        <label>Start frame </label><input type="number" ref={this.audioLinkStartInput} defaultValue={0}></input>
-                        <br/>
-        
-                        <label>End frame </label><input type="number" ref={this.audioLinkEndInput} defaultValue={0}></input>
-                        <br/>
-        
-                        <label htmlFor="audioParam">Link parameter </label>
-                        <select name="audioParam" id="audioParam" ref={this.audioParamMenu}>
-                            {
-                                this.parameterList.map((parameter, key) => 
-                                <option key={key} value={parameter}>{parameter}</option>)
-                            }
-                        </select>
-                        <br/>
-        
-                        <label>Link amount </label><input type="number" ref={this.audioLinkAmountInput} defaultValue={0}></input>
-                    </div> : ""
-                }
+                    <label htmlFor="audioSources">Audio source </label>
+                    <select name="audioSources" id="audioSources" ref={this.audioSourceMenu} onChange={e => this.audioSourceChange(e)}>
+                        <option key={0} value="none">none</option>
+                        {
+                            this.props.audioSources.map((audioSource, key) => 
+                            <option key={key + 1} value={audioSource}>{audioSource}</option>)
+                        }
+                    </select>
+                    {
+                        this.state.audioLinkEnabled ?
+                        <div>
+                            <br/>
+
+                            <label>Start frame </label><input type="number" ref={this.audioLinkStartInput} defaultValue={0}></input>
+                            <br/>
+            
+                            <label>End frame </label><input type="number" ref={this.audioLinkEndInput} defaultValue={0}></input>
+                            <br/>
+            
+                            <label htmlFor="audioParam">Link parameter </label>
+                            <select name="audioParam" id="audioParam" ref={this.audioParamMenu}>
+                                {
+                                    this.parameterList.map((parameter, key) => 
+                                    <option key={key} value={parameter}>{parameter}</option>)
+                                }
+                            </select>
+                            <br/>
+            
+                            <label>Link amount </label><input type="number" ref={this.audioLinkAmountInput} defaultValue={0}></input>
+                        </div> : ""
+                    }
                 
+                </div>
+
                 <br/>
+
                 <button onClick={() => this.renderFrames()} style={{ float: "right", marginTop: "16px" }} disabled={somethingIsRendering}>Render</button>
-                <button onClick={async () => await this.renderSequenceFrames()} style={{ float: "right", marginTop: "16px" }} disabled={somethingIsRendering}>Render sequence</button>
+                <button onClick={async () => await this.renderSequenceFrames()} style={{ float: "right", marginTop: "16px", marginBottom: "16px" }} disabled={somethingIsRendering}>Render sequence</button>
             </Card>
         );
     }
