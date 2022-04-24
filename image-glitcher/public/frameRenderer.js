@@ -140,7 +140,7 @@ class FrameRenderer
         }
     }
 
-    bufferProcess(buffer, settings) //settings is AmpModSettings
+    bufferProcess(buffer, settings)
     {
         let headerLength = 54; //value seems to work well for bitmap files
 
@@ -196,6 +196,16 @@ class FrameRenderer
     {
         let angle = ampModSettings.phase + sampleIndex * ampModSettings.frequency;
         let coef = ampModSettings.offset + Math.sin(angle) * ampModSettings.amp;
+
+        //check if sample is in range
+        let margin = 0.1;
+        let target = 1;
+        //if (sample > target - margin && sample < target + margin)
+        if (sample <= -31100)
+        {
+            //ignore this sample
+            return sample;
+        }
 
         return sample * coef;
     }

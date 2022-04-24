@@ -358,7 +358,7 @@ class App extends React.Component<AppProps, AppState>
             <MuiThemeProvider>
                 <div style={containerStyle}>
                     <ImageLoaderWindow />
-                    <SequenceImportWindow frameSequence={this.state.frameSequence} processedFrameSequence={this.state.processedFrameSequence}/>
+                    <SequenceImportWindow frameSequence={this.state.frameSequence} />
                     <ImageProcessorWindow imageData={this.state.imageData} encodingAlgorithm={this.state.encodingAlgorithm}/>
                     
                     <div>

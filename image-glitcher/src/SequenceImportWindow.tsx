@@ -14,8 +14,7 @@ import Jimp from 'jimp';
 
 interface SequenceImportProps
 {
-    frameSequence : Uint8Array[],
-    processedFrameSequence : Blob[]
+    frameSequence : Uint8Array[]
 }
 
 interface SequenceImportState
