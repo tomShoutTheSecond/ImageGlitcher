@@ -226,6 +226,12 @@ export class TransitionWindow extends React.Component<TransitionWindowProps, Tra
 
     async renderSequenceFrames()
     {
+        if(this.props.frameSequence.length == 0)
+        {
+            alert("No frame sequence loaded");
+            return;
+        }
+
         let renderParams = this.prepareToRender();
         if(!renderParams.success)
             return;
@@ -235,22 +241,27 @@ export class TransitionWindow extends React.Component<TransitionWindowProps, Tra
 
         //calculate firstFrameIndex by adding up the lengths of the previous transitions
         let firstFrameIndex = this.getFirstFrameIndex();
-        let lastFrameIndex = firstFrameIndex + totalFrames - 1;
+        let lastFrameIndex = firstFrameIndex + totalFrames;
 
-        if(firstFrameIndex > this.props.frameSequence.length - 1 || lastFrameIndex > this.props.frameSequence.length - 1)
+        if(lastFrameIndex > this.props.frameSequence.length)
         {
             console.log("firstFrameIndex: ", firstFrameIndex);
             console.log("lastFrameIndex: ", lastFrameIndex);
             console.log("this.props.frameSequence.length: ", this.props.frameSequence.length);
 
-            alert("Frame sequence not long enough!");
-            return;
+            if(!window.confirm("Frame sequence not long enough. Would you like to loop the sequence?"))
+                return;
+
+            //looping frame sequence
+            lastFrameIndex = this.props.frameSequence.length;
         }
 
         let shortFrameSequence = this.props.frameSequence.slice(firstFrameIndex, lastFrameIndex);
 
+        console.log(`Frame sequence has ${shortFrameSequence.length} frames, rendering a total of ${totalFrames} frames (looping may occur)`);
+
         State.setTransitionRenderStatus(this.props.index, "rendering");
-        await ImageProcessor.instance.processFrameSequence(shortFrameSequence, renderParams.firstFrameSettings!, renderParams.lastFrameSettings!, this.props.encodingAlgorithm, renderParams.interpolation!, this.props.index, renderParams.audioLink!, counterCallback);
+        await ImageProcessor.instance.processFrameSequence(shortFrameSequence, totalFrames, renderParams.firstFrameSettings!, renderParams.lastFrameSettings!, this.props.encodingAlgorithm, renderParams.interpolation!, this.props.index, renderParams.audioLink!, counterCallback);
         State.setTransitionRenderStatus(this.props.index, "complete");
     }
 

@@ -90,7 +90,7 @@ export class ImageProcessor
         });
     }
 
-    async processFrameSequence(imageData : Uint8Array[], firstFrameSettings : ImageProcessorSettings, lastFrameSettings : ImageProcessorSettings, encodingAlgorithm : string, interpolation : number, transitionIndex : number, audioLink : AudioLink, counterCallback: (count: number) => void) : Promise<boolean>
+    async processFrameSequence(imageData : Uint8Array[], totalFrames : number, firstFrameSettings : ImageProcessorSettings, lastFrameSettings : ImageProcessorSettings, encodingAlgorithm : string, interpolation : number, transitionIndex : number, audioLink : AudioLink, counterCallback: (count: number) => void) : Promise<boolean>
     {
         return new Promise((resolve, reject) => 
         {
@@ -98,17 +98,20 @@ export class ImageProcessor
             { 
                 counterCallback(frameCounter);
 
-                if(frameCounter > imageData.length - 1)
+                if(frameCounter == totalFrames)
                 {
                     resolve(true);
                     return;
                 }
 
-                this.backgroundRenderTransitionFrame(imageData[frameCounter], frameCounter, imageData.length, firstFrameSettings, lastFrameSettings, encodingAlgorithm, interpolation, audioLink)
+                //enable frame sequence to be looped if it's not long enough for the transition
+                let imageDataIndex = frameCounter;
+                while(imageDataIndex > imageData.length - 1)
+                    imageDataIndex -= imageData.length;
+
+                this.backgroundRenderTransitionFrame(imageData[imageDataIndex], frameCounter, totalFrames, firstFrameSettings, lastFrameSettings, encodingAlgorithm, interpolation, audioLink)
                     .then((processedData : { frame : Uint8Array, settings : ImageProcessorSettings }) => 
                 { 
-                    //this.saveSequenceFrame(processedData);
-
                     this.saveTransitionFrame(processedData.frame, processedData.settings, transitionIndex);
                     
                     processNextSequenceFrame(frameCounter + 1);
