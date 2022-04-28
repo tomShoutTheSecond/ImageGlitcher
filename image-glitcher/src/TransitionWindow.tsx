@@ -38,6 +38,7 @@ export class TransitionWindow extends React.Component<TransitionWindowProps, Tra
     audioLinkStartInput = createRef<HTMLInputElement>();
     audioLinkEndInput = createRef<HTMLInputElement>();
     interpolationInput = createRef<HTMLInputElement>();
+    sequenceOffsetInput = createRef<HTMLInputElement>();
 
     parameterList = [ "none", "frequency", "phase", "amp", "offset" ];
 
@@ -172,7 +173,11 @@ export class TransitionWindow extends React.Component<TransitionWindowProps, Tra
                             <label>Link amount </label><input type="number" ref={this.audioLinkAmountInput} defaultValue={0}></input>
                         </div> : ""
                     }
-                
+
+                    <br/>
+
+                    <label>Sequence offset</label>
+                    <input type="number" ref={this.sequenceOffsetInput} defaultValue="0"></input>
                 </div>
 
                 <br/>
@@ -209,8 +214,12 @@ export class TransitionWindow extends React.Component<TransitionWindowProps, Tra
             return { success: false };
 
         let audioLink = this.getAudioLink();
+        
+        let sequenceOffset = 0;
+        if(this.sequenceOffsetInput.current)
+            sequenceOffset = this.sequenceOffsetInput.current.valueAsNumber;
 
-        return { success: true, totalFrames: totalFrames, firstFrameSettings: firstFrameSettings, lastFrameSettings: lastFrameSettings, interpolation: interpolation, audioLink: audioLink };
+        return { success: true, totalFrames: totalFrames, firstFrameSettings: firstFrameSettings, lastFrameSettings: lastFrameSettings, interpolation: interpolation, audioLink: audioLink, sequenceOffset: sequenceOffset };
     }
 
     renderFrames()
@@ -261,11 +270,24 @@ export class TransitionWindow extends React.Component<TransitionWindowProps, Tra
 
         let shortFrameSequence = this.props.frameSequence.slice(firstFrameIndex, lastFrameIndex);
 
+        //frame offset specified by user
+        shortFrameSequence = this.shiftFrameSequence(shortFrameSequence, renderParams.sequenceOffset!);
+
         console.log(`Frame sequence has ${shortFrameSequence.length} frames, rendering a total of ${totalFrames} frames (looping may occur)`);
 
         State.setTransitionRenderStatus(this.props.index, "rendering");
         await ImageProcessor.instance.processFrameSequence(shortFrameSequence, totalFrames, renderParams.firstFrameSettings!, renderParams.lastFrameSettings!, this.props.encodingAlgorithm, renderParams.interpolation!, this.props.index, renderParams.audioLink!, counterCallback);
         State.setTransitionRenderStatus(this.props.index, "complete");
+    }
+
+    //shift the shortFrameSequence by the offset, and wrap start elements to the end of the array
+    shiftFrameSequence(frameSequence : Uint8Array[], offset : number)
+    {
+        //it will start at offset, so need to split the array before element offset, and put previous elements to the end of the array
+        let startSequence = frameSequence.slice(0, offset);
+        let endSequence = frameSequence.slice(offset);
+
+        return endSequence.concat(startSequence);
     }
 
     getFirstFrameIndex()

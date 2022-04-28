@@ -19,7 +19,7 @@ export class ImageLoaderWindow extends React.Component
 
         let subTitleStyle : React.CSSProperties = 
         {
-            margin: "0 16px 0 16px"
+            margin: "0 16px 16px 16px"
         };
 
         let convertingImageLabelStyle = Styles.h2Style; 
