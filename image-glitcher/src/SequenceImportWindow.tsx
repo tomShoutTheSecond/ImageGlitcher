@@ -42,18 +42,24 @@ export class SequenceImportWindow extends React.Component<SequenceImportProps, S
 
         return (
             <Card style={Styles.containerStyle}>
-                <h1 style={Styles.h1Style}>Sequence Import</h1>
-                <input ref={this.fileInput} type="file" onChange={() => this.importImageSequence()} multiple />
+                <h1 style={Styles.h1Style}>Load Images</h1>
+                <input style={{ display: "none" }} ref={this.fileInput} type="file" onChange={() => this.importImageSequence()} multiple />
                 <img src={this.state.sequencePreviewUrl} style={Styles.imageStyle}/>
                 {sequenceLoadingText}
                 {sequenceConvertingText}
-                
+
                 <div style={buttonsContainerStyle}>
-                    <IconButton leftMargin iconName="download" hint="Download frames" onClick={async () => await Util.downloadFrameSequence(this.props.frameSequence)}/>
+                    <IconButton leftMargin iconName="plus" hint="Import images" onClick={() => this.openFilePicker()}/>
+                    <IconButton leftMargin iconName="download" hint="Download images" onClick={async () => await Util.downloadFrameSequence(this.props.frameSequence)}/>
                 </div>
                 
             </Card>
         );
+    }
+
+    openFilePicker()
+    {
+        this.fileInput.current?.click();
     }
 
     async importImageSequence()

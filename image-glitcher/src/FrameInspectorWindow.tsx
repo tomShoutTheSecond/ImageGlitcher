@@ -16,7 +16,7 @@ import Jimp from 'jimp';
 interface FrameInspectorProps
 {
     frame : KeyFrame | null,
-    imageData : Uint8Array,
+    imageData : Uint8Array[],
     encodingAlgorithm : string,
 }
 
@@ -87,7 +87,7 @@ export class FrameInspectorWindow extends React.Component<FrameInspectorProps, F
 
     renderFrame()
     {
-        ImageProcessor.instance.processKeyFrame(this.props.imageData, this.state.settings, this.props.encodingAlgorithm);
+        ImageProcessor.instance.processKeyFrame(this.props.imageData[0], this.state.settings, this.props.encodingAlgorithm);
     }
 
     componentWillReceiveProps(nextProps : FrameInspectorProps)

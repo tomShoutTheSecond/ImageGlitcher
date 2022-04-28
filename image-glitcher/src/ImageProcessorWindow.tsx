@@ -10,7 +10,7 @@ import { Card } from 'material-ui';
 
 interface ImageProcessorWindowProps
 {
-    imageData : Uint8Array,
+    imageData : Uint8Array[],
     encodingAlgorithm : EncodingAlgorithm,
 }
 
@@ -48,7 +48,7 @@ export class ImageProcessorWindow extends React.Component<ImageProcessorWindowPr
 
     generateRandomFrame(mode : ProcessorMode)
     {
-        ImageProcessor.instance.generateRandomFrame(this.props.imageData, this.props.encodingAlgorithm, mode);
+        ImageProcessor.instance.generateRandomFrame(this.props.imageData[0], this.props.encodingAlgorithm, mode);
     }
 
     onChangeEncoding()

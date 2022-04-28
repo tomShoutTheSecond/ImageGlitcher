@@ -10,9 +10,7 @@ import { Card } from 'material-ui';
 
 interface TransitionWindowProps 
 { 
-    imageData : Uint8Array,
-    frameSequence : Uint8Array[]
-
+    sourceImages : Uint8Array[]
     keyframes : KeyFrame[],
     transitionFrames : TransitionFramebank[],
     encodingAlgorithm : EncodingAlgorithm,
@@ -174,7 +172,7 @@ export class TransitionWindow extends React.Component<TransitionWindowProps, Tra
                         </div> : ""
                     }
 
-                    <br/>
+                    <br/><br/>
 
                     <label>Sequence offset</label>
                     <input type="number" ref={this.sequenceOffsetInput} defaultValue="0"></input>
@@ -232,13 +230,13 @@ export class TransitionWindow extends React.Component<TransitionWindowProps, Tra
 
         setTimeout(() => 
         { 
-            ImageProcessor.instance.processAnimation(this.props.imageData, renderParams.totalFrames!, renderParams.firstFrameSettings!, renderParams.lastFrameSettings!, this.props.encodingAlgorithm, renderParams.interpolation!, this.props.index, renderParams.audioLink!); 
+            ImageProcessor.instance.processAnimation(this.props.sourceImages[0], renderParams.totalFrames!, renderParams.firstFrameSettings!, renderParams.lastFrameSettings!, this.props.encodingAlgorithm, renderParams.interpolation!, this.props.index, renderParams.audioLink!); 
         }, 100);
     }
 
     async renderSequenceFrames()
     {
-        if(this.props.frameSequence.length == 0)
+        if(this.props.sourceImages.length == 0)
         {
             alert("No frame sequence loaded");
             return;
@@ -255,20 +253,20 @@ export class TransitionWindow extends React.Component<TransitionWindowProps, Tra
         let firstFrameIndex = this.getFirstFrameIndex();
         let lastFrameIndex = firstFrameIndex + totalFrames;
 
-        if(lastFrameIndex > this.props.frameSequence.length)
+        if(lastFrameIndex > this.props.sourceImages.length)
         {
             console.log("firstFrameIndex: ", firstFrameIndex);
             console.log("lastFrameIndex: ", lastFrameIndex);
-            console.log("this.props.frameSequence.length: ", this.props.frameSequence.length);
+            console.log("this.props.frameSequence.length: ", this.props.sourceImages.length);
 
             if(!window.confirm("Frame sequence not long enough. Would you like to loop the sequence?"))
                 return;
 
             //looping frame sequence
-            lastFrameIndex = this.props.frameSequence.length;
+            lastFrameIndex = this.props.sourceImages.length;
         }
 
-        let shortFrameSequence = this.props.frameSequence.slice(firstFrameIndex, lastFrameIndex);
+        let shortFrameSequence = this.props.sourceImages.slice(firstFrameIndex, lastFrameIndex);
 
         //frame offset specified by user
         shortFrameSequence = this.shiftFrameSequence(shortFrameSequence, renderParams.sequenceOffset!);

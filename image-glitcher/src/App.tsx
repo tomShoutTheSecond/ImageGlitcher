@@ -1,5 +1,4 @@
 import React, { CSSProperties, createRef, Fragment } from 'react';
-import { ImageLoaderWindow } from './ImageLoaderWindow';
 import { ImageProcessorWindow } from './ImageProcessorWindow';
 import { FramebankWindow } from './FramebankWindow';
 import { AnimationPreviewWindow } from './AnimationPreviewWindow';
@@ -21,11 +20,6 @@ export class State
     static setEncodingAlgorithm(encodingAlgorithm : EncodingAlgorithm)
     {
         this.app.setState({ encodingAlgorithm: encodingAlgorithm });
-    }
-
-    static setImageData(imageData : Uint8Array)
-    {
-        this.app.setState({ imageData: imageData });
     }
 
     static addFrameToFramebank(frame : KeyFrame)
@@ -205,14 +199,14 @@ export class State
     //loads a frame to the animation sequence buffer (for applying effect to videos)
     static addFrameToSequence(frame : Uint8Array)
     {
-        let frameSequence = this.app.state.frameSequence;
+        let frameSequence = this.app.state.sourceImages;
         frameSequence.push(frame);
-        this.app.setState({ frameSequence: frameSequence });
+        this.app.setState({ sourceImages: frameSequence });
     }
 
     static clearFrameSequence()
     {
-        this.app.setState({ frameSequence: [] });
+        this.app.setState({ sourceImages: [] });
     }
 
     static addProcessedSequenceFrame(frame : Blob)
@@ -232,7 +226,6 @@ interface AppProps { }
 
 interface AppState
 {
-    imageData : Uint8Array,
     frames : KeyFrame[],
     keyframes : KeyFrame[],
     transitionFrames : TransitionFramebank[],
@@ -244,7 +237,7 @@ interface AppState
     encodingAlgorithm : EncodingAlgorithm,
     audioBuffers : number[][],
     audioSources : string[],
-    frameSequence : Uint8Array[],
+    sourceImages : Uint8Array[],
     processedFrameSequence : Blob[]
 }
 
@@ -331,7 +324,7 @@ export class TransitionFramebank
 //
 class App extends React.Component<AppProps, AppState>
 {
-    state : AppState = { imageData: new Uint8Array(), frames: [], keyframes: [], transitionFrames: [], inspectedFrame: null, animationUrl: "", animationLength: 0, framebankIsLoading: false, animationIsLoading: false, encodingAlgorithm: "mulaw", audioBuffers: [], audioSources: [], frameSequence: [], processedFrameSequence: [] };
+    state : AppState = { frames: [], keyframes: [], transitionFrames: [], inspectedFrame: null, animationUrl: "", animationLength: 0, framebankIsLoading: false, animationIsLoading: false, encodingAlgorithm: "mulaw", audioBuffers: [], audioSources: [], sourceImages: [], processedFrameSequence: [] };
 
     componentDidMount()
     {
@@ -357,16 +350,15 @@ class App extends React.Component<AppProps, AppState>
         return (
             <MuiThemeProvider>
                 <div style={containerStyle}>
-                    <ImageLoaderWindow />
-                    <SequenceImportWindow frameSequence={this.state.frameSequence} />
-                    <ImageProcessorWindow imageData={this.state.imageData} encodingAlgorithm={this.state.encodingAlgorithm}/>
+                    <SequenceImportWindow frameSequence={this.state.sourceImages} />
+                    <ImageProcessorWindow imageData={this.state.sourceImages} encodingAlgorithm={this.state.encodingAlgorithm}/>
                     
                     <div>
-                        <FrameInspectorWindow frame={this.state.inspectedFrame} imageData={this.state.imageData} encodingAlgorithm={this.state.encodingAlgorithm}/>
+                        <FrameInspectorWindow frame={this.state.inspectedFrame} imageData={this.state.sourceImages} encodingAlgorithm={this.state.encodingAlgorithm}/>
                         <FramebankWindow frames={this.state.frames} isLoading={this.state.framebankIsLoading}/>
                     </div>
 
-                    <TimelineWindow imageData={this.state.imageData} frameSequence={this.state.frameSequence} keyframes={this.state.keyframes} encodingAlgorithm={this.state.encodingAlgorithm} transitionFrames={this.state.transitionFrames} isLoadingGif={this.state.animationIsLoading} audioSources={this.state.audioSources} audioBuffers={this.state.audioBuffers}/>
+                    <TimelineWindow frameSequence={this.state.sourceImages} keyframes={this.state.keyframes} encodingAlgorithm={this.state.encodingAlgorithm} transitionFrames={this.state.transitionFrames} isLoadingGif={this.state.animationIsLoading} audioSources={this.state.audioSources} audioBuffers={this.state.audioBuffers}/>
                     <AnimationPreviewWindow url={this.state.animationUrl} isLoading={this.state.animationIsLoading} animationLength={this.state.animationLength}/>
                     <AudioProcessorWindow buffers={this.state.audioBuffers}/>
                     <DSPTestBenchWindow />
