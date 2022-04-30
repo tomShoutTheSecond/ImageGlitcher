@@ -118,9 +118,6 @@ export class DatabaseController
             {
                 //@ts-ignore
                 let result = event.target.result;
-
-                console.log(result);
-
                 if(result == null)
                 {
                     alert("DB error: a frame was missing. Local storage may be full.");

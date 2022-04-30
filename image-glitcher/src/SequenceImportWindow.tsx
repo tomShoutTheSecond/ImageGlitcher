@@ -34,10 +34,9 @@ export class SequenceImportWindow extends React.Component<SequenceImportProps, S
 
     render()
     {
-        let buttonsContainerStyle = Styles.alignRight;
-        buttonsContainerStyle.marginTop = "16px";
-
-        let sequenceLoadingText = this.state.isSequenceLoading ? <h2 style={Styles.h2Style}>Loading image {this.state.frameImportCounter}/{this.state.totalFrames}</h2> : "";
+        let loadingTextStyle = Styles.h2Style;
+        loadingTextStyle.marginTop = "12px";
+        let sequenceLoadingText = this.state.isSequenceLoading ? <h2 style={loadingTextStyle}>Loading image {this.state.frameImportCounter}/{this.state.totalFrames}</h2> : "";
         let sequenceConvertingText = this.state.isImageConverting ? <h2 style={Styles.h2Style}>Converting images to .bmp</h2> : "";
 
         return (
@@ -48,11 +47,15 @@ export class SequenceImportWindow extends React.Component<SequenceImportProps, S
                 {sequenceLoadingText}
                 {sequenceConvertingText}
 
-                <div style={buttonsContainerStyle}>
-                    <IconButton leftMargin iconName="plus" hint="Import images" onClick={() => this.openFilePicker()}/>
-                    <IconButton leftMargin iconName="download" hint="Download images" onClick={async () => await Util.downloadFrameSequence(this.props.frameSequence)}/>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "end", margin: "16px" }}>
+                    <div>
+                        {this.props.frameSequence.length} images
+                    </div>
+                    <div>
+                        <IconButton leftMargin iconName="plus" hint="Import images" onClick={() => this.openFilePicker()}/>
+                        <IconButton leftMargin iconName="download" hint="Download images" onClick={async () => await Util.downloadFrameSequence(this.props.frameSequence)}/>
+                    </div>
                 </div>
-                
             </Card>
         );
     }

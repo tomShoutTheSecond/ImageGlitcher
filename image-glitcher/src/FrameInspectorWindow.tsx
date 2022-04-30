@@ -40,7 +40,7 @@ export class FrameInspectorWindow extends React.Component<FrameInspectorProps, F
 
         let previewImage = this.props.frame == null ? <p style={Styles.leftMargin}>No image</p> : <img src={this.props.frame.url} style={Styles.imageStyle}/>;
         let settingsForm = this.props.frame == null ? "" : 
-        <div><br/>ampMod
+        <div style={{padding: "0 0 16px 16px"}}><br/>ampMod
         {
             Object.keys(this.state.settings.ampModSettings).map((settingName, key) => {
                 let settingValue = Object.values(this.state.settings.ampModSettings)[key];
@@ -75,7 +75,7 @@ export class FrameInspectorWindow extends React.Component<FrameInspectorProps, F
 
         return (
             <Card style={Styles.containerStyle}>
-                <h1 style={Styles.h1Style}>Frame Inspector</h1>
+                <h1 style={Styles.h1Style}>Inspector</h1>
                 {previewImage}
                 {settingsForm}
                 <div style={Styles.alignRight}>
