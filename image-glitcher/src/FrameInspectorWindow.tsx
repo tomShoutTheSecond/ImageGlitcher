@@ -6,7 +6,7 @@ import ReactDOM, { findDOMNode } from 'react-dom';
 import { Button, Card } from '@material-ui/core';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
-import { Util } from './Util';
+import { IIndexable, Util } from './Util';
 import ArrowExpand from './icons/arrow-expand.svg';
 import { ImageProcessorWindow } from './ImageProcessorWindow';
 import { ImageProcessor, AmpModSettings, ImageProcessorSettings, DelaySettings, ShuffleSettings } from './ImageProcessor';
@@ -23,13 +23,15 @@ interface FrameInspectorProps
 interface FrameInspectorState
 {
     settings : ImageProcessorSettings,
+    settingsText : string
 }
 
 export class FrameInspectorWindow extends React.Component<FrameInspectorProps, FrameInspectorState>
 {
-    state = { settings: new ImageProcessorSettings("ampMod", AmpModSettings.default, DelaySettings.default, ShuffleSettings.default) };
+    state = { settings: new ImageProcessorSettings("ampMod", AmpModSettings.default, DelaySettings.default, ShuffleSettings.default), settingsText: "" };
     
     fileInput = createRef<HTMLInputElement>();
+    textArea = createRef<HTMLTextAreaElement>();
 
     render()
     {
@@ -38,8 +40,15 @@ export class FrameInspectorWindow extends React.Component<FrameInspectorProps, F
             width: "100px"
         };
 
+        let textAreaStyle : React.CSSProperties = 
+        {
+            width: "100%",
+            height: "auto"
+        };
+
         let previewImage = this.props.frame == null ? <p style={Styles.leftMargin}>No image</p> : <img src={this.props.frame.url} style={Styles.imageStyle}/>;
-        let settingsForm = this.props.frame == null ? "" : 
+        let settingsForm = this.props.frame == null ? "" : <textarea ref={this.textArea} style={textAreaStyle} value={this.state.settingsText} onChange={e => this.setState({ settingsText : e.target.value })}></textarea>;
+        /*
         <div style={{padding: "0 0 16px 16px"}}><br/>ampMod
         {
             Object.keys(this.state.settings.ampModSettings).map((settingName, key) => {
@@ -72,6 +81,7 @@ export class FrameInspectorWindow extends React.Component<FrameInspectorProps, F
             })
         }
         </div>
+        */
 
         return (
             <Card style={Styles.containerStyle}>
@@ -97,8 +107,55 @@ export class FrameInspectorWindow extends React.Component<FrameInspectorProps, F
         //update settings when a frame is loaded to the inspector
         if(nextProps.frame.settings != this.props.frame?.settings)
         {
-            this.setState({ settings: nextProps.frame.settings });
+            let newSettingsText = this.getSettingsText(nextProps.frame.settings);
+            console.log("newSettingsText: ", newSettingsText)
+            this.setState({ settings: nextProps.frame.settings, settingsText: newSettingsText });
         }
+    }
+
+    componentDidUpdate()
+    {
+        this.resizeTextArea();
+    }
+
+    getSettingsText(settings : ImageProcessorSettings)
+    {
+        let settingsText = "";
+        for(let settingName of Object.keys(settings.ampModSettings))
+        {
+            let settingValue = (settings.ampModSettings as IIndexable<number>)[settingName];
+            let settingText = `${settingName}: ${settingValue}\n`;
+            settingsText += settingText;
+        }
+
+        for(let settingName of Object.keys(settings.delaySettings))
+        {
+            let settingValue = (settings.delaySettings as IIndexable<number>)[settingName];
+            let settingText = `${settingName}: ${settingValue}\n`;
+            settingsText += settingText;
+        }
+
+        for(let settingName of Object.keys(settings.shuffleSettings))
+        {
+            let settingValue = (settings.shuffleSettings as IIndexable<number>)[settingName];
+            let settingText = `${settingName}: ${settingValue}\n`;
+            settingsText += settingText;
+        }
+
+        return settingsText.slice(0, -1); //remove trailing newline
+    }
+
+    resizeTextArea() 
+    {
+        window.requestAnimationFrame(() => 
+        {
+            let textArea = this.textArea.current;
+            if(!textArea)
+                return;
+
+            textArea.style.height = 'auto';
+            textArea.style.height = textArea.scrollHeight+'px';
+        });
     }
 
     updateSettings(settingName : string, newValue : number)

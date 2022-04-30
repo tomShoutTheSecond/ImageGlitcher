@@ -2,6 +2,8 @@ import { saveAs } from 'file-saver';
 import Jimp from "jimp";
 import JSZip from "jszip";
 
+export interface IIndexable<T = any> { [key: string]: T }
+
 export class Util
 {
     static radians(degrees : number) 
