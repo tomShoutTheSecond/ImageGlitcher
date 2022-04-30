@@ -71,7 +71,7 @@ export class TransitionWindow extends React.Component<TransitionWindowProps, Tra
         let progressBarStyle : React.CSSProperties = 
         {
             background: thisTransition.status == "pending" ? Colors.pending : Colors.fill,
-            outline: "1px solid " + Colors.border,
+            //outline: "1px solid " + Colors.border,
             width: progressWidth,
             height: "24px",
             margin: "0 0 16px 16px",
@@ -117,10 +117,10 @@ export class TransitionWindow extends React.Component<TransitionWindowProps, Tra
         return (
             <Card style={containerStyle}>
                 <h1 style={Styles.h1Style}>Transition</h1>
-                <div style={progressBarStyle}>
+                <Card style={progressBarStyle}>
                     <div style={progressBarInnerStyle}/>
                     <div style={statusLabelStyle}>{thisTransition.status}</div>
-                </div>
+                </Card>
                 <div style={settingsContainerStyle}>
                     <label>Frames </label><input type="number" ref={this.framesInput}></input>
                     <br/><br/><br/>

@@ -34,22 +34,24 @@ export class AudioProcessorWindow extends React.Component<AudioProcessorWindowPr
     {
         let itemContainerStyle : React.CSSProperties = 
         {
-            margin: "16px",
+            margin: "0 16px 16px 16px",
             padding: "16px",
             verticalAlign: "top",
-            background: Colors.fill,
-            borderWidth: 1,
-            borderStyle: "solid",
-            borderColor: Colors.border,
+            background: Colors.background,
             display: "inline-block",
+            color: Colors.lightGrey,
+            borderRadius: "8px"
         };
+
+        let itemTitleStyle = Styles.h1Style;
+        itemTitleStyle.marginLeft = 0;
 
         return (
             <Card style={Styles.containerStyle}>
                 <h1 style={Styles.h1Style}>Audio Processor</h1>
                 {this.props.buffers.map((buffer, key) => (
-                    <div style={itemContainerStyle} key={key}>
-                        <h1 style={Styles.h1Style}>Source {key}</h1>
+                    <Card style={itemContainerStyle} key={key}>
+                        <h1 style={itemTitleStyle}>Source {key}</h1>
                         <input type="file" ref={fileInput => this.fileInputs[key] = fileInput} onChange={async (e) => await this.loadAudioFromFile(key, e)} />
                         <br /><br />
                         <label>Smoothing: </label>
@@ -62,7 +64,7 @@ export class AudioProcessorWindow extends React.Component<AudioProcessorWindowPr
                         <label>Total frames: {buffer.length}</label>
                         <br /><br />
                         <Waveform fileName="no file" buffer={buffer} />
-                    </div>
+                    </Card>
                 ), this)}
                 <div style={Styles.alignRight}>
                     <IconButton iconName="plus" hint="Add audio file" onClick={async () => await State.addAudioSource()}/>

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { createRef } from 'react';
 import { InterfaceUtilities } from './InterfaceUtilities';
 import { ZoomScrollSlider } from './ZoomScrollSlider';
 import { Colors } from './Colors';
@@ -24,6 +24,9 @@ export class Waveform extends React.Component<WaveformProps, WaveformState>
     };
 
     state = { zoomLevel: 1, scroll: 0.5 };
+
+    bufferCanvas = createRef<HTMLCanvasElement>();
+    grainCenterCanvas = createRef<HTMLCanvasElement>();
 
     get bufferIsLoaded()
     {
@@ -51,7 +54,7 @@ export class Waveform extends React.Component<WaveformProps, WaveformState>
         let containerHeight = waveformHeight + marginTop + marginBottom;
 
         let containerStyle : React.CSSProperties = {
-            backgroundColor: Colors.border,
+            backgroundColor: Colors.fill,
             height: containerHeight,
             width: containerWidth,
             display: "table-cell",
@@ -60,7 +63,7 @@ export class Waveform extends React.Component<WaveformProps, WaveformState>
         };
 
         let canvasStyle : React.CSSProperties = {
-            backgroundColor: Colors.fill,
+            backgroundColor: Colors.background,
             position: "relative",
             top: marginTop,
             left: marginHorizontal,
@@ -79,9 +82,9 @@ export class Waveform extends React.Component<WaveformProps, WaveformState>
         };
 
         return(
-            <div ref="container" style={containerStyle}>
-                <canvas ref="bufferCanvas" style={canvasStyle}/>
-                <canvas ref="grainCenterCanvas" style={bufferCanvasStyle}/>
+            <div style={containerStyle}>
+                <canvas ref={this.bufferCanvas} style={canvasStyle}/>
+                <canvas ref={this.grainCenterCanvas} style={bufferCanvasStyle}/>
                 <div style={sliderContainerStyle}>
                     <ZoomScrollSlider onScrollChange={value => this.setScroll(value)} onZoomChange={value => this.setZoom(value)} width={waveformWidth} height={32} marginHorizontal={16} marginVertical={8}/>
                 </div>
@@ -114,7 +117,7 @@ export class Waveform extends React.Component<WaveformProps, WaveformState>
         let visibleBufferStart = visibleBufferCenter - visibleBufferLength * 0.5;
         let bufferData = channel0Samples.slice(visibleBufferStart, visibleBufferStart + visibleBufferLength);
 
-        let canvas = this.refs.bufferCanvas as HTMLCanvasElement;
+        let canvas = this.bufferCanvas.current!;
         let context = canvas.getContext("2d")!;
         InterfaceUtilities.canvasFixDpi(canvas, context);
 
@@ -188,7 +191,7 @@ export class Waveform extends React.Component<WaveformProps, WaveformState>
 
         //draw horizontal line across canvas (so silent samples don't appear blank)
         let halfCanvasHeight = canvas.height * 0.5;
-        context.strokeStyle = Colors.background;
+        context.strokeStyle = Colors.border;
         context.beginPath();
         context.moveTo(0, halfCanvasHeight);
         context.lineTo(canvas.width, halfCanvasHeight);
@@ -210,7 +213,7 @@ export class Waveform extends React.Component<WaveformProps, WaveformState>
         }
 
         //draw the outline
-        context.strokeStyle = Colors.black;
+        context.strokeStyle = Colors.lightGrey;
         for(let i = 0; i < samplesToDraw.length; i++)
         {
             if(i + 1 <= samplesToDraw.length - 1)
@@ -232,7 +235,7 @@ export class Waveform extends React.Component<WaveformProps, WaveformState>
     {
         if(this.props.lastGrainCenter == null) return;
 
-        let canvas = this.refs.grainCenterCanvas as HTMLCanvasElement;
+        let canvas = this.grainCenterCanvas.current!;
         let context = canvas.getContext("2d")!;
         InterfaceUtilities.canvasFixDpi(canvas, context);
 

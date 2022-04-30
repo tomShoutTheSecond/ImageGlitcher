@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { createRef } from 'react';
 import { InterfaceUtilities } from './InterfaceUtilities';
 import { Util } from './Util';
 import { Colors } from './Colors';
@@ -38,6 +38,8 @@ export class ZoomScrollSlider extends React.Component<ZoomScrollSliderProps>
     barLeft = 0;
     barRight = 0;
 
+    canvas = createRef<HTMLCanvasElement>();
+
     componentDidMount()
     {
         //set up gesture input
@@ -68,7 +70,7 @@ export class ZoomScrollSlider extends React.Component<ZoomScrollSliderProps>
         let containerHeight = sliderHeight + marginVertical * 2;
     
         let containerStyle : React.CSSProperties = {
-            backgroundColor: Colors.border,
+            backgroundColor: Colors.fill,
             width: containerWidth,
             height: containerHeight,
             position: "relative",
@@ -77,7 +79,7 @@ export class ZoomScrollSlider extends React.Component<ZoomScrollSliderProps>
         };
     
         let canvasStyle : React.CSSProperties = {
-            backgroundColor: Colors.fill,
+            backgroundColor: Colors.background,
             position: "relative",
             left: (containerWidth - sliderWidth) * 0.5,
             top: (containerHeight - sliderHeight) * 0.5,
@@ -86,8 +88,8 @@ export class ZoomScrollSlider extends React.Component<ZoomScrollSliderProps>
         };
 
         return(
-            <div ref="container" style={containerStyle} onMouseDown={this.mouseDown} onTouchStart={this.touchStart}>
-                <canvas ref="canvas" style={canvasStyle} onMouseMove={this.mouseMove} onMouseLeave={this.mouseLeave}/>
+            <div style={containerStyle} onMouseDown={this.mouseDown} onTouchStart={this.touchStart}>
+                <canvas ref={this.canvas} style={canvasStyle} onMouseMove={this.mouseMove} onMouseLeave={this.mouseLeave}/>
             </div>
         );
     }
@@ -99,7 +101,7 @@ export class ZoomScrollSlider extends React.Component<ZoomScrollSliderProps>
 
     redraw()
     {
-        let canvas = this.refs.canvas as HTMLCanvasElement;
+        let canvas = this.canvas.current!;
         let context = canvas.getContext("2d")!;
         InterfaceUtilities.canvasFixDpi(canvas, context, false);
 
@@ -109,7 +111,7 @@ export class ZoomScrollSlider extends React.Component<ZoomScrollSliderProps>
 
         let { barWidth, barLeft, barRight } = this.calculateBarPosition();
 
-        context.fillStyle = Colors.fill;
+        context.fillStyle = Colors.border;
         context.beginPath();
         context.fillRect(barLeft, 0, barWidth, canvas.height);
 
@@ -118,7 +120,7 @@ export class ZoomScrollSlider extends React.Component<ZoomScrollSliderProps>
         let circleMargin = 10;
         let circleRadius = 3;
 
-        context.fillStyle = Colors.background;
+        context.fillStyle = Colors.lightGrey;
         context.arc(barLeft + circleMargin, circleMargin, circleRadius, 0, Util.radians(360));
         context.closePath();
         context.arc(barRight - circleMargin, circleMargin, circleRadius, 0, Util.radians(360));
@@ -135,7 +137,7 @@ export class ZoomScrollSlider extends React.Component<ZoomScrollSliderProps>
      */
     calculateBarPosition() : ZoomScrollSliderBarPosition
     {
-        let canvas = this.refs.canvas as HTMLCanvasElement;
+        let canvas = this.canvas.current!;
         let barWidth = canvas.width * this.state.zoomValue;
         let barCenterRange = canvas.width - barWidth;
         let barCenterMin = barWidth * 0.5;
@@ -156,7 +158,7 @@ export class ZoomScrollSlider extends React.Component<ZoomScrollSliderProps>
     barPositionToZoomScroll(newBarLeft : number, newBarRight : number)
     {
         //calculate zoom value
-        let canvas = this.refs.canvas as HTMLCanvasElement;
+        let canvas = this.canvas.current!;
         let barWidth = newBarRight - newBarLeft;
         let newZoom = barWidth / canvas.width;
 
@@ -174,7 +176,7 @@ export class ZoomScrollSlider extends React.Component<ZoomScrollSliderProps>
 
     clientXToLocalX(clientX : number)
     {
-        let canvas = this.refs.canvas as HTMLCanvasElement;
+        let canvas = this.canvas.current!;
         let rect = canvas.getBoundingClientRect();
         return clientX - rect.left;
     }
@@ -288,7 +290,7 @@ export class ZoomScrollSlider extends React.Component<ZoomScrollSliderProps>
     updateValue(localX : number)
     {
         let deltaX = localX - this.dragStartX;
-        let canvas = this.refs.canvas as HTMLCanvasElement;
+        let canvas = this.canvas.current!;
 
         let barWidth = canvas.width * this.state.zoomValue;
         let barCenterRange = canvas.width - barWidth;
