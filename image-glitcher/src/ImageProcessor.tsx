@@ -11,14 +11,6 @@ export class ImageProcessorSettings
     ampModSettings = AmpModSettings.default;
     delaySettings = DelaySettings.default;
     shuffleSettings = ShuffleSettings.default;
-
-    constructor(mode : ProcessorMode, ampModSettings : AmpModSettings, delaySettings : DelaySettings, shuffleSettings : ShuffleSettings)
-    {
-        this.mode = mode;
-        this.ampModSettings = ampModSettings;
-        this.delaySettings = delaySettings;
-        this.shuffleSettings = shuffleSettings;
-    }
 }
 
 export class AmpModSettings
@@ -193,7 +185,12 @@ export class ImageProcessor
                 break;
         }
 
-        let settings = new ImageProcessorSettings(mode, ampModSettings, delaySettings, shuffleSettings);
+        let settings = new ImageProcessorSettings();
+        settings.mode = mode;
+        settings.ampModSettings = ampModSettings;
+        settings.delaySettings = delaySettings;
+        settings.shuffleSettings = shuffleSettings;
+
         this.processKeyFrame(imageData, settings, encodingAlgorithm);
     }
 

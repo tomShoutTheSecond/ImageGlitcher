@@ -315,9 +315,7 @@ class FrameRenderer
 
         //shuffle the segments
         bufferSnippets = Util.shuffle(bufferSnippets);
-
         let outputBuffer = Util.joinArrays(bufferSnippets);
-        console.log(`Input length: ${buffer.length} Output length: ${outputBuffer.length}`);
         return outputBuffer;
     }
 

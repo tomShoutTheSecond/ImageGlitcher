@@ -9,7 +9,7 @@ import { saveAs } from 'file-saver';
 import { IIndexable, Util } from './Util';
 import ArrowExpand from './icons/arrow-expand.svg';
 import { ImageProcessorWindow } from './ImageProcessorWindow';
-import { ImageProcessor, AmpModSettings, ImageProcessorSettings, DelaySettings, ShuffleSettings } from './ImageProcessor';
+import { ImageProcessor, AmpModSettings, ImageProcessorSettings, DelaySettings, ShuffleSettings, ProcessorMode } from './ImageProcessor';
 import { IconButton } from './IconButton';
 import Jimp from 'jimp';
 
@@ -23,12 +23,13 @@ interface FrameInspectorProps
 interface FrameInspectorState
 {
     settings : ImageProcessorSettings,
-    settingsText : string
+    settingsText : string,
+    textNeedsParse : boolean
 }
 
 export class FrameInspectorWindow extends React.Component<FrameInspectorProps, FrameInspectorState>
 {
-    state = { settings: new ImageProcessorSettings("ampMod", AmpModSettings.default, DelaySettings.default, ShuffleSettings.default), settingsText: "" };
+    state = { settings: new ImageProcessorSettings(), settingsText: "", textNeedsParse: false };
     
     fileInput = createRef<HTMLInputElement>();
     textArea = createRef<HTMLTextAreaElement>();
@@ -43,45 +44,19 @@ export class FrameInspectorWindow extends React.Component<FrameInspectorProps, F
         let textAreaStyle : React.CSSProperties = 
         {
             width: "100%",
-            height: "auto"
+            height: "auto",
+            padding: "16px 16px 0 16px",
+            color: this.state.textNeedsParse ? Colors.sunset[0] : Colors.lightGrey,
+            background: Colors.transparent,
+            border: "none",
+            overflow: "auto",
+            outline: "none",
+            boxShadow: "none",
+            resize: "none"
         };
 
         let previewImage = this.props.frame == null ? <p style={Styles.leftMargin}>No image</p> : <img src={this.props.frame.url} style={Styles.imageStyle}/>;
-        let settingsForm = this.props.frame == null ? "" : <textarea ref={this.textArea} style={textAreaStyle} value={this.state.settingsText} onChange={e => this.setState({ settingsText : e.target.value })}></textarea>;
-        /*
-        <div style={{padding: "0 0 16px 16px"}}><br/>ampMod
-        {
-            Object.keys(this.state.settings.ampModSettings).map((settingName, key) => {
-                let settingValue = Object.values(this.state.settings.ampModSettings)[key];
-                return(
-                    <div key={key}>
-                        <label htmlFor={settingName}>{settingName}</label> <input onChange={(e) => this.updateSettings(settingName, parseFloat((e.target as HTMLInputElement).value))} style={numberInputStyle} id={settingName} type="number" value={settingValue}/>
-                    </div>
-                );
-            })
-        }<br/>delay
-        {
-            Object.keys(this.state.settings.delaySettings).map((settingName, key) => {
-                let settingValue = Object.values(this.state.settings.delaySettings)[key];
-                return(
-                    <div key={key}>
-                        <label htmlFor={settingName}>{settingName}</label> <input onChange={(e) => this.updateSettings(settingName, parseFloat((e.target as HTMLInputElement).value))} style={numberInputStyle} id={settingName} type="number" value={settingValue}/>
-                    </div>
-                );
-            })
-        }<br/>shuffle
-        {
-            Object.keys(this.state.settings.shuffleSettings).map((settingName, key) => {
-                let settingValue = Object.values(this.state.settings.shuffleSettings)[key];
-                return(
-                    <div key={key}>
-                        <label htmlFor={settingName}>{settingName}</label> <input onChange={(e) => this.updateSettings(settingName, parseFloat((e.target as HTMLInputElement).value))} style={numberInputStyle} id={settingName} type="number" value={settingValue}/>
-                    </div>
-                );
-            })
-        }
-        </div>
-        */
+        let settingsForm = this.props.frame == null ? "" : <textarea ref={this.textArea} style={textAreaStyle} value={this.state.settingsText} onChange={e => this.setState({ settingsText: e.target.value, textNeedsParse: true })} spellCheck="false"></textarea>;
 
         return (
             <Card style={Styles.containerStyle}>
@@ -97,6 +72,9 @@ export class FrameInspectorWindow extends React.Component<FrameInspectorProps, F
 
     renderFrame()
     {
+        if(!this.parseSettingsText())
+            return; //user entered invalid settings text
+
         ImageProcessor.instance.processKeyFrame(this.props.imageData[0], this.state.settings, this.props.encodingAlgorithm);
     }
 
@@ -108,7 +86,6 @@ export class FrameInspectorWindow extends React.Component<FrameInspectorProps, F
         if(nextProps.frame.settings != this.props.frame?.settings)
         {
             let newSettingsText = this.getSettingsText(nextProps.frame.settings);
-            console.log("newSettingsText: ", newSettingsText)
             this.setState({ settings: nextProps.frame.settings, settingsText: newSettingsText });
         }
     }
@@ -120,29 +97,91 @@ export class FrameInspectorWindow extends React.Component<FrameInspectorProps, F
 
     getSettingsText(settings : ImageProcessorSettings)
     {
-        let settingsText = "";
-        for(let settingName of Object.keys(settings.ampModSettings))
+        let settingsText = settings.mode + "\n";
+        switch(settings.mode)
         {
-            let settingValue = (settings.ampModSettings as IIndexable<number>)[settingName];
-            let settingText = `${settingName}: ${settingValue}\n`;
-            settingsText += settingText;
-        }
-
-        for(let settingName of Object.keys(settings.delaySettings))
-        {
-            let settingValue = (settings.delaySettings as IIndexable<number>)[settingName];
-            let settingText = `${settingName}: ${settingValue}\n`;
-            settingsText += settingText;
-        }
-
-        for(let settingName of Object.keys(settings.shuffleSettings))
-        {
-            let settingValue = (settings.shuffleSettings as IIndexable<number>)[settingName];
-            let settingText = `${settingName}: ${settingValue}\n`;
-            settingsText += settingText;
+            case "ampMod":
+                for(let settingName of Object.keys(settings.ampModSettings))
+                {
+                    let settingValue = (settings.ampModSettings as IIndexable<number>)[settingName];
+                    let settingText = `${settingName}: ${settingValue}\n`;
+                    settingsText += settingText;
+                }
+                break;
+            case "delay":
+                for(let settingName of Object.keys(settings.delaySettings))
+                {
+                    let settingValue = (settings.delaySettings as IIndexable<number>)[settingName];
+                    let settingText = `${settingName}: ${settingValue}\n`;
+                    settingsText += settingText;
+                }
+                break;
+            case "shuffle":
+                for(let settingName of Object.keys(settings.shuffleSettings))
+                {
+                    let settingValue = (settings.shuffleSettings as IIndexable<number>)[settingName];
+                    let settingText = `${settingName}: ${settingValue}\n`;
+                    settingsText += settingText;
+                }
+                break;
         }
 
         return settingsText.slice(0, -1); //remove trailing newline
+    }
+
+    //convert settingsText into a ImageProcessorSettings object
+    parseSettingsText()
+    {
+        let segments = this.state.settingsText.split(/: |\n/);
+        let mode = segments[0] as ProcessorMode;
+        segments = segments.slice(1);
+
+        let keys = [];
+        let values : number[] = [];
+
+        let isValue = false;
+        for(let segment of segments)
+        {
+            if(isValue)
+                values.push(parseFloat(segment));
+            else
+                keys.push(segment);
+
+            isValue = !isValue; //key and value segments alternate
+        }
+
+        let result = {} as IIndexable<number>;
+        keys.forEach((key, i) => result[key] = values[i]);
+
+        console.log(result);
+
+        let newSettings = new ImageProcessorSettings();
+        newSettings.mode = mode;
+        switch(newSettings.mode)
+        {
+            case "ampMod":
+                let ampModSettings = result as unknown as AmpModSettings;
+                newSettings.ampModSettings = ampModSettings;
+                break;
+            case "delay":
+                let delaySettings = result as unknown as DelaySettings;
+                newSettings.delaySettings = delaySettings;
+                break;
+            case "shuffle":
+                let shuffleSettings = result as unknown as ShuffleSettings;
+                newSettings.shuffleSettings = shuffleSettings;
+                break;
+            default:
+                //text did not start with a valid mode
+                alert(`${newSettings.mode} is not a valid mode`);
+                return false;
+        }
+
+        console.log(newSettings);
+
+        this.setState({ settings: newSettings, settingsText: this.getSettingsText(newSettings), textNeedsParse: false });
+
+        return true;
     }
 
     resizeTextArea() 
@@ -156,42 +195,5 @@ export class FrameInspectorWindow extends React.Component<FrameInspectorProps, F
             textArea.style.height = 'auto';
             textArea.style.height = textArea.scrollHeight+'px';
         });
-    }
-
-    updateSettings(settingName : string, newValue : number)
-    {
-        let ampModSettings = Util.copy<AmpModSettings>(this.state.settings.ampModSettings);
-        let delaySettings = Util.copy<DelaySettings>(this.state.settings.delaySettings);
-        let shuffleSettings = Util.copy<ShuffleSettings>(this.state.settings.shuffleSettings);
-        switch(settingName)
-        {
-            case "frequency":
-                ampModSettings.frequency = newValue;
-                break;
-            case "phase":
-                ampModSettings.phase = newValue;
-                break;
-            case "amp":
-                ampModSettings.amp = newValue;
-                break;
-            case "offset":
-                ampModSettings.offset = newValue;
-                break;
-            case "delay":
-                delaySettings.delay = newValue;
-                break;
-            case "feedback":
-                delaySettings.feedback = newValue;
-                break;
-            case "mix":
-                delaySettings.mix = newValue;
-                break;
-            case "segments":
-                shuffleSettings.segments = newValue;
-                break;
-        }
-
-        let settings = new ImageProcessorSettings(this.state.settings.mode, ampModSettings, delaySettings, shuffleSettings);
-        this.setState({ settings: settings });
     }
 }
