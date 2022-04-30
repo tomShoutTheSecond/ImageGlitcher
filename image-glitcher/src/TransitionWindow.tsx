@@ -174,7 +174,7 @@ export class TransitionWindow extends React.Component<TransitionWindowProps, Tra
 
                     <br/><br/>
 
-                    <label>Sequence offset</label>
+                    <label>Sequence offset </label>
                     <input type="number" ref={this.sequenceOffsetInput} defaultValue="0"></input>
                 </div>
 
@@ -281,9 +281,15 @@ export class TransitionWindow extends React.Component<TransitionWindowProps, Tra
     //shift the shortFrameSequence by the offset, and wrap start elements to the end of the array
     shiftFrameSequence(frameSequence : Uint8Array[], offset : number)
     {
+        //ensure the offset is in range of the sequence
+        //e.g. if you had 5 frames and you wanted offset 7, rangedOffset would be 2
+        let rangedOffset = offset % frameSequence.length;
+
+        console.log("Shifting frame sequence, starting at frame " + rangedOffset);
+
         //it will start at offset, so need to split the array before element offset, and put previous elements to the end of the array
-        let startSequence = frameSequence.slice(0, offset);
-        let endSequence = frameSequence.slice(offset);
+        let startSequence = frameSequence.slice(0, rangedOffset);
+        let endSequence = frameSequence.slice(rangedOffset);
 
         return endSequence.concat(startSequence);
     }
