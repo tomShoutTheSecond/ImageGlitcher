@@ -50,24 +50,6 @@ export class FrameHolder extends React.Component<FrameHolderProps, FrameHolderSt
             boxSizing: "border-box"
         };
 
-        let ampModSettingStyle : React.CSSProperties = 
-        {
-            margin: 0,
-            color: "#02A275"
-        };
-
-        let delaySettingStyle : React.CSSProperties = 
-        {
-            margin: 0,
-            color: "#00757F"
-        };
-
-        let shuffleSettingStyle : React.CSSProperties = 
-        {
-            margin: 0,
-            color: "#2F4858"
-        };
-
         //img element has className downloadImg to make it easier to find later
 
         return (
@@ -84,26 +66,7 @@ export class FrameHolder extends React.Component<FrameHolderProps, FrameHolderSt
                             <a onClick={() => State.moveKeyFrame(this.props.frame, "left")} style={Styles.handCursor}><Icon iconName={'arrow-left'}/></a> 
                             <a onClick={() => State.moveKeyFrame(this.props.frame, "right")} style={Styles.handCursor}><Icon iconName={'arrow-right'}/></a> 
                         </React.Fragment>
-                    : 
-                        ""}
-                    {Object.keys(this.props.frame.settings.ampModSettings).map((settingName, key) => {
-                        let settingValue = Object.values(this.props.frame.settings.ampModSettings)[key];
-                        return(
-                            <p key={key} style={ampModSettingStyle}>{settingName}: {settingValue}</p>
-                        );
-                    })}
-                    {Object.keys(this.props.frame.settings.delaySettings).map((settingName, key) => {
-                        let settingValue = Object.values(this.props.frame.settings.delaySettings)[key];
-                        return(
-                            <p key={key} style={delaySettingStyle}>{settingName}: {settingValue}</p>
-                        );
-                    })}
-                    {Object.keys(this.props.frame.settings.shuffleSettings).map((settingName, key) => {
-                        let settingValue = Object.values(this.props.frame.settings.shuffleSettings)[key];
-                        return(
-                            <p key={key} style={shuffleSettingStyle}>{settingName}: {settingValue}</p>
-                        );
-                    })}
+                    : ""}
                 </div>
             </div>
         );

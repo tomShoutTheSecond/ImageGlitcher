@@ -315,6 +315,7 @@ export class TransitionFramebank
 // x calculate correct firstFrameIndex in TransitionWindow to enable rendering sequences of transitions in the timeline
 // - fix sequence offset control on transition window
 // - start and end audio link amount (with interpolation?)
+// - audio link to transition progress!!
 // - a "create variant" button on the keyframe which generates a new keyframe with similar glitch settings
 //      - you can specify which parameters should be changed, and by what percentage, maybe the value is randomised with the percentage used as a maximum delta
 // - easier way to copy and paste glitch settings to frame inspector

@@ -47,7 +47,7 @@ export class Styles
 
     static get frameHolderSize() 
     {
-        return 320;
+        return 288;
     }
 
     static get imageStyle() 
