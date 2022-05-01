@@ -313,7 +313,7 @@ export class TransitionFramebank
 // x reuse split zip function from the old FrameInspector frame sequence download, to avoid memory overload when downloading timeline frames
 // x figure out which frames should be omitted and share the logic between GIF maker and timeline download
 // x calculate correct firstFrameIndex in TransitionWindow to enable rendering sequences of transitions in the timeline
-// - fix sequence offset control on transition window
+// x fix sequence offset control on transition window
 // - start and end audio link amount (with interpolation?)
 // - audio link to transition progress!!
 // - a "create variant" button on the keyframe which generates a new keyframe with similar glitch settings

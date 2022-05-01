@@ -197,10 +197,8 @@ class FrameRenderer
         let angle = ampModSettings.phase + sampleIndex * ampModSettings.frequency;
         let coef = ampModSettings.offset + Math.sin(angle) * ampModSettings.amp;
 
-        //check if sample is in range
-        let margin = 0.1;
-        let target = 1;
-        //if (sample > target - margin && sample < target + margin)
+        //removes black pixels from the effect, and leaves them black
+        //to avoid black backgrounds flashing violently
         if (sample <= -31100)
         {
             //ignore this sample
