@@ -2,6 +2,8 @@ import { saveAs } from 'file-saver';
 import Jimp from "jimp";
 import JSZip from "jszip";
 
+export const setStateAsync = (target : React.Component, newState : any) => new Promise(resolve => target.setState(newState, resolve as () => void));
+
 export interface IIndexable<T = any> { [key: string]: T }
 
 export class Util
@@ -92,36 +94,35 @@ export class Util
     {
         let zip = new JSZip();
 
+        let saveZipFile = async () => 
+        {
+            framesCounter = 0;
+
+            //split to a new zip file every 10 frames
+            let content = await zip.generateAsync({ type:"blob" });
+
+            //see FileSaver.js
+            saveAs(content, "FrameSequence.zip");
+
+            zip = new JSZip();
+        };
+
         console.log('Downloading frame sequence', frameSequence);
 
         //each zip files contains 10 frames to avoid memory overflow
-        let tenFramesCounter = 0;
+        let framesCounter = 0;
+        let framesPerFile = 10;
         for (let i = 0; i < frameSequence.length; i++) 
         {
             const frame = frameSequence[i];
             zip.file(Util.getFrameName(i), frame);
 
-            tenFramesCounter++;
-            if(tenFramesCounter > 9)
-            {
-                tenFramesCounter = 0;
-
-                //split to a new zip file every 10 frames
-                let content = await zip.generateAsync({ type:"blob" });
-
-                //see FileSaver.js
-                saveAs(content, "FrameSequence.zip");
-
-                zip = new JSZip();
-            }
+            framesCounter++;
+            if(framesCounter == framesPerFile)
+                saveZipFile();
         }
 
-        if(zip.length > 0)
-        {
-            let content = await zip.generateAsync({ type:"blob" });
-
-            //see FileSaver.js
-            saveAs(content, "FrameSequence.zip");
-        }
+        if(framesCounter > 0)
+            saveZipFile();
     }
 }

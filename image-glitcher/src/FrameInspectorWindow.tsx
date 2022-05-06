@@ -6,7 +6,7 @@ import ReactDOM, { findDOMNode } from 'react-dom';
 import { Button, Card } from '@material-ui/core';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
-import { IIndexable, Util } from './Util';
+import { IIndexable, setStateAsync, Util } from './Util';
 import ArrowExpand from './icons/arrow-expand.svg';
 import { ImageProcessorWindow } from './ImageProcessorWindow';
 import { ImageProcessor, AmpModSettings, ImageProcessorSettings, DelaySettings, ShuffleSettings, ProcessorMode } from './ImageProcessor';
@@ -64,15 +64,16 @@ export class FrameInspectorWindow extends React.Component<FrameInspectorProps, F
                 {previewImage}
                 {settingsForm}
                 <div style={Styles.alignRight}>
-                    <IconButton iconName="image-move" hint="Render frame" onClick={() => this.renderFrame()}/>
+                    <IconButton iconName="image-move" hint="Render frame" onClick={async () => await this.renderFrame()}/>
                 </div>
             </Card>
         );
     }
 
-    renderFrame()
+    async renderFrame()
     {
-        if(!this.parseSettingsText())
+        await this.parseSettingsText();
+        if(this.state.textNeedsParse)
             return; //user entered invalid settings text
 
         ImageProcessor.instance.processKeyFrame(this.props.imageData[0], this.state.settings, this.props.encodingAlgorithm);
@@ -130,7 +131,7 @@ export class FrameInspectorWindow extends React.Component<FrameInspectorProps, F
     }
 
     //convert settingsText into a ImageProcessorSettings object
-    parseSettingsText()
+    async parseSettingsText()
     {
         let segments = this.state.settingsText.split(/: |\n/);
         let mode = segments[0] as ProcessorMode;
@@ -174,14 +175,12 @@ export class FrameInspectorWindow extends React.Component<FrameInspectorProps, F
             default:
                 //text did not start with a valid mode
                 alert(`${newSettings.mode} is not a valid mode`);
-                return false;
+                return;
         }
 
         console.log(newSettings);
 
-        this.setState({ settings: newSettings, settingsText: this.getSettingsText(newSettings), textNeedsParse: false });
-
-        return true;
+        await setStateAsync(this, { settings: newSettings, settingsText: this.getSettingsText(newSettings), textNeedsParse: false });
     }
 
     resizeTextArea() 

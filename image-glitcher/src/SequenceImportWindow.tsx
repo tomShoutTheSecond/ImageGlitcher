@@ -21,6 +21,7 @@ interface SequenceImportState
 {
     isSequenceLoading : boolean,
     isImageConverting : boolean,
+    isDownloading : boolean,
     sequencePreviewUrl : string,
     frameImportCounter : number,
     totalFrames : number
@@ -28,7 +29,7 @@ interface SequenceImportState
 
 export class SequenceImportWindow extends React.Component<SequenceImportProps, SequenceImportState>
 {
-    state = { isSequenceLoading: false, isImageConverting: false, sequencePreviewUrl: "", frameImportCounter: 0, totalFrames: 0 };
+    state = { isSequenceLoading: false, isImageConverting: false, isDownloading: false, sequencePreviewUrl: "", frameImportCounter: 0, totalFrames: 0 };
     
     fileInput = createRef<HTMLInputElement>();
 
@@ -37,7 +38,7 @@ export class SequenceImportWindow extends React.Component<SequenceImportProps, S
         let loadingTextStyle = Styles.h2Style;
         loadingTextStyle.marginTop = "12px";
         let sequenceLoadingText = this.state.isSequenceLoading ? <h2 style={loadingTextStyle}>Loading image {this.state.frameImportCounter}/{this.state.totalFrames}</h2> : "";
-        let sequenceConvertingText = this.state.isImageConverting ? <h2 style={Styles.h2Style}>Converting images to .bmp</h2> : "";
+        let sequenceConvertingText = this.state.isImageConverting ? <div>Converting images to .bmp</div> : "";
 
         return (
             <Card style={Styles.containerStyle}>
@@ -53,7 +54,7 @@ export class SequenceImportWindow extends React.Component<SequenceImportProps, S
                     </div>
                     <div>
                         <IconButton leftMargin iconName="plus" hint="Import images" onClick={() => this.openFilePicker()}/>
-                        <IconButton leftMargin iconName="download" hint="Download images" onClick={async () => await Util.downloadFrameSequence(this.props.frameSequence)}/>
+                        <IconButton leftMargin iconName="download" hint="Download images" onClick={async () => await this.downloadFrames()} loading={this.state.isDownloading}/>
                     </div>
                 </div>
             </Card>
@@ -155,5 +156,12 @@ export class SequenceImportWindow extends React.Component<SequenceImportProps, S
             fileReader.onerror = e => reject(e);
             fileReader.readAsArrayBuffer(imageBlob);
         });
+    }
+
+    async downloadFrames()
+    {
+        this.setState({ isDownloading: true });
+        await Util.downloadFrameSequence(this.props.frameSequence)
+        this.setState({ isDownloading: false });
     }
 }
